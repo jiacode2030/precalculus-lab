@@ -13,6 +13,9 @@ function route(){let id=(location.hash||'').slice(1);if(!VIEWS.includes(id))id='
   if(!changed||first||REDUCE){apply();return;}
   apply();const v=$('#v-'+id);v.classList.remove('enter','back');void v.offsetWidth;v.classList.add('enter');v.classList.toggle('back',back);}
 window.addEventListener('hashchange',route);
+/* ?lab#<module> (the Intulab "Try a lab now" button) opens the module scrolled to its first simulation */
+if(/[?&]lab\b/.test(location.search))addEventListener('load',()=>setTimeout(()=>{const l=$('#v-'+current+' .lab');
+  if(l)scrollTo({top:l.getBoundingClientRect().top+scrollY-(innerWidth>900?72:96)});history.replaceState(null,'',location.pathname+location.hash);},80));
 let rz;new ResizeObserver(()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{redraw();navSync(true);stepSync(true);});}).observe(document.querySelector('main'));
 /* ---------------- Report an issue ----------------
    Reports are saved to the artifact's db at reports/<viewer id>/items. Only the owner can read them.

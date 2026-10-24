@@ -1117,6 +1117,25 @@ body.is-ab .mitem.bc,body.is-ab .frq.bc,body.is-ab tr.bc{display:none!important}
 #v-overview .hero .strobe{transition:transform .25s ease-out}
 @media (prefers-reduced-motion:reduce){.ring{display:none}.hero h1 .hl.gx{transition:none}}
 
+/* Phone and touch pass (2026-10): every control at least 44px for a thumb, no text under 12px,
+   and draggable canvases keep the page from scrolling mid-drag. */
+canvas.drag{touch-action:none}
+@media (max-width:900px),(pointer:coarse){
+  .btn,.seg button,.sopts button,.quiz .opts button,.steps a,details summary,select,input[type=text],input[type=number],input[type=range],.check,.pt{min-height:44px!important}
+  .btn{padding-top:10px;padding-bottom:10px}
+  .btn,.seg button,.sopts button,.fs-btn,.stp-b button{min-width:44px}
+  svg.svgg{overflow:visible;font-size:13px!important}
+  svg.svgg text[font-size]{font-size:14px}
+  .btn.link{display:inline-flex;align-items:center}
+  .check{display:flex;align-items:center}
+  .railtools .searchbtn,.railtools .themebtn,.railtools .morelabs,.v3ui button{min-width:44px!important;min-height:44px!important}
+  .v3ui button{width:44px;height:44px}
+  .rail .brand,.li-link{min-height:44px;display:inline-flex;align-items:center}
+  input[type=checkbox]{width:22px;height:22px}
+  .tag,.coach b,.steps .sn,.readout span,.eqn small,.modnav a span,.fbdnotes span,.assume dt,th,.bcbadge{font-size:12px!important}
+}
+#hero-canvas{touch-action:none}
+
 </style>
 
 <div class="fs-scrim" id="fs-scrim" aria-hidden="true"></div>
@@ -8373,6 +8392,9 @@ function route(){let id=(location.hash||'').slice(1);if(!VIEWS.includes(id))id='
   if(!changed||first||REDUCE){apply();return;}
   apply();const v=$('#v-'+id);v.classList.remove('enter','back');void v.offsetWidth;v.classList.add('enter');v.classList.toggle('back',back);}
 window.addEventListener('hashchange',route);
+/* ?lab#<module> (the Intulab "Try a lab now" button) opens the module scrolled to its first simulation */
+if(/[?&]lab\b/.test(location.search))addEventListener('load',()=>setTimeout(()=>{const l=$('#v-'+current+' .lab');
+  if(l)scrollTo({top:l.getBoundingClientRect().top+scrollY-(innerWidth>900?72:96)});history.replaceState(null,'',location.pathname+location.hash);},80));
 let rz;new ResizeObserver(()=>{cancelAnimationFrame(rz);rz=requestAnimationFrame(()=>{redraw();navSync(true);stepSync(true);});}).observe(document.querySelector('main'));
 /* ---------------- Report an issue ----------------
    Reports are saved to the artifact's db at reports/<viewer id>/items. Only the owner can read them.
