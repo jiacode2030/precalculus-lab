@@ -340,3 +340,329 @@ mod('compose', 'Composition of functions',
  [('f(x) = x² and g(x) = x + 4. Then f(g(2)) is', ['36', '10', '8', '20'], 0, 'g(2) = 6, then f(6) = 36.'),
   ('The domain of √(x − 5) as a composite is', ['x ≥ 5', 'x ≤ 5', 'all real numbers', 'x ≠ 5'], 0, 'The inside, x − 5, must be at least 0.')],
  ced=('2.7',))
+
+# =====================================================================
+# 2.8  Inverse functions
+# =====================================================================
+def _temp_fig():
+    F = lambda c: 1.8 * c + 32
+    Ci = lambda f: (f - 32) / 1.8
+    P = Plot((-20, 110), (-20, 110), (36, 12, 206, 170))
+    base = P.axes([0, 50, 100], [0, 50, 100], '', '', True) + P.seg(-20, -20, 110, 110, 'area', 1.4, '5 4') + P.text(100, 104, 'y = x', 'area', 10, 'end')
+    L = [(1, P.seg(-20, F(-20), 55, F(55), 'f', 2.6) + P.dot(37, 98.6, '(37, 98.6)', 'f', -4, -10, 4.5), 'f converts °C to °F: f(37) = 98.6', 'f'),
+         (2, P.seg(-4, -20, 110, Ci(110), 'd', 2.6) + P.dot(98.6, 37, '(98.6, 37)', 'd', 0, 16, 4.5), 'the inverse undoes it: C = (F − 32)/1.8', 'd'),
+         (3, P.seg(37, 98.6, 98.6, 37, 'tan', 1.4, '3 3'), 'the points (37, 98.6) and (98.6, 37) mirror across y = x', 'tan'),
+         (4, '', 'check: (98.6 − 32)/1.8 = 66.6/1.8 = 37 ✓', 'ink')]
+    return fig(base, L, 'The graph of an inverse is the reflection over y = x.', 210)
+
+def _circ_fig():
+    P = Plot((0, 9), (0, 9), (36, 12, 206, 170))
+    A = lambda r: math.pi * r * r
+    base = P.axes([2, 4, 6, 8], [2, 4, 6, 8], '', '', True)
+    P2 = Plot((0, 9), (0, 260), (36, 12, 206, 170))
+    base = P2.axes([2, 4, 6, 8], [50, 100, 150, 200, 250], 'r (cm)', 'A (cm²)', True)
+    L = [(1, P2.curve(A, 0, 9, 'f', 2.6, '', 120), 'A(r) = πr² for r ≥ 0', 'f'),
+         (2, P2.seg(0, 50, 3.989, 50, 'tan', 1.5, '4 3') + P2.seg(3.989, 50, 3.989, 0, 'tan', 1.5, '4 3') + P2.dot(3.989, 50, '3.99', 'tan', 0, -14, 4.8), 'to get area 50, read across then down', 'tan'),
+         (3, P2.text(5.4, 60, 'r = √(A/π)', 'd', 11, 'start'), 'inverse: r(A) = √(A/π) (positive root only)', 'd'),
+         (4, '', 'r(50) = √(50/π) ≈ √15.915 ≈ 3.99 cm', 'tan')]
+    return fig(base, L, 'Why we keep only r ≥ 0: negative radii make no sense, and that restriction makes A one-to-one.', 210)
+
+def _inv_drill():
+    cases = []
+    cs = [(lambda x: x ** 3, 'x³', True), (lambda x: x * x, 'x²', False), (lambda x: 2 ** x, '2ˣ', True), (lambda x: abs(x), '|x|', False), (lambda x: x ** 3 - 3 * x, 'x³ − 3x', False), (lambda x: .5 * x + 1, '0.5x + 1', True)]
+    for f, nm, ok in cs:
+        P = Plot((-3, 3), (-4, 8) if nm == '2ˣ' else (-4, 4) if nm != 'x²' and nm != '|x|' else (-1, 6), (14, 10, 232, 140))
+        b = P.axes([-2, -1, 1, 2], [], 'x', '') + P.curve(f, -2.99 if nm != '2ˣ' else -3, 2.99 if nm not in ('2ˣ', 'x³') else 2.2, 'f', 2.6, '', 240)
+        yv = {'x³': 1.5, 'x²': 3, '2ˣ': 3, '|x|': 2, 'x³ − 3x': 1, '0.5x + 1': 2}[nm]
+        xs = [x / 1000 for x in range(-3000, 3000) if abs(f(x / 1000) - yv) < .003]
+        pts = []
+        for x in xs:
+            if not pts or abs(x - pts[-1]) > .05: pts.append(x)
+        a = b + P.seg(-3, yv, 3, yv, 'tan', 1.6, '5 4') + ''.join(P.dot(x, yv, '', 'tan', r=4.5) for x in pts)
+        why = ('Every horizontal line crosses the graph at most once: each output comes from exactly one input, so f has an inverse.' if ok else f'The horizontal line y = {yv} crosses the graph {len(pts)} times: two inputs give the same output, so f has no inverse on this whole domain.')
+        cases.append((f'f(x) = {nm}. Does f have an inverse function? Imagine a horizontal line sweeping up the graph.', svg(b, 160, f'The graph of {nm}'), svg(a, 160, f'The graph of {nm} with a horizontal line'), ['yes, it is one-to-one', 'no, a horizontal line hits it twice'], 0 if ok else 1, why))
+    return drill('Horizontal line test', 'A function has an inverse exactly when every horizontal line meets its graph at most once.', cases, 'iv-drill')
+
+mod('inverse', 'Inverse functions',
+ 'An inverse function undoes the original: inputs and outputs trade places, and the graph flips over the line y = x.',
+ ['If f takes a to b, its <b>inverse</b> f⁻¹ takes b back to a. This only works if each output comes from exactly one input: f must be <b>one-to-one</b>. On a graph, that is the <b>horizontal line test</b>: no horizontal line meets the graph twice. The inverse swaps domain and range: the domain of f⁻¹ is the range of f, and the range of f⁻¹ is the domain of f. Note that f⁻¹(x) means the inverse, not 1/f(x).',
+  'The two functions undo each other: <span class="m">f(f⁻¹(x)) = x</span> and <span class="m">f⁻¹(f(x)) = x</span>. Geometrically, if (a, b) is on the graph of f then (b, a) is on the graph of f⁻¹, so the two graphs are mirror images across the line <span class="m">y = x</span>.',
+  'To find a formula: write y = f(x), <b>swap x and y</b>, and solve for y. For f(x) = 2x + 1: x = 2y + 1 gives y = (x − 1)/2. A function like x² is not one-to-one, but if you <b>restrict the domain</b> to x ≥ 0 it becomes one-to-one, and its inverse is √x. The choice of restriction decides which inverse you get.'],
+ ('you evaluated functions and composed them', 'a way to undo a function and to solve for an input', 'a function can be reversed when it never repeats an output', 'one-to-one functions, inverse formulas, domain restrictions, and reading inverses from tables and graphs'),
+ [('f(f⁻¹(x)) = x', 'and f⁻¹(f(x)) = x'), ('(a, b) on f ⇒ (b, a) on f⁻¹', 'reflection over y = x'), ('dom f⁻¹ = range f', 'range f⁻¹ = dom f'), ('y = f(x): swap x and y, solve', 'finding the inverse')],
+ [lab('iv-lab', 'Reflect over y = x', canvas='iv-canvas', aria='A function and its inverse drawn as mirror images over the dashed line y = x, with a moving point and its mirror image.',
+   seg=('iv-fn', 'Function', [('lin', '2x + 1'), ('cub', 'x³ + 1'), ('sqr', 'x² for x ≥ 0'), ('exp', '2ˣ')]),
+   ctl=[('iv-a', 'Point on f: x =', -3, 3, .1, 1)],
+   out=[('iv-pt', 'point on f  →  point on f⁻¹', 'x'), ('iv-inv', 'inverse', 'v'), ('iv-dr', 'domain and range of f (f⁻¹ swaps them)', '')]),
+  lab('iv-lab2', 'Undo it', canvas='iv-canvas2', aria='A number is sent through f and then through its inverse; each step is shown with an arrow so that the original input returns.',
+   seg=('iv-fn2', 'Function', [('lin', 'f(x) = 3x − 4'), ('cub', 'f(x) = x³ + 2'), ('rec', 'f(x) = 12/x')]),
+   ctl=[('iv-x', 'Input x', 1, 6, 1, 3)],
+   out=[('iv-fx', 'f(x)', 'x'), ('iv-back', 'f⁻¹ of that', 'v'), ('iv-form', 'f⁻¹(x) =', '')])],
+ [('Choose <b>2x + 1</b>. Move the point on f. Where does its mirror image lie?', show(['click', '#iv-fn [data-k=lin]'], ['#iv-a', 1]), 'On the green graph, with the coordinates swapped: (1, 3) on f becomes (3, 1) on f⁻¹. They are mirror images over the dashed line.'),
+  ('Choose <b>x² for x ≥ 0</b>. What is the inverse?', show(['click', '#iv-fn [data-k=sqr]'], ['#iv-a', 2]), 'The square root: (2, 4) becomes (4, 2). The restriction x ≥ 0 is what makes an inverse possible.'),
+  ('Choose <b>2ˣ</b>. The inverse climbs very slowly. Why?', show(['click', '#iv-fn [data-k=exp]'], ['#iv-a', 2]), 'Because 2ˣ climbs very fast: reflecting a steep graph gives a flat one. This inverse is a logarithm, coming in the next module.'),
+  ('In the second lab choose <b>12/x</b> and any input. What do you notice?', show(['click', '#iv-fn2 [data-k=rec]'], ['#iv-x', 3]), 'f(3) = 4 and f⁻¹(4) = 3, and f⁻¹(x) = 12/x too. This function is its own inverse: its graph is symmetric about y = x.')],
+ [{'h': 'Worked example: temperature conversion', 'fig': _temp_fig(),
+   'prob': 'A thermometer converts Celsius to Fahrenheit with F = 1.8C + 32. Find the inverse formula and convert a body temperature of 98.6°F to Celsius.',
+   'steps': ['<b>Write y = f(x).</b> F = 1.8C + 32, with C as the input.',
+    '<b>Swap and solve.</b> Solve for C: F − 32 = 1.8C, so <b>C = (F − 32)/1.8</b>. This is the inverse: it takes Fahrenheit in and gives Celsius out.',
+    '<b>Evaluate.</b> C = (98.6 − 32)/1.8 = 66.6/1.8 = <b>37°C</b>.',
+    '<b>Check.</b> f(37) = 1.8(37) + 32 = 66.6 + 32 = 98.6 ✓. The inverse undid f.']},
+  {'h': 'Worked example 2: radius from area', 'fig': _circ_fig(),
+   'prob': 'The area of a circle is A(r) = πr² for r ≥ 0. Find the inverse and the radius of a circle with area 50 cm².',
+   'steps': ['<b>One-to-one?</b> On all real numbers π r² is not (r and −r give the same area), but radius cannot be negative: on r ≥ 0 it is one-to-one.',
+    '<b>Solve.</b> A = πr² gives r² = A/π, so <b>r = √(A/π)</b> (positive root only).',
+    '<b>Evaluate.</b> r(50) = √(50/π) = √15.915… ≈ <b>3.99 cm</b>.',
+    '<b>Check.</b> π(3.99)² = π(15.92) ≈ 50 ✓.']}],
+ ['Reading f⁻¹(x) as 1/f(x).', 'Swapping x and y but forgetting to solve for y.', 'Using an inverse on a function that is not one-to-one without restricting the domain.', 'Reflecting over the x-axis or y-axis instead of the line y = x.'],
+ ('Inverse as a way to solve equations',
+  ['Solving f(x) = k means finding the input that gives output k, which is f⁻¹(k). Every time you "undo" an operation to solve an equation, you apply an inverse function: subtract to undo adding, divide to undo multiplying, take the square root to undo squaring (on the right branch).']),
+ [('f(3) = 7 and f has an inverse. Then f⁻¹(7) is', ['3', '7', '1/7', '−3'], 0, 'The inverse sends the output back to the input.'),
+  ('f(x) = 4x − 8. Then f⁻¹(x) =', ['(x + 8)/4', '(x − 8)/4', '4x + 8', '1/(4x − 8)'], 0, 'x = 4y − 8 gives y = (x + 8)/4.')],
+ extra_after_labs=_inv_drill(), ced=('2.8',))
+
+# =====================================================================
+# 2.9, 2.10, 2.11  Logarithms and log functions
+# =====================================================================
+def _log_fig():
+    P = Plot((0, 34), (-3, 6.5), (34, 12, 208, 170))
+    base = P.axes([8, 16, 24, 32], [-2, 2, 4], 'x', 'y', True)
+    L = [(1, safe_curve(P, lambda x: math.log2(x), .15, 34, 'f', 2.6, '', 300, lim=6.5) + ''.join(P.dot(x, math.log2(x), '', 'f', r=3.8) for x in (1, 2, 4, 8, 16, 32)), 'y = log₂ x: the exponent on 2 that gives x', 'f'),
+         (2, P.dot(32, 5, 'log₂ 32 = 5', 'tan', -22, -10, 4.8) + P.seg(32, 0, 32, 5, 'tan', 1.2, '3 3'), '2⁵ = 32, so log₂ 32 = 5', 'tan'),
+         (3, P.dot(1, 0, '', 'd', r=4.5) + P.dot(.25, -2, '', 'd', r=4.5) + P.text(5.5, -1.4, 'log₂ ¼ = −2', 'd', 10, 'start'), '2⁻² = ¼, so log₂ ¼ = −2', 'd'),
+         (4, P.dot(2, 1, '', 'dd', r=4.5) + P.text(9, .5, 'log₄ 8 = 3/2', 'dd', 10, 'start'), '4^(3/2) = 8, so log₄ 8 = 3/2', 'dd')]
+    return fig(base, L, 'The logarithm is the exponent: log₂ x answers "2 to what power gives x?"', 210)
+
+def _ph_fig():
+    X = lambda ph: 24 + (ph - 2) * 34
+    base = ln(X(2) - 8, 100, X(8) + 8, 100, 'mut', 2) + ''.join(ln(X(p), 94, X(p), 106, 'mut', 1.6) + txt(X(p), 122, str(p), 'ink', 11) + txt(X(p), 138, '10⁻' + '⁰¹²³⁴⁵⁶⁷⁸⁹'[p], 'mut', 9) for p in range(2, 9)) + txt(130, 160, 'pH  (and [H⁺] in mol/L)', 'mut', 10)
+    L = [(1, txt(130, 28, 'pH = −log₁₀[H⁺]', 'f', 13), 'the pH is minus the exponent on 10', 'f'),
+         (2, ln(X(5), 100, X(5), 84, 'tan', 1.6, '3 3') + ln(X(4), 100, X(4), 84, 'tan', 1.6, '3 3') + txt(X(5), 78, '10⁻⁵', 'tan', 10) + txt(X(4), 78, '10⁻⁴', 'tan', 10), '3.2 × 10⁻⁵ lies between 10⁻⁵ and 10⁻⁴', 'tan'),
+         (3, circ(X(4.49485), 100, 6, 'dd', 1, 'surf', 2) + txt(X(4.49485), 56, '4.49', 'dd', 13), 'pH = 5 − log₁₀ 3.2 ≈ 5 − 0.505 = 4.49', 'dd'),
+         (4, '', 'between pH 4 and 5, closer to 4.5: slightly acidic', 'ink')]
+    return fig(base, L, 'Each pH step is a factor of 10 in hydrogen-ion concentration.', 170)
+
+mod('logfn', 'Logarithms & log functions',
+ 'A logarithm is an exponent. The log graph is the exponential graph turned on its side, with a vertical asymptote instead of a horizontal one.',
+ ['The <b>logarithm</b> <span class="m">log_b(x) = y</span> means <span class="m">bʸ = x</span>: it is the <b>exponent</b> you put on b to get x. So log₂ 8 = 3 because 2³ = 8, log₁₀ 0.001 = −3, and log₄ 8 = 3/2 because 4^(3/2) = 8. Because the logarithm undoes the exponential, <span class="m">log_b(bˣ) = x</span> and <span class="m">b^(log_b x) = x</span>. The base 10 logarithm is written <b>log</b>, and the base <b>e</b> ≈ 2.718 logarithm is the <b>natural logarithm ln</b>.',
+  'The function <span class="m">f(x) = log_b(x)</span> is the inverse of <span class="m">bˣ</span>, so its graph is the reflection of y = bˣ over y = x. It has domain x > 0 (you cannot raise a positive base to any power to get 0 or a negative number), range all real numbers, a <b>vertical asymptote x = 0</b>, and passes through (1, 0) and (b, 1). For b > 1 it is increasing and concave down; for 0 < b < 1 it is decreasing.',
+  'Transformations work as before: <span class="m">g(x) = log_b(x − h) + k</span> has vertical asymptote x = h, domain x > h, and its x-intercept moves to x = h + b^(−k). Logarithms also compress huge ranges into small numbers, which is why pH, earthquake magnitude and decibels use them.'],
+ ('you wrote exponential functions and found their inverse graphs by reflection', 'a name and a formula for the inverse of bˣ', 'we need to ask "what exponent gives this number?"', 'logarithms as exponents, the log graph and its asymptote, domain and range, and transformations of log functions'),
+ [('log_b(x) = y ⇔ bʸ = x', ''), ('log_b(bˣ) = x, b^(log_b x) = x', 'inverse'), ('log_b(1) = 0, log_b(b) = 1', ''), ('domain x > 0, asymptote x = 0', ''), ('log_b(x − h) + k', 'asymptote x = h')],
+ [lab('lg-lab', 'The exponent that gives x', canvas='lg-canvas', aria='The graph of y = b to the t. A horizontal line at height x meets the curve; dropping down from the meeting point reads off the logarithm.',
+   seg=('lg-b', 'Base', [('b2', '2'), ('b3', '3'), ('b10', '10'), ('be', 'e')]),
+   ctl=[('lg-x', 'Number x', .1, 30, .1, 8)],
+   out=[('lg-eq', 'logarithm', 'x'), ('lg-why', 'because', 'v'), ('lg-int', 'between two whole numbers', '')]),
+  lab('lg-lab2', 'The log graph and its shifts', canvas='lg-canvas2', aria='The graph of g(x) = log base b of (x − h), plus k, with its vertical asymptote at x = h and its x-intercept marked.',
+   seg=('lg-b2', 'Base', [('b2', '2'), ('b10', '10'), ('bh', '1/2')]),
+   ctl=[('lg-h', 'Shift right h', -3, 4, .5, 0), ('lg-k', 'Shift up k', -3, 3, .5, 0)],
+   out=[('lg-form', 'g(x) =', 'x'), ('lg-dom', 'domain and asymptote', 'v'), ('lg-int2', 'x-intercept', '')])],
+ [('Choose base 2 and set x = 8. What is log₂ 8, and what is the reading on the t-axis?', show(['click', '#lg-b [data-k=b2]'], ['#lg-x', 8]), '3, because 2³ = 8. The orange point sits at t = 3 on the t-axis.'),
+  ('Slide x to 1. What is the logarithm of 1 for any base?', show(['click', '#lg-b [data-k=b2]'], ['#lg-x', 1]), '0: b⁰ = 1 in every base, so the log graph always passes through (1, 0).'),
+  ('Slide x below 1, to 0.25. What happens to the logarithm?', show(['click', '#lg-b [data-k=b2]'], ['#lg-x', .25]), 'It becomes negative: log₂ 0.25 = −2 since 2⁻² = 0.25. Numbers between 0 and 1 have negative logs.'),
+  ('In the second lab set h = 2 and k = 1. Where is the asymptote and the x-intercept?', show(['click', '#lg-b2 [data-k=b2]'], ['#lg-h', 2], ['#lg-k', 1]), 'The asymptote is x = 2 and the domain is x > 2. The intercept solves log₂(x − 2) = −1: x = 2 + 2⁻¹ = 2.5.'),
+  ('Choose base 1/2. Is the graph increasing or decreasing?', show(['click', '#lg-b2 [data-k=bh]'], ['#lg-h', 0], ['#lg-k', 0]), 'Decreasing: for bases between 0 and 1, the exponential decays, so its inverse falls.')],
+ [{'h': 'Worked example: evaluate by asking "what exponent?"', 'fig': _log_fig(),
+   'prob': 'Evaluate log₂ 32, log₂ (1/4) and log₄ 8 without a calculator.',
+   'steps': ['<b>log₂ 32.</b> 2⁵ = 32, so log₂ 32 = <b>5</b>.',
+    '<b>log₂ (1/4).</b> 2⁻² = 1/4, so log₂ (1/4) = <b>−2</b>. Numbers between 0 and 1 have negative logs.',
+    '<b>log₄ 8.</b> Write both as powers of 2: 4 = 2² and 8 = 2³, so 4^(3/2) = 2³ = 8 and log₄ 8 = <b>3/2</b>.',
+    '<b>Check on the graph.</b> The point (32, 5) lies on y = log₂ x, and so do (1/4, −2) and (2, 1).']},
+  {'h': 'Worked example 2: the pH scale', 'fig': _ph_fig(),
+   'prob': 'The pH of a solution is pH = −log₁₀[H⁺], where [H⁺] is the hydrogen-ion concentration in mol/L. Find the pH when [H⁺] = 3.2 × 10⁻⁵, and say how much more concentrated [H⁺] is at pH 4 than at pH 5.',
+   'steps': ['<b>Substitute.</b> pH = −log₁₀(3.2 × 10⁻⁵).',
+    '<b>Estimate.</b> 3.2 × 10⁻⁵ is between 10⁻⁵ and 10⁻⁴, so log₁₀ of it is between −5 and −4, and the pH is between 4 and 5.',
+    '<b>Evaluate.</b> log₁₀(3.2 × 10⁻⁵) = log₁₀ 3.2 − 5 ≈ 0.505 − 5 = −4.495, so pH ≈ <b>4.49</b>.',
+    '<b>Compare.</b> pH 4 means [H⁺] = 10⁻⁴ and pH 5 means 10⁻⁵: pH 4 is <b>10 times</b> more concentrated. Each pH step is a factor of 10.']}],
+ ['Thinking log(a + b) = log a + log b. Logs turn products into sums, not sums into sums.', 'Trying to take the log of 0 or a negative number: the domain is x > 0.', 'Writing log_b x = bˣ. The log is the exponent y in bʸ = x.', 'Confusing log₁₀ with ln: log is base 10, ln is base e.'],
+ ('Why logarithms compress scales',
+  ['Each time the input is multiplied by b, the logarithm adds 1. So numbers from 1 to a million (10⁶) have base 10 logs between 0 and 6. That is why a pH scale from 0 to 14 can describe concentrations that differ by a factor of 10¹⁴, and why a log axis shows both tiny and huge values on one page.']),
+ [('log₃ 81 =', ['4', '27', '1/4', '3'], 0, '3⁴ = 81.'),
+  ('The vertical asymptote of g(x) = log₂(x + 3) is', ['x = −3', 'x = 3', 'x = 0', 'y = −3'], 0, 'The inside, x + 3, equals 0 at x = −3.')],
+ ced=('2.9', '2.10', '2.11'))
+
+# =====================================================================
+# 2.12  Logarithm rules and manipulation
+# =====================================================================
+def _cond_fig():
+    f1 = lambda x: 2 * math.log(x, 3) + math.log(5, 3) - math.log(10, 3)
+    f2 = lambda x: math.log(x * x / 2, 3)
+    P = Plot((0, 10), (-2.5, 4), (36, 12, 206, 170))
+    base = P.axes([2, 4, 6, 8, 10], [-2, 2, 4], 'x', 'y', True)
+    L = [(1, '', '2 log₃ x + log₃ 5 − log₃ 10', 'f'),
+         (2, '', 'power rule: 2 log₃ x = log₃ x²', 'tan'),
+         (3, '', 'product and quotient: log₃(x² · 5 / 10) = log₃(x²/2)', 'd'),
+         (4, safe_curve(P, f1, .12, 10, 'f', 5, '', 300, lim=4) + safe_curve(P, f2, .12, 10, 'd', 2, '5 4', 300, lim=4) + P.dot(3, f2(3), '(3, 1.37)', 'tan', 10, 14, 4.5), 'both forms draw the same graph', 'f')]
+    return fig(base, L, 'Two expressions, one graph: the rules rewrite without changing the function.', 210)
+
+def _db_fig():
+    L_ = lambda r: 10 * math.log10(r)
+    P = Plot((0, 12), (-3, 14), (36, 12, 206, 170))
+    base = P.axes([2, 4, 6, 8, 10, 12], [0, 5, 10], 'I / I₀', 'L (dB)', True)
+    L = [(1, safe_curve(P, L_, .25, 12, 'f', 2.6, '', 300, lim=14), 'L = 10 log₁₀(I/I₀)', 'f'),
+         (2, ''.join(P.dot(r, L_(r), '', 'tan', r=4.5) for r in (1, 2, 4, 8)), 'intensity ratios 1, 2, 4, 8 (each doubles)', 'tan'),
+         (3, P.text(3.1, 2.6, '+3.01', 'd', 10, 'start') + P.text(5.3, 5.6, '+3.01', 'd', 10, 'start') + P.text(8.9, 8.8, '+3.01', 'd', 10, 'start'), 'every doubling adds 10 log₁₀ 2 ≈ 3.01 dB', 'd'),
+         (4, P.dot(10, 10, '10 → 10 dB', 'dd', -16, -10, 4.8), 'ten times the intensity adds exactly 10 dB', 'dd')]
+    return fig(base, L, 'Loudness in decibels grows by the same amount for every doubling.', 210)
+
+mod('logrules', 'Log rules & equivalent forms',
+ 'Logarithms turn products into sums, quotients into differences and powers into multiples. Those rules are how you rewrite, condense and compare log expressions.',
+ ['Because logarithms are exponents, they inherit the rules of exponents: <b>product</b> <span class="m">log_b(mn) = log_b m + log_b n</span> (exponents add when you multiply), <b>quotient</b> <span class="m">log_b(m/n) = log_b m − log_b n</span>, and <b>power</b> <span class="m">log_b(mᵖ) = p·log_b m</span>. Special values: log_b 1 = 0 and log_b b = 1.',
+  'Different bases are related by <b>change of base</b>: <span class="m">log_b x = ln x / ln b = log x / log b</span>. So the graphs of log₂ x, log₁₀ x and ln x are <i>vertical stretches</i> of one another. Also log_b(cx) = log_b c + log_b x: stretching a log graph horizontally is the same as shifting it vertically.',
+  'To <b>expand</b> an expression like log₂(8x³), use the rules: log₂ 8 + 3 log₂ x = 3 + 3 log₂ x. To <b>condense</b>, run them backward: 2 log₃ x + log₃ 5 − log₃ 10 = log₃(x²/2). The rules apply to <i>products, quotients and powers</i>: there is no rule for log_b(m + n).'],
+ ('you evaluated logarithms one at a time and rewrote exponentials with exponent rules', 'a toolkit that rewrites log expressions without changing them', 'the same function can be written in many forms, and some forms are easier to evaluate or graph', 'the product, quotient and power rules, change of base, expanding and condensing log expressions'),
+ [('log_b(mn) = log_b m + log_b n', 'product'), ('log_b(m/n) = log_b m − log_b n', 'quotient'), ('log_b(mᵖ) = p·log_b m', 'power'), ('log_b x = ln x / ln b', 'change of base'), ('log_b(m + n) ≠ log_b m + log_b n', 'no rule for sums')],
+ [lab('lr-lab', 'Rules as lengths', canvas='lr-canvas', aria='Bars drawn on a number line show logarithms as lengths. For the product rule the bars for log m and log n laid end to end are exactly as long as the bar for log of mn.',
+   seg=('lr-r', 'Rule', [('prod', 'product'), ('quot', 'quotient'), ('pow', 'power')]),
+   ctl=[('lr-m', 'm', .5, 20, .5, 6), ('lr-n', 'n (or the power p)', .5, 20, .5, 4)],
+   out=[('lr-lhs', 'left side', 'x'), ('lr-rhs', 'right side', 'v'), ('lr-ok', 'compare', '')]),
+  lab('lr-lab2', 'One graph, three bases', canvas='lr-canvas2', aria='The graphs of log base 2, log base 10 and the natural logarithm, with a vertical line at a chosen x; their heights stay in a fixed ratio.',
+   ctl=[('lr-x', 'x', .2, 20, .1, 8)],
+   out=[('lr-vals', 'log₂ x, log₁₀ x, ln x', 'x'), ('lr-ratio', 'log₂ x ÷ log₁₀ x', 'v'), ('lr-why', 'why', '')])],
+ [('With the product rule, m = 6 and n = 4: compare the two sides.', show(['click', '#lr-r [data-k=prod]'], ['#lr-m', 6], ['#lr-n', 4]), 'log₂ 24 and log₂ 6 + log₂ 4 are both about 4.585: the lengths of the two blue-green bars match the single orange bar.'),
+  ('Switch to the quotient rule with m = 20, n = 5.', show(['click', '#lr-r [data-k=quot]'], ['#lr-m', 20], ['#lr-n', 5]), 'log₂(20/5) = log₂ 4 = 2, and log₂ 20 − log₂ 5 = 4.32 − 2.32 = 2. Subtracting logs divides the numbers.'),
+  ('Use the power rule with m = 5 and p = 3.', show(['click', '#lr-r [data-k=pow]'], ['#lr-m', 5], ['#lr-n', 3]), 'log₂(5³) = log₂ 125 ≈ 6.97, and 3·log₂ 5 ≈ 6.97. An exponent on the inside comes out as a multiplier.'),
+  ('In the second lab move x. Does the ratio log₂ x ÷ log₁₀ x ever change?', show(['#lr-x', 8]), 'No: it is always about 3.32 (= 1/log₁₀ 2), because log₂ x = log₁₀ x / log₁₀ 2. The graphs are vertical stretches of one another.')],
+ [{'h': 'Worked example: condense an expression', 'fig': _cond_fig(),
+   'prob': 'Write 2 log₃ x + log₃ 5 − log₃ 10 as a single logarithm, and check it at x = 3.',
+   'steps': ['<b>Power rule.</b> 2 log₃ x = log₃(x²).',
+    '<b>Product and quotient.</b> log₃(x²) + log₃ 5 − log₃ 10 = log₃(x² · 5 / 10).',
+    '<b>Simplify.</b> The single logarithm is <b>log₃(x²/2)</b>.',
+    '<b>Check at x = 3.</b> 2 log₃ 3 + log₃ 5 − log₃ 10 = 2 + (1.465 − 2.096) = 1.369, and log₃(9/2) = log₃ 4.5 = 1.369 ✓.']},
+  {'h': 'Worked example 2: decibels', 'fig': _db_fig(),
+   'prob': 'Sound level is L = 10 log₁₀(I/I₀) decibels, where I is the intensity and I₀ the quietest sound heard. By how many decibels does L change when the intensity doubles? When it is multiplied by 10?',
+   'steps': ['<b>Doubling.</b> The new level is 10 log₁₀(2I/I₀) = 10[log₁₀ 2 + log₁₀(I/I₀)] = 10 log₁₀ 2 + L.',
+    '<b>Evaluate.</b> 10 log₁₀ 2 = 10(0.30103) ≈ <b>3.01 dB</b>: every doubling adds about 3 dB.',
+    '<b>Times 10.</b> 10 log₁₀ 10 = 10(1) = <b>10 dB</b>.',
+    '<b>Meaning.</b> The product rule converts a multiplication of intensity into an addition of decibels, which is why decibels use logs.']}],
+ ['Writing log(m + n) = log m + log n. There is no sum rule; only products become sums.', 'Dropping the parentheses: log₂ x² means log₂(x²) = 2 log₂ x, not (log₂ x)².', 'Using the power rule on a product inside: log(3x)² is 2 log(3x), not 2 log 3x.', 'Changing base the wrong way: log_b x = ln x / ln b (the base goes underneath).'],
+ ('Why the log rules are the exponent rules in disguise',
+  ['Let m = bᵃ and n = bᶜ, so a = log_b m and c = log_b n. Then mn = bᵃ·bᶜ = b^(a + c), which says log_b(mn) = a + c. The quotient rule comes from bᵃ/bᶜ = b^(a − c) and the power rule from (bᵃ)ᵖ = b^(ap).']),
+ [('log₂ 12 + log₂ (2/3) =', ['3', 'log₂ 12.67', '2', 'log₂ 14'], 0, '12 · 2/3 = 8 and log₂ 8 = 3.'),
+  ('log_b(x³) = ', ['3 log_b x', '(log_b x)³', 'log_b x + 3', 'log_b 3x'], 0, 'The power rule brings the 3 out as a multiplier.')],
+ ced=('2.12',))
+
+# =====================================================================
+# 2.13  Exponential and logarithmic equations and inequalities
+# =====================================================================
+def _carsol_fig():
+    V = lambda t: 24000 * .88 ** t
+    t0 = math.log(10 / 24) / math.log(.88)
+    P = Plot((-.4, 10.5), (0, 26000), (44, 12, 196, 170))
+    base = P.axes([2, 4, 6, 8, 10], [5000, 10000, 15000, 20000, 25000], 't (years)', 'value ($)', True)
+    L = [(1, P.curve(V, 0, 10.4, 'f', 2.6, '', 120) + P.seg(-.4, 10000, 10.5, 10000, 'area', 1.6, '5 4'), 'V(t) = 24000(0.88)ᵗ and the level $10,000', 'f'),
+         (2, P.dot(t0, 10000, '', 'tan', r=5) + P.seg(t0, 0, t0, 10000, 'tan', 1.4, '3 3') + P.text(t0 - .3, 5500, f't ≈ {t0:.2f}', 'tan', 10, 'end'), '0.88ᵗ = 10/24, so t = ln(10/24)/ln(0.88) ≈ 6.85', 'tan'),
+         (3, P.seg(t0, 0, 10.4, 0, 'd', 3.5), 'below $10,000 means t > 6.85 (the curve is under the line)', 'd'),
+         (4, '', 'dividing by ln 0.88 < 0 turned < into >', 'dd')]
+    return fig(base, L, 'When does a car lose enough value to be worth less than $10,000?', 210)
+
+def _ext_fig():
+    F = lambda x: math.log2(x) + math.log2(x - 2)
+    P = Plot((-3, 8), (-3, 6), (36, 12, 206, 170))
+    base = P.axes([-2, 2, 4, 6], [-2, 2, 4], 'x', 'y', True)
+    L = [(1, safe_curve(P, F, 2.002, 8, 'f', 2.6, '', 300, lim=6) + P.seg(2, -3, 2, 6, 'area', 1.4, '5 4') + P.seg(-3, 3, 8, 3, 'mut', 1.4, '5 4'), 'y = log₂ x + log₂(x − 2) lives only on x > 2; compare with y = 3', 'f'),
+         (2, '', 'combine: log₂[x(x − 2)] = 3, so x(x − 2) = 2³ = 8', 'tan'),
+         (3, '', 'x² − 2x − 8 = 0 gives (x − 4)(x + 2) = 0: x = 4 or x = −2', 'dd'),
+         (4, P.dot(4, 3, 'x = 4', 'tan', 0, -12, 5) + hole(P.X(-2), P.Y(3), 'dd', 5) + P.text(-2, 4.2, 'rejected', 'dd', 10), 'x = −2 is outside the domain: extraneous', 'dd')]
+    return fig(base, L, 'A solution of the algebra is not always a solution of the equation.', 210)
+
+mod('expeq', 'Exponential & log equations',
+ 'To get an unknown out of an exponent, take a logarithm. To get it out of a logarithm, exponentiate. Then check the answer against the domain.',
+ ['To solve an exponential equation, isolate the exponential part and take a log of both sides: <span class="m">a·bˣ = c</span> gives <span class="m">bˣ = c/a</span>, so <span class="m">x = log_b(c/a) = ln(c/a) / ln b</span>. If both sides are powers of the same base, simply equate exponents: 2^(3x − 1) = 32 = 2⁵ gives 3x − 1 = 5.',
+  'To solve a logarithmic equation, combine logs with the rules into a single log if needed, then rewrite as an exponential: <span class="m">log_b(u) = c ⇔ u = bᶜ</span>. Always <b>check the domain</b>: the input of every log must be positive, and an algebraic solution that breaks this is <b>extraneous</b>. For example log₂ x + log₂(x − 2) = 3 gives x² − 2x − 8 = 0, but only x = 4 works: x = −2 is outside the domain.',
+  'Inequalities follow the same path. The key is the direction: applying a logarithm with base b > 1 keeps the inequality direction, but dividing or multiplying by a negative number (like ln 0.88 < 0) reverses it. Always sanity-check with a test value, or read the answer from the graph: where is the curve above or below the line?'],
+ ('you evaluated a log and wrote an exponent as a log', 'a way to solve for exponents and for arguments of logs', 'equations whose unknown is in an exponent or inside a log', 'solving exponential and log equations and inequalities, extraneous solutions and checking domain'),
+ [('a·bˣ = c ⇒ x = ln(c/a)/ln b', ''), ('log_b u = c ⇔ u = bᶜ', ''), ('bᵐ = bⁿ ⇒ m = n', 'same base'), ('check log inputs > 0', 'extraneous'), ('divide by a negative: reverse', 'inequality direction')],
+ [lab('xe-lab', 'Where does a·bˣ reach c?', canvas='xe-canvas', aria='The graph of y = a times b to the x, a horizontal line y = c, and their intersection. The x-axis region that satisfies the chosen inequality is highlighted.',
+   seg=('xe-rel', 'Solve', [('eq', 'a·bˣ = c'), ('gt', 'a·bˣ > c'), ('lt', 'a·bˣ < c')]),
+   ctl=[('xe-a', 'a', 1, 10, .5, 3), ('xe-b', 'b', .3, 4, .1, 2), ('xe-c', 'c', 1, 100, .5, 24)],
+   out=[('xe-steps', 'algebra', 'x'), ('xe-sol', 'solution', 'v'), ('xe-chk', 'check', '')]),
+  lab('xe-lab2', 'The extra solution', canvas='xe-canvas2', aria='The graph of log base 2 of x plus log base 2 of (x minus d), a horizontal line at k, and the two roots of the quadratic that comes from combining the logs: one on the graph and one outside the domain.',
+   ctl=[('xe-d', 'd', 1, 8, 1, 2), ('xe-k', 'k', 1, 4, 1, 3)],
+   out=[('xe-quad', 'combined equation', 'x'), ('xe-roots', 'roots', 'v'), ('xe-valid', 'which one works?', '')])],
+ [('Set a = 3, b = 2, c = 24 and press =. What is x?', show(['click', '#xe-rel [data-k=eq]'], ['#xe-a', 3], ['#xe-b', 2], ['#xe-c', 24]), 'x = 3: 3·2³ = 24. The curve crosses the line at x = 3.'),
+  ('Switch to a·bˣ > c. Which side of x = 3 is the solution?', show(['click', '#xe-rel [data-k=gt]']), 'x > 3: to the right the exponential is above the line, so its output is bigger than c.'),
+  ('Now slide b below 1, to 0.5, keeping a·bˣ > c. What flips?', show(['click', '#xe-rel [data-k=gt]'], ['#xe-b', .5], ['#xe-c', 1.5]), 'The solution becomes x < something: a decaying exponential is above the line on the left. The log of a base below 1 is negative, which reverses the inequality.'),
+  ('In the second lab with d = 2 and k = 3, which root is a valid solution?', show(['#xe-d', 2], ['#xe-k', 3]), 'x = 4 works. The other root, x = −2, would need log₂(−2), which is not a real number, so it is extraneous.')],
+ [{'h': 'Worked example: when is the car worth less than $10,000?', 'fig': _carsol_fig(),
+   'prob': 'A car\'s value is V(t) = 24000(0.88)ᵗ dollars after t years. After how many years is it worth less than $10,000?',
+   'steps': ['<b>Set up.</b> Solve 24000(0.88)ᵗ < 10000. Divide by 24000: 0.88ᵗ < 10/24 = 0.41667.',
+    '<b>Take a logarithm.</b> ln of both sides: t·ln 0.88 < ln 0.41667, that is t(−0.12783) < −0.87547.',
+    '<b>Divide by a negative number.</b> Dividing by −0.12783 reverses the inequality: t > 0.87547/0.12783 ≈ <b>6.85</b>.',
+    '<b>Check.</b> V(6.85) ≈ 24000(0.4167) = 10,000 ✓ and V(8) = 24000(0.3596) ≈ $8,630, which is below 10,000 ✓. The car is worth less than $10,000 from about year 6.85 on.']},
+  {'h': 'Worked example 2: an extraneous solution', 'fig': _ext_fig(),
+   'prob': 'Solve log₂ x + log₂(x − 2) = 3.',
+   'steps': ['<b>Domain first.</b> Both x > 0 and x − 2 > 0, so x > 2.',
+    '<b>Combine.</b> log₂[x(x − 2)] = 3, so x(x − 2) = 2³ = 8.',
+    '<b>Solve.</b> x² − 2x − 8 = 0, (x − 4)(x + 2) = 0, so x = 4 or x = −2.',
+    '<b>Check the domain.</b> x = −2 is not greater than 2, so it is extraneous. Check x = 4: log₂ 4 + log₂ 2 = 2 + 1 = 3 ✓. The only solution is <b>x = 4</b>.']}],
+ ['Writing ln(c/a) / ln b as ln(c/a)/b or ln c − ln a / ln b without parentheses.', 'Forgetting to reverse the inequality when dividing by a negative number (log of a base below 1, or ln of a number below 1).', 'Keeping an answer that makes the inside of a log zero or negative.', 'Taking the log of each term of a sum: log(a + b) is not log a + log b.'],
+ ('Reading a solution from the graph',
+  ['Solving a·bˣ = c is asking where the graph of the exponential meets the horizontal line y = c. For an inequality, ask where the graph is above or below the line. That picture also explains the flip in direction: when b < 1 the curve falls, so "above the line" is on the left.']),
+ [('Solve 5·2ˣ = 40.', ['x = 3', 'x = 8', 'x = 4', 'x = 20'], 0, '2ˣ = 8, so x = 3.'),
+  ('Solve log₃(x + 1) = 2.', ['x = 8', 'x = 5', 'x = 9', 'x = 7'], 0, 'x + 1 = 3² = 9, so x = 8.')],
+ ced=('2.13',))
+
+# =====================================================================
+# 2.14  Logarithmic function context and data modeling
+# =====================================================================
+PRAC = [(1, 42), (2, 50), (4, 57), (8, 66), (16, 73), (32, 81)]
+
+def _prac_fig():
+    b = 39 / math.log(32)
+    f = lambda x: 42 + b * math.log(x)
+    P = Plot((0, 35), (35, 100), (36, 12, 206, 170))
+    base = P.axes([8, 16, 24, 32], [40, 60, 80, 100], 'hours x', 'score', True) + ''.join(P.dot(x, y, '', 'f', r=4) for x, y in PRAC)
+    L = [(1, ''.join(P.seg(x, y, 2 * x, y, 'tan', 1.2, '3 3') for x, y in PRAC[:-1] if x <= 8) + P.text(16, 50, 'each ×2 adds about 8', 'tan', 10), 'each doubling of hours adds about 8 points', 'tan'),
+         (2, P.dot(1, 42, '', 'dd', r=5) + P.dot(32, 81, '', 'dd', r=5), 'use (1, 42) and (32, 81): at x = 1, ln x = 0, so a = 42', 'dd'),
+         (3, P.curve(f, .5, 35, 'd', 2.6, '', 160), 'y = 42 + b ln x with 81 = 42 + b ln 32, so b ≈ 11.25', 'd'),
+         (4, P.dot(10, f(10), '67.9', 'tan', 22, 16, 5) + P.seg(10, 35, 10, f(10), 'tan', 1.2, '3 3'), 'at 10 hours: 42 + 11.25 ln 10 ≈ 67.9', 'tan')]
+    return fig(base, L, 'Practice hours against test score: gains slow down.', 210)
+
+def _alt_fig():
+    h = lambda p: 38.8 - 8.4 * math.log(p)
+    P = Plot((0, 110), (-1, 22), (36, 12, 206, 170))
+    base = P.axes([20, 40, 60, 80, 100], [5, 10, 15, 20], 'pressure P (kPa)', 'altitude h (km)', True)
+    L = [(1, P.curve(h, 12, 108, 'f', 2.6, '', 160), 'h = 38.8 − 8.4 ln P', 'f'),
+         (2, P.dot(50, h(50), '5.94', 'tan', 14, -8, 5) + P.seg(50, -1, 50, h(50), 'tan', 1.2, '3 3'), 'P = 50: h = 38.8 − 8.4 ln 50 ≈ 5.94 km', 'tan'),
+         (3, P.seg(0, 10, math.exp(28.8 / 8.4), 10, 'dd', 1.4, '4 3'), 'to find P at h = 10: 8.4 ln P = 28.8', 'dd'),
+         (4, P.dot(math.exp(28.8 / 8.4), 10, '30.8', 'dd', 4, -12, 5), 'ln P = 3.4286, so P = e^3.4286 ≈ 30.8 kPa', 'dd')]
+    return fig(base, L, 'Air pressure falls as altitude rises, so altitude is a log function of pressure.', 210)
+
+mod('logmodel', 'Logarithmic models & data',
+ 'Some quantities grow quickly at first and then slow down. When equal multiples of the input give equal steps in the output, a logarithmic model fits.',
+ ['A <b>logarithmic model</b> has the form <span class="m">y = a + b·ln x</span> (or a·log_c x + k). Its signature: multiplying the input by a constant adds a constant to the output. Doubling x always adds b·ln 2 to y. So a table whose inputs form a geometric pattern (1, 2, 4, 8, …) and whose outputs have <i>constant differences</i> is logarithmic.',
+  'To <b>build</b> a log model from two points, use the logarithm of the inputs: <span class="m">b = (y₂ − y₁)/(ln x₂ − ln x₁)</span> and <span class="m">a = y₁ − b·ln x₁</span>. To <b>solve</b> for x, undo the log: <span class="m">x = e^((y − a)/b)</span>. A log model is the inverse of an exponential model: if y is logarithmic in x, then x is exponential in y.',
+  'Interpret with care: a log function climbs without bound, but slowly, and is defined only for x > 0. In real situations other limits appear (a test score cannot exceed 100), so state the <b>domain</b> where the model makes sense. Compare it with linear, quadratic and exponential models using residuals and context, as in the last module.'],
+ ('you modeled data that grows by a constant factor with a·bˣ', 'a model for rapid early change that levels off', 'the inverse relationship, where outputs go up by constant steps for constant multiples of the input', 'building and using y = a + b ln x, interpreting a and b, solving for x, doubling behavior and the domain of a model'),
+ [('y = a + b ln x', ''), ('doubling x adds b ln 2', ''), ('b = (y₂ − y₁)/(ln x₂ − ln x₁)', 'from two points'), ('x = e^((y − a)/b)', 'solving for x'), ('inverse of exponential', 'x is exponential in y')],
+ [lab('lm-lab', 'Fit y = a + b ln x', canvas='lm-canvas', aria='A scatter plot of data and a logarithmic curve whose a and b can be changed; the x-axis can be switched to a logarithmic scale where the model becomes a straight line.',
+   seg=('lm-set', 'Data', [('score', 'Practice vs score'), ('alt', 'Pressure vs altitude')]),
+   pre='<div class="seg" id="lm-ax" role="group" aria-label="x-axis scale"><button type="button" data-k="lin" aria-pressed="true">Ordinary x-axis</button><button type="button" data-k="log" aria-pressed="false">Log x-axis</button></div><div class="row"><button type="button" class="btn primary" id="lm-best">Best fit</button></div>',
+   ctl=[('lm-a', 'a (value at x = 1)', -20, 120, .5, 42), ('lm-b', 'b (multiplier of ln x)', -20, 20, .1, 11.3)],
+   out=[('lm-eq', 'your model', 'x'), ('lm-rms', 'typical miss (RMS residual)', 'v'), ('lm-dbl', 'each doubling of x changes y by', '')]),
+  lab('lm-lab2', 'Use it and question it', canvas='lm-canvas2', aria='The practice-score model drawn over a wide range of hours, with the maximum score of 100 marked, so you can see where the model stops making sense.',
+   ctl=[('lm-x', 'Hours x', 1, 250, 1, 20)],
+   out=[('lm-pred', 'predicted score', 'x'), ('lm-dbl2', 'doubling to 2x adds', 'v'), ('lm-cap', 'the model reaches 100 at', '')])],
+ [('Press <b>Best fit</b> for Practice vs score. What do a and b mean here?', show(['click', '#lm-set [data-k=score]'], ['click', '#lm-best']), 'a ≈ 42 is the predicted score after 1 hour (ln 1 = 0). b ≈ 11.3 means each doubling of hours adds b·ln 2 ≈ 7.8 points.'),
+  ('Switch to the <b>Log x-axis</b>. What happens to the curve?', show(['click', '#lm-ax [data-k=log]']), 'It becomes a straight line: y = a + b·(ln x) is linear in ln x. This is the idea behind semi-log plots.'),
+  ('Choose <b>Pressure vs altitude</b> and press Best fit. Why is b negative?', show(['click', '#lm-set [data-k=alt]'], ['click', '#lm-ax [data-k=lin]'], ['click', '#lm-best']), 'Because altitude falls as pressure rises: b ≈ −8.4. Each doubling of the pressure lowers the altitude by about 5.8 km.'),
+  ('In the second lab drag the hours up to 250. Is the prediction sensible?', show(['#lm-x', 250]), 'No: the model gives more than 100, which a test score cannot be. The model is only valid for a limited domain.')],
+ [{'h': 'Worked example: gains that slow down', 'fig': _prac_fig(), 'table': ([['hours x', '1', '2', '4', '8', '16', '32'], ['score', '42', '50', '57', '66', '73', '81']], 'Practice and test score'),
+   'prob': 'Students practiced for x hours and then took a test. Choose a model for the score, build it from the first and last data points, and predict the score after 10 hours.',
+   'steps': ['<b>Pattern.</b> The hours double each time and the score goes up by about the same amount each time (8, 7, 9, 7, 8). Equal multiples of the input give equal steps in the output: choose <b>y = a + b ln x</b>.',
+    '<b>Find a.</b> At x = 1, ln 1 = 0, so a = y(1) = <b>42</b>.',
+    '<b>Find b.</b> 81 = 42 + b ln 32, so b = 39/ln 32 = 39/3.4657 ≈ <b>11.25</b>.',
+    '<b>Predict.</b> y(10) = 42 + 11.25 ln 10 = 42 + 11.25(2.3026) ≈ <b>67.9</b>. This assumes the same trend, and cannot continue past a score of 100.']},
+  {'h': 'Worked example 2: altitude from air pressure', 'fig': _alt_fig(),
+   'prob': 'A model for altitude (km) in terms of air pressure P (kPa) is h = 38.8 − 8.4 ln P. Find the altitude at P = 50 kPa, and the pressure at an altitude of 10 km.',
+   'steps': ['<b>Evaluate.</b> h(50) = 38.8 − 8.4 ln 50 = 38.8 − 8.4(3.912) = 38.8 − 32.86 ≈ <b>5.94 km</b>.',
+    '<b>Set up the reverse.</b> 38.8 − 8.4 ln P = 10, so 8.4 ln P = 28.8 and ln P = 3.4286.',
+    '<b>Undo the log.</b> P = e^3.4286 ≈ <b>30.8 kPa</b>.',
+    '<b>Check.</b> h(30.8) = 38.8 − 8.4 ln 30.8 = 38.8 − 8.4(3.4279) ≈ 10.0 ✓. Pressure falls by half roughly every 5.8 km.']}],
+ ['Using ln x when the inputs are not positive.', 'Forgetting that a is the value at x = 1, not at x = 0 (ln 0 does not exist).', 'Trusting a log model far outside the data: it keeps rising forever, but real quantities hit limits.', 'Solving a·ln x = c by dividing the ln: x = e^(c/a), not (c/a) with ln removed.'],
+ ('Log models are exponential models seen from the other side',
+  ['If y = a + b ln x, solving for x gives x = e^((y − a)/b), an exponential function of y. When you plot y against ln x you get a straight line, and when you plot ln y against x for an exponential model you also get a straight line. Both are called semi-log plots, and the next module uses them to identify exponential and logarithmic models.']),
+ [('For y = 10 + 4 ln x, doubling x changes y by', ['4 ln 2 ≈ 2.77', '4', '8', '10 ln 2'], 0, 'y(2x) − y(x) = 4 ln(2x) − 4 ln x = 4 ln 2.'),
+  ('y = 3 + 2 ln x. Solve y = 9 for x.', ['x = e³', 'x = 3', 'x = e⁶', 'x = 6'], 0, '2 ln x = 6, ln x = 3, x = e³ ≈ 20.1.')],
+ ced=('2.14',))
