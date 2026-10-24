@@ -398,3 +398,108 @@ mod('vectors', 'Vectors',
  [('The magnitude of ⟨5, 12⟩ is', ['13', '17', '7', '60'], 0, '√(25 + 144) = √169 = 13.'),
   ('If u = ⟨1, 2⟩ and v = ⟨3, −1⟩ then 2u + v is', ['⟨5, 3⟩', '⟨4, 1⟩', '⟨5, 1⟩', '⟨7, 3⟩'], 0, '2u = ⟨2, 4⟩; add ⟨3, −1⟩ to get ⟨5, 3⟩.')],
  ced=('4.8', '4.9'))
+
+
+# =====================================================================
+# 4.10, 4.11, 4.14  Matrices
+# =====================================================================
+CW, CH = 24, 22
+
+def _mbr(x, y, r=2, s=2):
+    w, h = CW * s, CH * r
+    return (pline([(x - 2, y - 3), (x - 7, y - 3), (x - 7, y + h + 3), (x - 2, y + h + 3)], 'ink', 1.8)
+            + pline([(x + w + 2, y - 3), (x + w + 7, y - 3), (x + w + 7, y + h + 3), (x + w + 2, y + h + 3)], 'ink', 1.8))
+
+def _mtx(x, y, M, c='ink'):
+    o = ''
+    for i, row in enumerate(M):
+        for j, v in enumerate(row):
+            if v == '': continue
+            t = ('−' + str(abs(v))) if isinstance(v, int) and v < 0 else str(v)
+            o += txt(x + j * CW + CW / 2, y + i * CH + CH / 2 + 4.5, t, c, 13, w=600, mono=True)
+    return o
+
+def _mhl(x, y, row=None, col=None, cell=None, s=2, r=2):
+    o = ''
+    if row is not None: o += rect(x - 2, y + row * CH + 1, CW * s + 4, CH - 2, 'tan', .3)
+    if col is not None: o += rect(x + col * CW + 1, y - 2, CW - 2, CH * r + 4, 'dd', .25)
+    if cell is not None: o += rect(x + cell[1] * CW + 1, y + cell[0] * CH + 1, CW - 2, CH - 2, 'area', .5)
+    return o
+
+def _mx_fig1():
+    A = [[2, 1], [0, 3]]; B = [[1, 4], [-2, 5]]; BA = [[2, 13], [-4, 13]]
+    y0 = 36; xa, xb, xc = 14, 100, 188
+    base = (txt(xa + 24, 20, 'A', 'f', 14) + txt(xb + 24, 20, 'B', 'd', 14) + txt(xc + 24, 20, 'AB', 'dd', 14) + txt(88, y0 + 27, '×', 'mut', 16) + txt(176, y0 + 27, '=', 'mut', 16)
+            + _mbr(xa, y0) + _mtx(xa, y0, A) + _mbr(xb, y0) + _mtx(xb, y0, B) + _mbr(xc, y0))
+    yb = 140
+    L = [(1, '', 'AB has A\'s rows and B\'s columns: it is 2 × 2', 'f'),
+         (2, _mhl(xa, y0, row=0) + _mhl(xb, y0, col=1) + _mhl(xc, y0, cell=(0, 1)) + _mtx(xc, y0, [['', 13], ['', '']], 'dd') + txt(130, 100, 'row 1 · column 2 = 2·4 + 1·5 = 13', 'ink', 10.5),
+          'row 1 of A · column 2 of B = 2·4 + 1·5 = 13', 'tan'),
+         (3, _mtx(xc, y0, [[0, ''], [-6, 15]], 'dd'), 'the other entries: 0, −6 and 15', 'dd'),
+         (4, txt(xa + 110, yb - 10, 'BA', 'ink', 14) + _mbr(xa + 86, yb) + _mtx(xa + 86, yb, BA) + txt(xa + 24, yb + 28, 'BA ≠ AB', 'tan', 13), 'BA = ⟨2 13; −4 13⟩, which is not AB', 'area')]
+    return fig(base, L, 'Each entry of AB is a row of A dotted with a column of B.', 196)
+
+def _mx_fig2():
+    P = Plot((-1, 6), (-2, 5), (30, 8, 210, 160))
+    base = P.axes([1, 2, 3, 4, 5], [-1, 1, 2, 3, 4], 'x', 'y', True)
+    L = [(1, P.curve(lambda x: (8 - 3 * x) / 2, -.6, 5.6, 'f', 2.6, '', 60) + P.text(.6, 4.3, '3x + 2y = 8', 'f', 10, 'start'), '3x + 2y = 8', 'f'),
+         (2, P.curve(lambda x: 3 - x, -.6, 5.6, 'd', 2.6, '', 60) + P.text(3.3, .9, 'x + y = 3', 'd', 10, 'start'), 'x + y = 3', 'd'),
+         (3, P.dot(2, 1, '(2, 1)', 'tan', 22, -8, 5), 'the lines cross once, at (2, 1): det A = 1 ≠ 0', 'tan'),
+         (4, '', 'X = A⁻¹B = ⟨1·8 − 2·3, −1·8 + 3·3⟩ = ⟨2, 1⟩', 'dd')]
+    return fig(base, L, 'Two lines meet at the solution of the system.', 190)
+
+def _mx_fig3():
+    P = Plot((0, 6.2), (0, 100), (34, 10, 208, 160))
+    xs = [50, 55, 57.5, 58.75, 59.375, 59.6875]
+    base = P.axes([], [20, 40, 60, 80], '', 'share A (%)', True) + ''.join(txt(P.X(i + .5), P.Y(0) + 14, str(i), 'mut', 10, mono=True, w=500) for i in range(6)) + txt(P.X(6.2), P.Y(0) + 26, 'month', 'mut', 11, 'end', 500)
+    bars = ''.join(rect(P.X(i + .1), P.Y(v), P.X(i + .9) - P.X(i + .1), P.Y(0) - P.Y(v), 'f', .75) for i, v in enumerate(xs))
+    L = [(1, rect(P.X(.1), P.Y(50), P.X(.9) - P.X(.1), P.Y(0) - P.Y(50), 'f', .75), 'start: 50% use brand A', 'f'),
+         (2, rect(P.X(1.1), P.Y(55), P.X(1.9) - P.X(1.1), P.Y(0) - P.Y(55), 'f', .75), 'after one month: 55%', 'f'),
+         (3, ''.join(rect(P.X(i + .1), P.Y(v), P.X(i + .9) - P.X(i + .1), P.Y(0) - P.Y(v), 'f', .75) for i, v in enumerate(xs) if i >= 2), 'the shares keep rising by less each time', 'f'),
+         (4, P.seg(0, 60, 6.2, 60, 'area', 2, '5 4') + P.text(6.1, 64, 'steady state 60', 'ink', 10, 'end'), 'steady state: T·X = X gives A = 60%', 'area')]
+    return fig(base, L, 'Brand share after each step: the transition matrix applied again and again.', 205)
+
+mod('matrices', 'Matrices',
+ 'A matrix is a table of numbers that acts on lists of numbers. Multiplying matrices combines rows with columns, the determinant tells you whether a 2 × 2 matrix can be undone, and the inverse solves systems.',
+ ['A <b>matrix</b> is a rectangular array of numbers; an m × n matrix has m rows and n columns. You can add matrices of the same size entry by entry and multiply by a scalar. <b>Matrix multiplication</b> is different: AB is defined when A has as many columns as B has rows, and each entry is a <b>row of A dotted with a column of B</b>. For ⟨a b; c d⟩ times ⟨e f; g h⟩ the (1, 1) entry is <span class="m">ae + bg</span>, the (1, 2) entry is <span class="m">af + bh</span>, the (2, 1) entry is <span class="m">ce + dg</span> and the (2, 2) entry is <span class="m">cf + dh</span>. In general AB ≠ BA, and the <b>identity matrix</b> I (1s on the diagonal) satisfies AI = IA = A.',
+  'For a 2 × 2 matrix A = ⟨a b; c d⟩ the <b>determinant</b> is <span class="m">det A = ad − bc</span>. If det A ≠ 0, A has an <b>inverse</b>: <span class="m">A⁻¹ = (1/det A)⟨d −b; −c a⟩</span>, and AA⁻¹ = A⁻¹A = I. If det A = 0 there is no inverse. A system a x + b y = e, c x + d y = f is AX = B with X = ⟨x, y⟩, and when A is invertible the solution is <span class="m">X = A⁻¹B</span>. Geometrically det A = 0 means the two lines are parallel (or the same line).',
+  'Matrices model situations with several quantities updating together: a <b>transition matrix</b> T takes the current shares X of a market to the next shares TX. Applying it again and again gives T²X, T³X, … which often settle toward a <b>steady state</b> where TX = X.'],
+ ('you solved systems by substitution and graphing, one equation at a time', 'a compact way to write and solve many equations together', 'tables of numbers can multiply, undo each other, and carry information through several steps', 'matrix multiplication, determinants and inverses of 2 × 2 matrices, solving systems, and matrices in context'),
+ [('(AB)ᵢⱼ = row i of A · column j of B', 'multiply'), ('det ⟨a b; c d⟩ = ad − bc', 'determinant'), ('A⁻¹ = (1/det)⟨d −b; −c a⟩', 'inverse'), ('AX = B ⇒ X = A⁻¹B', 'solve'), ('AB ≠ BA (usually)', 'order matters')],
+ [lab('mx-lab', 'Multiply two matrices', canvas='mx-canvas', aria='Two 2 by 2 matrices and their product, with the chosen row, column and result entry highlighted and the dot product written out.',
+   seg=('mx-cell', 'Result entry', [('c11', 'row 1, col 1'), ('c12', 'row 1, col 2'), ('c21', 'row 2, col 1'), ('c22', 'row 2, col 2')]),
+   pre='<div class="seg" id="mx-ord" role="group" aria-label="order"><button type="button" data-k="AB" aria-pressed="true">A · B</button><button type="button" data-k="BA" aria-pressed="false">B · A</button></div>',
+   ctl=[('mx-a1', 'A row 1, col 1', -5, 5, 1, 2), ('mx-a2', 'A row 1, col 2', -5, 5, 1, 1), ('mx-a3', 'A row 2, col 1', -5, 5, 1, 0), ('mx-a4', 'A row 2, col 2', -5, 5, 1, 3),
+        ('mx-b1', 'B row 1, col 1', -5, 5, 1, 1), ('mx-b2', 'B row 1, col 2', -5, 5, 1, 4), ('mx-b3', 'B row 2, col 1', -5, 5, 1, -2), ('mx-b4', 'B row 2, col 2', -5, 5, 1, 5)],
+   out=[('mx-dot', 'the chosen entry', 'x'), ('mx-cmp', 'A·B vs B·A', 'v'), ('mx-det', 'det(A·B) = det A · det B', '')]),
+  lab('mx-lab2', 'Solve a system with the inverse', canvas='mx-canvas2', aria='Two lines from a system of two equations, with their intersection marked; the determinant, the inverse matrix and the solution are shown.',
+   ctl=[('mx-p', 'a (x in line 1)', -5, 5, 1, 3), ('mx-q', 'b (y in line 1)', -5, 5, 1, 2), ('mx-r', 'c (x in line 2)', -5, 5, 1, 1), ('mx-s', 'd (y in line 2)', -5, 5, 1, 1), ('mx-e', 'e (right side 1)', -10, 10, 1, 8), ('mx-f', 'f (right side 2)', -10, 10, 1, 3)],
+   out=[('mx-ad', 'det A = ad − bc', 'x'), ('mx-inv', 'A⁻¹', 'v'), ('mx-sol', 'solution X = A⁻¹B', '')])],
+ [('Use the default A = ⟨2 1; 0 3⟩ and B = ⟨1 4; −2 5⟩. What is the entry in row 1, column 2 of AB? Then switch to B · A.', show(['click', '#mx-cell [data-k=c12]'], ['click', '#mx-ord [data-k=AB]']), 'Row 1 of A is (2, 1) and column 2 of B is (4, 5): 2·4 + 1·5 = 13. For B · A the same entry is (1, 4)·(1, 3) = 13 as well, but other entries differ: AB = ⟨0 13; −6 15⟩ and BA = ⟨2 13; −4 13⟩.'),
+  ('Make A the identity ⟨1 0; 0 1⟩ (a1 = 1, a2 = 0, a3 = 0, a4 = 1). What is AB?', show(['#mx-a1', 1], ['#mx-a2', 0], ['#mx-a3', 0], ['#mx-a4', 1]), 'AB = B: the identity matrix leaves any matrix unchanged.'),
+  ('In the second lab make the lines parallel: set a = 2, b = 2, c = 1, d = 1. What happens to det A and the solution?', show(['#mx-p', 2], ['#mx-q', 2], ['#mx-r', 1], ['#mx-s', 1]), 'det A = 2·1 − 2·1 = 0: the lines are parallel, so there is no inverse and no single solution.'),
+  ('Set a = 3, b = 2, c = 1, d = 1, e = 8, f = 3. Check the solution in both equations.', show(['#mx-p', 3], ['#mx-q', 2], ['#mx-r', 1], ['#mx-s', 1], ['#mx-e', 8], ['#mx-f', 3]), 'det A = 1, A⁻¹ = ⟨1 −2; −1 3⟩ and X = ⟨2, 1⟩. Check: 3(2) + 2(1) = 8 ✓ and 2 + 1 = 3 ✓.')],
+ [{'h': 'Worked example: multiplying 2 × 2 matrices', 'fig': _mx_fig1(),
+   'prob': 'Let A = ⟨2 1; 0 3⟩ and B = ⟨1 4; −2 5⟩ (rows separated by semicolons). Find AB and BA, and compare.',
+   'steps': ['<b>Sizes.</b> Both are 2 × 2, so AB is defined and is 2 × 2: it has A\'s rows and B\'s columns.',
+    '<b>One entry.</b> For entry (1, 2) take row 1 of A, (2, 1), and column 2 of B, (4, 5): 2·4 + 1·5 = <b>13</b>.',
+    '<b>The rest.</b> Entry (1, 1): (2, 1)·(1, −2) = 2 − 2 = <b>0</b>. Row 2 of A is (0, 3): 0·1 + 3(−2) = <b>−6</b> and 0·4 + 3·5 = <b>15</b>. So <b>AB = ⟨0 13; −6 15⟩</b>.',
+    '<b>Now BA.</b> Row 1 of B is (1, 4): 1·2 + 4·0 = 2 and 1·1 + 4·3 = 13. Row 2 of B is (−2, 5): −2·2 + 5·0 = −4 and −2·1 + 5·3 = 13. <b>BA = ⟨2 13; −4 13⟩</b>, not AB: order matters. (Check with determinants: det A = 6, det B = 13, and det(AB) = 0·15 − 13(−6) = 78 = 6·13 ✓.)']},
+  {'h': 'Worked example 2: solve a system with the inverse', 'fig': _mx_fig2(),
+   'prob': 'Solve 3x + 2y = 8 and x + y = 3 using a matrix inverse.',
+   'steps': ['<b>Write AX = B.</b> A = ⟨3 2; 1 1⟩, X = ⟨x, y⟩, B = ⟨8, 3⟩.',
+    '<b>Determinant.</b> det A = 3·1 − 2·1 = <b>1</b> ≠ 0, so A⁻¹ exists.',
+    '<b>Inverse.</b> A⁻¹ = (1/1)⟨1 −2; −1 3⟩ = <b>⟨1 −2; −1 3⟩</b>. Check: A A⁻¹ has first row (3·1 + 2(−1), 3(−2) + 2·3) = (1, 0) ✓.',
+    '<b>Multiply.</b> X = A⁻¹B = ⟨1·8 + (−2)·3, −1·8 + 3·3⟩ = <b>⟨2, 1⟩</b>, so x = 2, y = 1. Check: 3(2) + 2(1) = 8 ✓ and 2 + 1 = 3 ✓.']},
+  {'h': 'Worked example 3: market shares', 'fig': _mx_fig3(),
+   'prob': 'Each month 80% of brand A users stay with A and 30% of brand B users switch to A. Currently 50% use A and 50% use B. Find the shares after one and two months, and the long-run share.',
+   'steps': ['<b>Transition matrix.</b> T = ⟨0.8 0.3; 0.2 0.7⟩ (columns are the current brand: A stays 0.8 and leaves 0.2; B moves to A 0.3 and stays 0.7). Each column sums to 1.',
+    '<b>One month.</b> X₁ = T⟨50, 50⟩ = ⟨0.8·50 + 0.3·50, 0.2·50 + 0.7·50⟩ = <b>⟨55, 45⟩</b>.',
+    '<b>Two months.</b> X₂ = T⟨55, 45⟩ = ⟨44 + 13.5, 11 + 31.5⟩ = <b>⟨57.5, 42.5⟩</b>. The gains shrink: +5, then +2.5, then +1.25.',
+    '<b>Long run.</b> At a steady state TX = X: 0.8x + 0.3(100 − x) = x gives 0.5x + 30 = x, so x = <b>60</b>: brand A settles at 60%.']}],
+ ['Multiplying entry by entry: AB is not the matrix of products aᵢⱼbᵢⱼ.', 'Assuming AB = BA.', 'Using the wrong signs or positions in the inverse: swap a and d, negate b and c, divide by ad − bc.', 'Forgetting to check det A ≠ 0 before looking for an inverse.', 'Mixing up the order: X = A⁻¹B, not B A⁻¹.'],
+ ('Why the order of a product matters',
+  ['Think of each matrix as an action: AB means "do B first, then A". Putting on socks then shoes is not the same as shoes then socks. The next module shows matrices as transformations of the plane, where that picture is literal: a rotation followed by a stretch usually differs from the stretch followed by the rotation.']),
+ [('The determinant of ⟨3 5; 2 4⟩ is', ['2', '22', '−2', '14'], 0, '3·4 − 5·2 = 12 − 10 = 2.'),
+  ('A is 2 × 3 and B is 3 × 4. Then AB is', ['2 × 4', '3 × 3', '2 × 3', 'not defined'], 0, 'The inner sizes match (3 and 3); the result has the outer sizes: 2 × 4.')],
+ ced=('4.10', '4.11', '4.14'))
