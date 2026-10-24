@@ -23,13 +23,12 @@
     const xa=ty==='rat'?xs*.6:x0;curveD(ctx,P,M.f,xa,Math.max(...D.x),T.cv,3,600);curveD(ctx,P,M.f,Math.max(...D.x),x1,alpha(T.cv,.7),2.2,300,[6,5]);
     D.x.forEach((x,i)=>{line(ctx,P,x,D.y[i],x,M.f(x),T.hot,2.4);dot(ctx,P.X(x),P.Y(D.y[i]),5.5,T.cx,T.surface);});ctx.restore();
     label(ctx,D.xl,P.box.x+P.box.w-4,P.box.y+P.box.h-8,T.muted,'right','middle',MONO);label(ctx,D.yl,P.box.x+8,P.box.y+11,T.muted,'left','middle',MONO);
-    label(ctx,'dashed: beyond the data',P.box.x+P.box.w-4,P.box.y+11,T.cv,'right','middle',MONO);
     const m=Math.max(...res.map(Math.abs),1e-9)*1.4,Q=gpanel(ctx,{x:50,y:12+gh+28,w:w-66,h:h-gh-58},[x0,x1],[-m,m],{xn:5,yn:2});
     const bw=Math.max(5,(Q.X(D.x[1])-Q.X(D.x[0]))*.4);res.forEach((r,i)=>{ctx.fillStyle=alpha(T.hot,.8);const y0=Q.Y(0),y1=Q.Y(r);ctx.fillRect(Q.X(D.x[i])-bw/2,Math.min(y0,y1),bw,Math.abs(y1-y0));});
     label(ctx,'residuals (data − model)',Q.box.x+6,Q.box.y+10,T.hot,'left','middle',MONO);}});
   function upd(){const D=DATA[dk],M=fit(ty,D.x,D.y),res=D.y.map((y,i)=>y-M.f(D.x[i])),rms=Math.sqrt(res.reduce((s,r)=>s+r*r,0)/res.length),mean=D.y.reduce((s,v)=>s+v,0)/D.y.length,sd=Math.sqrt(D.y.reduce((s,v)=>s+(v-mean)**2,0)/D.y.length);
     const flips=res.slice(1).filter((r,i)=>Math.sign(r)!==Math.sign(res[i])).length;
-    setText('md-eq',eqTxt(M,ty));setText('md-rms',fmt(rms,2)+' '+D.yl.replace(/ \(.*/,''));
+    setText('md-eq',eqTxt(M,ty));setText('md-rms',fmt(rms,2)+' '+(D.yl.match(/\((.*)\)/)||['',''])[1]);
     setText('md-verdict',rms/sd<.04?'a good fit: small residuals with no pattern':flips<=2?'the residuals have a pattern: try another type of function':'a rough fit; check it against the context');sim.render();}
   segBind('md-data','k',k=>{dk=k;upd();});segBind('md-type','k',k=>{ty=k;upd();});
 

@@ -548,10 +548,10 @@ def _oblique_fig():
     A = lambda n: n + 8 + 468 / (n + 4)
     P = Plot((0, 40), (0, 70), (34, 12, 206, 170))
     base = P.axes([10, 20, 30, 40], [20, 40, 60], 'n', 'A ($)', True)
-    L = [(1, safe_curve(P, A, 0, 40, 'f', 2.6, '', 300), 'A(n) = (n² + 12n + 500)/(n + 4)', 'f'),
+    L = [(1, safe_curve(P, A, 5, 40, 'f', 2.6, '', 300), 'A(n) = (n² + 12n + 500)/(n + 4)', 'f'),
          (2, '', 'n² + 12n + 500 = (n + 4)(n + 8) + 468', 'ink'),
          (3, P.seg(0, 8, 40, 48, 'area', 1.8, '6 4') + P.text(26, 24, 'y = n + 8', 'area', 10, 'start'), 'slanted asymptote A = n + 8', 'area'),
-         (4, P.seg(20, 28, 20, A(20), 'tan', 3) + P.text(20.8, 38, '468/24 = 19.5', 'tan', 10, 'start'), 'the gap is 468/(n + 4): it shrinks', 'tan')]
+         (4, P.seg(20, 28, 20, A(20), 'tan', 3) + P.text(21, 41, 'gap 19.5', 'tan', 10, 'start'), 'the gap is 468/(n + 4): it shrinks', 'tan')]
     return fig(base, L, 'Average cost per ticket: the fixed part spread out plus a per-ticket part.', 210)
 
 mod('equiv', 'Equivalent forms',
