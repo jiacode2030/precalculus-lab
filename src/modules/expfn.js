@@ -46,6 +46,6 @@
     return {q:`f is exponential with f(${x1}) = ${y1} and f(${x1+1}) = ${y2}. Find f(${x1+k}).`,ans,unit:'',abs:0,chk:t,hint:'Equal steps multiply by the same factor: b = f(x + 1)/f(x).',sol:`b = ${y2}/${y1} = ${b}. From x = ${x1+1} to x = ${x1+k} is ${k-1} more step${k>2?'s':''}: f(${x1+k}) = ${y2}(${b})^${k-1} = <b>${ans}</b>.`};}});
   PROBS.push({id:'ex-end',topic:'expfn',title:'End behavior of a·bˣ',gen(){const a=pick([-4,-2,-1,1,2,3,5]),b=pick([.5,.8,.25,1.5,2,3]),right=Math.random()<.5,f=x=>a*Math.pow(b,x);
     const big=(b>1)===right,val=big?(a>0?'+∞':'−∞'):'0',all=['+∞','−∞','0','1'],{choices,ans}=mcq(val,all.filter(v=>v!==val),4);
-    return {q:`f(x) = ${a}(${b})ˣ. What does f(x) approach as x → ${right?'∞':'−∞'}?`,choices,ans,chk:f(right?60:-60),hint:'Is b above or below 1? Then ask whether b to a huge power is huge or tiny. Finally use the sign of a.',
+    return {q:`f(x) = ${a===1?'':a===-1?'−':nz(a)}(${b})ˣ. What does f(x) approach as x → ${right?'∞':'−∞'}?`,choices,ans,chk:f(right?60:-60),hint:'Is b above or below 1? Then ask whether b to a huge power is huge or tiny. Finally use the sign of a.',
       sol:`b = ${b} is ${b>1?'above':'below'} 1, so bˣ ${big?'grows without bound':'shrinks to 0'} as x → ${right?'∞':'−∞'}.${big?` With a = ${sg(a)} that gives ${val}.`:' So f → 0.'} Answer: <b>${val}</b>.`};}});
 })();

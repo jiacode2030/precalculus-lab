@@ -75,9 +75,9 @@
 (function(){
   PROBS.push({id:'sm-build',topic:'sinmodel',title:'Build a model from max and min',gen(){const mx=ri(12,40),mn=mx-2*ri(3,10),tmax=ri(1,6),half=pick([2,3,4,5,6]),which=pick(['a','d','b']);
     const ans=which==='a'?(mx-mn)/2:which==='d'?(mx+mn)/2:Math.PI/half;
-    return {q:`A quantity reaches its maximum ${mx} at t = ${tmax} and its next minimum ${mn} at t = ${tmax+half}. For the model f(t) = a cos(b(t − ${tmax})) + d, find ${which==='a'?'a':which==='d'?'d':'b (exact or to three decimals)'}.`,ans,unit:'',abs:.002,
+    return {q:`A quantity reaches its maximum ${mx} at t = ${tmax} and its next minimum ${nz(mn)} at t = ${tmax+half}. For the model f(t) = a cos(b(t − ${tmax})) + d, find ${which==='a'?'a':which==='d'?'d':'b (exact or to three decimals)'}.`,ans,unit:'',abs:.002,
       chk:which==='a'?Math.abs(mn-mx)/2:which==='d'?mn+(mx-mn)/2:TAU/(2*half),show:which==='b'?piText(ans):undefined,hint:'Midline (max + min)/2, amplitude (max − min)/2, and max to the next min is half a period.',
-      sol:which==='a'?`a = (${mx} − ${mn})/2 = <b>${ans}</b>.`:which==='d'?`d = (${mx} + ${mn})/2 = <b>${ans}</b>.`:`Half a period is ${half}, so the period is ${2*half} and b = 2π/${2*half} = <b>${piText(ans)}</b>.`};}});
+      sol:which==='a'?`a = (${mx} − ${pn(mn)})/2 = <b>${ans}</b>.`:which==='d'?`d = (${mx} + ${pn(mn)})/2 = <b>${nz(ans)}</b>.`:`Half a period is ${half}, so the period is ${2*half} and b = 2π/${2*half} = <b>${piText(ans)}</b>.`};}});
   PROBS.push({id:'sm-predict',topic:'sinmodel',title:'Use the model',gen(){const c=ri(20,60),r=ri(8,c-5),T=pick([4,6,8,10,12]),t=+(Math.random()*T*1.5).toFixed(1),ans=c-r*Math.cos(TAU*t/T);
     return {q:`A Ferris wheel car's height is h(t) = ${c} − ${r} cos(2πt/${T}) meters, t in minutes. Find h(${t}), to two decimals.`,ans,unit:'m',abs:.01,chk:c+r*Math.sin(TAU*t/T-Math.PI/2),hint:'Radian mode. Evaluate the inside first.',
       sol:`h(${t}) = ${c} − ${r} cos(${fmt(TAU*t/T,4)}) ≈ <b>${fmt(ans,2)} m</b>.`};}});

@@ -68,7 +68,7 @@
   PROBS.push({id:'py-abs',topic:'polyfn',title:'Absolute extremum on an interval',gen(){const p=pick([-2,-1,1,2]),h=ri(-2,4),k=ri(-6,6),f=x=>p*(x-h)**2+k,a=ri(-4,2),b=a+ri(2,5),w=pick(['max','min']);
     const cand=[a,b].concat(h>a&&h<b?[h]:[]),vals=cand.map(f),ans=w==='max'?Math.max(...vals):Math.min(...vals);
     let chk=f(a);for(let i=0;i<=6000;i++){const v=f(a+(b-a)*i/6000);chk=w==='max'?Math.max(chk,v):Math.min(chk,v);}
-    const form=`${p===1?'':p===-1?'−':sg(p)}(x ${h<0?'+':'−'} ${Math.abs(h)})² ${k<0?'−':'+'} ${Math.abs(k)}`.replace('(x − 0)','x').replace('(x + 0)','x');
+    const form=`${p===1?'':p===-1?'−':sg(p)}(x ${h<0?'+':'−'} ${Math.abs(h)})²${k?` ${k<0?'−':'+'} ${Math.abs(k)}`:''}`.replace('(x − 0)','x').replace('(x + 0)','x');
     return {q:`f(x) = ${form}. Find the absolute ${w}imum value of f on [${sg(a)}, ${sg(b)}].`,ans,unit:'',abs:0,chk,hint:'Compare the values at the endpoints and at the vertex, if the vertex is inside the interval.',
       sol:`Vertex x = ${sg(h)} ${h>a&&h<b?'is':'is not'} in the interval. Candidates: ${cand.map(x=>`f(${sg(x)}) = ${sg(f(x))}`).join(', ')}. The absolute ${w}imum is <b>${sg(ans)}</b>.`};}});
   PROBS.push({id:'py-ext',topic:'polyfn',title:'Value of a relative extremum',gen(){const q=pick([1,2,3]),c=ri(-10,10),sgn=pick([1,-1]),f=x=>sgn*(x**3-3*q*q*x)+c,w=pick(['max','min']);

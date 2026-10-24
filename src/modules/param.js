@@ -79,8 +79,9 @@
 
 (function(){
   PROBS.push({id:'pa-point',topic:'param',title:'Find the point',gen(){const a=pick([-4,-3,-2,-1,1,2,3,5]),b=pick([2,3,-2,4]),c=ri(-3,3),d=pick([1,2,-1]),X=a+b*ri(1,4);const ans=c+d*Math.pow((X-a)/b,2);
-    return {q:`A particle moves with x(t) = ${a}${sgn(b)}t and y(t) = ${c}${sgn(d)}t². Find y when x = ${X}.`,ans,unit:'',abs:.001,chk:(()=>{const t=solve(u=>a+b*u-X,-20,20);return c+d*t*t;})(),
-      hint:'Find t from the x equation first, then put that t into y(t).',sol:`${a}${sgn(b)}t = ${X} gives t = ${nz((X-a)/b)}. Then y = ${c}${sgn(d)}(${nz((X-a)/b)})² = <b>${nz(ans)}</b>.`};}});
+    const yt=c?`${nz(c)}${d<0?' − ':' + '}${Math.abs(d)===1?'':Math.abs(d)}t²`:`${d===1?'':d===-1?'−':nz(d)}t²`;
+    return {q:`A particle moves with x(t) = ${nz(a)}${sgn(b)}t and y(t) = ${yt}. Find y when x = ${nz(X)}.`,ans,unit:'',abs:.001,chk:(()=>{const t=solve(u=>a+b*u-X,-20,20);return c+d*t*t;})(),
+      hint:'Find t from the x equation first, then put that t into y(t).',sol:`${nz(a)}${sgn(b)}t = ${nz(X)} gives t = ${nz((X-a)/b)}. Then y = ${c?nz(c)+sgn(d):d===1?'':d===-1?'−':nz(d)}(${nz((X-a)/b)})² = <b>${nz(ans)}</b>.`};}});
   PROBS.push({id:'pa-elim',topic:'param',title:'Eliminate the parameter',gen(){const a=pick([2,3]),b=pick([1,-1,2]),c=pick([1,3,-2]);
     const right=`y = ((x ${b<0?'+':'−'} ${Math.abs(b)})/${a})² ${c<0?'−':'+'} ${Math.abs(c)}`;
     const {choices,ans}=mcq(right,[`y = (${a}x ${b<0?'−':'+'} ${Math.abs(b)})² ${c<0?'−':'+'} ${Math.abs(c)}`,`y = ((x ${b<0?'−':'+'} ${Math.abs(b)})/${a})² ${c<0?'−':'+'} ${Math.abs(c)}`,`y = (x ${b<0?'+':'−'} ${Math.abs(b)})/${a} ${c<0?'−':'+'} ${Math.abs(c)}`]);

@@ -55,7 +55,7 @@
     const top=n===1?lin(a,p):quad(a,p,q),bot=n===1?lin(b,r):quad(b,q,r),ans=a/b;
     const f=n===1?x=>(a*x+p)/(b*x+r):x=>(a*x*x+p*x+q)/(b*x*x+q*x+r);
     return {q:`Find the horizontal asymptote y = L of f(x) = (${top}) / (${bot}). Enter L.`,ans,unit:'',abs:.001,chk:f(1e7),show:frac(ans),hint:'The degrees are equal, so L is the ratio of the leading coefficients.',
-      sol:`Both have degree ${n}. L = ${sg(a)}/${sg(b)} = <b>${frac(ans)}</b>.`};}});
+      sol:`Both have degree ${n}. L = ${sg(a)}/${pn(b)} = <b>${frac(ans)}</b>.`};}});
   PROBS.push({id:'ra-va',topic:'rational',title:'Count the vertical asymptotes',gen(){const r=()=>ri(-4,4);let a=r(),b=r(),c=r(),d=r();while(b===a)b=r();while(d===c)d=r();
     const share=pick([0,1,2]);if(share>=1)c=a;if(share>=2)d=b;if(c===d)d=c+1;
     const f=x=>(x-a)*(x-b)/((x-c)*(x-d)),cnt=[...new Set([c,d])].filter(z=>z!==a&&z!==b).length;
@@ -69,5 +69,5 @@
     const f=x=>a/((x-c)**m),chk=f(c+(side==='right'?1:-1)*1e-4)>0?1:-1;
     const {choices,ans}=mcq(right,['+∞','−∞','0','does not exist'].filter(v=>v!==right).slice(0,3).concat(['0']).slice(0,3),4);
     return {q:`f(x) = ${sg(a)} / (x ${c<0?'+':'−'} ${Math.abs(c)||''})${m>1?UP[m]:''}`.replace(' (x  )','x').replace('(x +  )','x').replace(/\(x [−+] \)/,'x')+`. What is lim f(x) as x → ${c<0?'−'+Math.abs(c):c}${side==='right'?'⁺':'⁻'}?`,choices,ans,chk,hint:'Check the sign of the denominator just to that side of the asymptote, remembering the power.',
-      sol:`Just ${side} of x = ${sg(c)}, (x − ${sg(c)}) is ${side==='right'?'positive':'negative'}${m>1?`, and raised to the power ${m} it is ${side==='right'||m%2===0?'positive':'negative'}`:''}. With numerator ${sg(a)}, f → <b>${right}</b>.`};}});
+      sol:`Just ${side} of x = ${sg(c)}, ${c===0?'x':`(x − ${pn(c)})`} is ${side==='right'?'positive':'negative'}${m>1?`, and raised to the power ${m} it is ${side==='right'||m%2===0?'positive':'negative'}`:''}. With numerator ${sg(a)}, f → <b>${right}</b>.`};}});
 })();

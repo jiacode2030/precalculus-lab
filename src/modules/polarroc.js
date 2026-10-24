@@ -34,9 +34,9 @@
 (function(){
   const F=[[(t)=>1+2*Math.sin(t),'1 + 2 sin θ'],[(t)=>3+2*Math.cos(t),'3 + 2 cos θ'],[(t)=>4*Math.sin(2*t),'4 sin(2θ)'],[(t)=>2-3*Math.cos(t),'2 − 3 cos θ']];
   const IV=[[0,Math.PI/2,'0','π/2'],[Math.PI/6,Math.PI/2,'π/6','π/2'],[Math.PI/2,Math.PI,'π/2','π'],[Math.PI/3,2*Math.PI/3,'π/3','2π/3'],[Math.PI,3*Math.PI/2,'π','3π/2']];
-  PROBS.push({id:'pr-aroc',topic:'polarroc',title:'Average rate of change of r',gen(){const [f,ft]=pick(F),[a,b,an,bn]=pick(IV),ans=(f(b)-f(a))/(b-a);
+  PROBS.push({id:'pr-aroc',topic:'polarroc',title:'Average rate of change of r',gen(){const [f,ft]=pick(F),[a,b,an,bn]=pick(IV),cl=v=>Math.abs(v)<1e-9?0:v,ans=cl((f(b)-f(a))/(b-a));
     return {q:`For r = ${ft}, find the average rate of change of r with respect to θ on [${an}, ${bn}], to three decimals.`,ans,unit:'per radian',abs:.005,chk:(f(b)-f(a))*(180/Math.PI)/((b-a)*180/Math.PI),
-      hint:'(r(θ₂) − r(θ₁)) / (θ₂ − θ₁), with θ in radians.',sol:`r(${an}) = ${fmt(f(a),4)} and r(${bn}) = ${fmt(f(b),4)}. (${fmt(f(b),4)} − ${fmt(f(a),4)}) / (${bn} − ${an}) ≈ <b>${fmt(ans,3)}</b>.`};}});
+      hint:'(r(θ₂) − r(θ₁)) / (θ₂ − θ₁), with θ in radians.',sol:`r(${an}) = ${fmt(cl(f(a)),4)} and r(${bn}) = ${fmt(cl(f(b)),4)}. (${fmt(cl(f(b)),4)} − ${pn(fmt(cl(f(a)),4))}) / (${bn} − ${an}) ≈ <b>${fmt(ans,3)}</b>.`};}});
   PROBS.push({id:'pr-dir',topic:'polarroc',title:'Closer or farther?',gen(){const cases=[[1,1,'farther from'],[1,-1,'closer to'],[-1,-1,'farther from'],[-1,1,'closer to']],[sg,dir,ok]=pick(cases);
     const {choices,ans}=mcq(`getting ${ok} the origin`,['getting farther from the origin','getting closer to the origin','at a constant distance from the origin'].filter(x=>x!==`getting ${ok} the origin`));
     return {q:`On an interval, r = f(θ) is ${sg>0?'positive':'negative'} and ${dir>0?'increasing':'decreasing'}. The point on the polar curve is`,choices,ans,hint:'The distance is |r|. Ask whether |r| grows or shrinks.',

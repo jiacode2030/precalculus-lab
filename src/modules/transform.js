@@ -63,12 +63,12 @@
   PROBS.push({id:'tr-point',topic:'transform',title:'Where does the point go?',gen(){const a=pick([-3,-2,-1,2,3,.5]),b=pick([2,-2,3,-1,4]),h=ri(-4,4),k=ri(-4,4),p=b*ri(-3,3),q=ri(-5,5)*(Math.abs(a)===.5?2:1),wantX=Math.random()<.5;
     const ans=wantX?h+p/b:a*q+k;
     return {q:`The graph of f passes through (${sg(p)}, ${sg(q)}). The graph of ${gform(a,b,h,k)} passes through a point whose ${wantX?'x':'y'}-coordinate is?`,ans,unit:'',abs:.001,chk:wantX?scan(x=>Math.abs(b*(x-h)-p)):a*q+k,
-      hint:'The point (x, y) goes to (x/b + h, a·y + k).',sol:`x: ${sg(p)}/${sg(b)} ${h<0?'−':'+'} ${Math.abs(h)} = ${sg(h+p/b)}. y: ${sg(a)}·${sg(q)} ${k<0?'−':'+'} ${Math.abs(k)} = ${sg(a*q+k)}. The ${wantX?'x':'y'}-coordinate is <b>${sg(ans)}</b>.`};}});
+      hint:'The point (x, y) goes to (x/b + h, a·y + k).',sol:`x: ${sg(p)}/${pn(b)} ${h<0?'−':'+'} ${Math.abs(h)} = ${sg(h+p/b)}. y: ${pn(a)}(${sg(q)}) ${k<0?'−':'+'} ${Math.abs(k)} = ${sg(a*q+k)}. The ${wantX?'x':'y'}-coordinate is <b>${sg(ans)}</b>.`.replace(/ [−+] 0(?= =)/g,'')};}});
   PROBS.push({id:'tr-zero',topic:'transform',title:'Where is the zero of g?',gen(){const b=pick([2,-2,3,-1,4,.5]),h=ri(-4,4),z=b*ri(-3,3)||b*2,a=pick([-2,2,3]),k=0,ans=z/b+h;
     return {q:`f has a zero at x = ${sg(z)}. Find a zero of ${gform(a,b,h,k)}.`,ans,unit:'',abs:.001,chk:scan(x=>Math.abs(b*(x-h)-z)),hint:'g(x) = 0 when the input of f equals the zero of f: solve b(x − h) = z.',
-      sol:`Solve ${co(b)}${h===0?'x':`(x ${h<0?'+':'−'} ${Math.abs(h)})`} = ${sg(z)}: x = ${sg(z)}/${sg(b)} ${h<0?'−':'+'} ${Math.abs(h)} = <b>${sg(ans)}</b>.`};}});
+      sol:`Solve ${co(b)}${h===0?'x':`(x ${h<0?'+':'−'} ${Math.abs(h)})`} = ${sg(z)}: x = ${sg(z)}/${pn(b)} ${h<0?'−':'+'} ${Math.abs(h)} = <b>${sg(ans)}</b>.`.replace(/ [−+] 0(?= =)/g,'')};}});
   PROBS.push({id:'tr-range',topic:'transform',title:'Largest value of g',gen(){const m=ri(-6,0),M=ri(1,7),a=pick([-3,-2,-1,2,3]),b=pick([2,3,-1,-2]),h=ri(-3,3),k=ri(-5,5),ans=a>0?a*M+k:a*m+k;
     const f=x=>(M+m)/2+(M-m)/2*Math.sin(x);let best=-1e9;for(let x=h;x<=h+2*Math.PI/Math.abs(b);x+=.002)best=Math.max(best,a*f(b*(x-h))+k);
     return {q:`f has range [${sg(m)}, ${sg(M)}]. What is the largest value of ${gform(a,b,h,k)}?`,ans,unit:'',abs:.001,chk:best,hint:'Only a and k change the outputs. If a is negative, the old minimum becomes the new maximum.',
-      sol:`${a>0?`a > 0, so the maximum of g is a·${sg(M)} + k`:`a < 0, so the maximum of g comes from the minimum of f: a·${sg(m)} + k`} = ${sg(a)}·${sg(a>0?M:m)} ${k<0?'−':'+'} ${Math.abs(k)} = <b>${sg(ans)}</b>.`};}});
+      sol:`${a>0?`a > 0, so the maximum of g is a·${sg(M)} + k`:`a < 0, so the maximum of g comes from the minimum of f: a·${sg(m)} + k`} = ${pn(a)}(${sg(a>0?M:m)}) ${k<0?'−':'+'} ${Math.abs(k)} = <b>${sg(ans)}</b>.`.replace(/ [−+] 0(?= =)/g,'')};}});
 })();

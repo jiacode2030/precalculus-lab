@@ -95,8 +95,8 @@
       hint:'Find the quadrant and the reference angle. The reference angle gives the size; the quadrant gives the sign.',
       sol:`${nm} has reference angle ${piText(ref)}${Math.abs(Math.sin(2*t))<1e-9?' (it is on an axis)':''}. The point is (${exactTrig(Math.cos(t))}, ${exactTrig(Math.sin(t))}), so ${fn}(${nm}) = <b>${exactTrig(ans)}</b>${fn==='tan'?' (sin ÷ cos)':''}.`};}});
   PROBS.push({id:'uc-rad',topic:'unitcircle',title:'Degrees to radians',gen(){const d=pick([15,40,75,120,135,200,225,240,300,330,390,-45,-150]),ans=d*Math.PI/180;
-    return {q:`Convert ${d}° to radians. (An exact answer like 5pi/4 or a decimal both work.)`,ans,unit:'rad',abs:.005,chk:d/180*Math.PI,show:`${piText(ans)} ≈ ${fmt(ans,4)}`,hint:'Multiply by π/180.',
-      sol:`${d} × π/180 = <b>${piText(ans)}</b> ≈ ${fmt(ans,4)} radians.`};}});
+    return {q:`Convert ${nz(d)}° to radians. (An exact answer like 5pi/4 or a decimal both work.)`,ans,unit:'rad',abs:.005,chk:d/180*Math.PI,show:`${piText(ans)} ≈ ${fmt(ans,4)}`,hint:'Multiply by π/180.',
+      sol:`${nz(d)} × π/180 = <b>${piText(ans)}</b> ≈ ${fmt(ans,4)} radians.`};}});
   PROBS.push({id:'uc-point',topic:'unitcircle',title:'A point on a circle',gen(){const r=pick([2,3,4,5,8,10]),d=pick([20,50,110,160,200,250,290,340]),t=d*Math.PI/180,which=pick(['x','y']),ans=which==='x'?r*Math.cos(t):r*Math.sin(t);
     return {q:`A point starts at (${r}, 0) on a circle of radius ${r} centered at the origin and rotates ${d}° counterclockwise. Find its ${which}-coordinate to three decimal places.`,ans,unit:'',abs:.002,chk:which==='x'?Math.hypot(r,0)*Math.cos(d/57.29577951308232):Math.hypot(r,0)*Math.sin(d/57.29577951308232),
       hint:`On a circle of radius r the point is (r cos θ, r sin θ). Check your calculator is in degree mode (or convert).`,

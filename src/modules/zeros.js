@@ -67,9 +67,11 @@
     const ans=n===3?`${a} − ${b}i`:`${a} − ${b}i`,sgn=v=>String(v).replace('-','−');
     /* independent: the product (x − (a+bi))(x − (a−bi)) has real coefficients only when the second zero is the conjugate */
     const mid=-2*a,cst=a*a+b*b;
-    const {choices,ans:ix}=mcq(`${sgn(a)} − ${b}i`,[`${sgn(-a)} + ${b}i`,`${sgn(-a)} − ${b}i`,`${b} + ${sgn(a)}i`],4);
-    return {q:`A polynomial of degree ${n} with real coefficients has zeros ${sgn(r)}${n===4?`, ${sgn(r)}`:''} and ${sgn(a)} + ${b}i. Which of these must also be a zero?`,choices,ans:ix,chk:cst,hint:'Non-real zeros of a polynomial with real coefficients come in conjugate pairs.',
-      sol:`The conjugate of ${sgn(a)} + ${b}i is <b>${sgn(a)} − ${b}i</b>. Together they give x² ${mid<0?'−':'+'} ${Math.abs(mid)||''}x + ${cst}, which has real coefficients.`.replace('x² + x','x² + x')};}});
+    /* complex-number text without "0 +" or "1i": cx(0,2) -> "2i", cx(3,-1) -> "3 − i" */
+    const cx=(re,im)=>{const m=Math.abs(im)===1?'i':Math.abs(im)+'i';return re===0?(im<0?'−':'')+m:`${sgn(re)} ${im<0?'−':'+'} ${m}`;};
+    const {choices,ans:ix}=mcq(cx(a,-b),[cx(-a,b),cx(-a,-b),cx(b,a)],4);
+    return {q:`A polynomial of degree ${n} with real coefficients has zeros ${sgn(r)}${n===4?`, ${sgn(r)}`:''} and ${cx(a,b)}. Which of these must also be a zero?`,choices,ans:ix,chk:cst,hint:'Non-real zeros of a polynomial with real coefficients come in conjugate pairs.',
+      sol:`The conjugate of ${cx(a,b)} is <b>${cx(a,-b)}</b>. Together they give x² ${mid<0?'−':'+'} ${Math.abs(mid)||''}x + ${cst}, which has real coefficients.`.replace('x² + x','x² + x')};}});
   PROBS.push({id:'zr-sign',topic:'zeros',title:'Where is the polynomial positive?',gen(){let rs;do{rs=[ri(-4,4),ri(-4,4),ri(-4,4)].sort((a,b)=>a-b);}while(rs[0]===rs[1]||rs[1]===rs[2]);const lead=pick([1,-1]),f=x=>lead*rs.reduce((p,r)=>p*(x-r),1);
     /* count the length of the intervals (within [-6, 6]) where f > 0 */
     let L=0;const N=12000;for(let i=0;i<N;i++)if(f(-6+12*(i+.5)/N)>0)L+=12/N;
