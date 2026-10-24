@@ -24,4 +24,4 @@ Part of [Intulab](https://jiacode2030.github.io/intulab/), and installable as pa
 
 Report a mistake or something confusing with the **Report an issue** link on any page. It opens a pre-filled issue in the shared [Intulab feedback](https://github.com/jiacode2030/intulab-feedback/issues) tracker, labelled `course:precalc`.
 
-Privacy: progress stays in your browser (keys start with `prec-`); visits are counted anonymously with GoatCounter (no cookies). See the [Privacy policy](https://jiacode2030.github.io/intulab/privacy.html) and [Terms of use](https://jiacode2030.github.io/intulab/terms.html). © 2026 JL. All rights reserved.
+Privacy: progress stays in your browser (keys start with `prec-`); visits are counted anonymously with GoatCounter (no cookies). See the [Privacy policy](https://jiacode2030.github.io/intulab/privacy.html) and [Terms of use](https://jiacode2030.github.io/intulab/terms.html). © 2026 Jiarui Li. All rights reserved.
