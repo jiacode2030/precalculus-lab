@@ -503,3 +503,78 @@ mod('matrices', 'Matrices',
  [('The determinant of ⟨3 5; 2 4⟩ is', ['2', '22', '−2', '14'], 0, '3·4 − 5·2 = 12 − 10 = 2.'),
   ('A is 2 × 3 and B is 3 × 4. Then AB is', ['2 × 4', '3 × 3', '2 × 3', 'not defined'], 0, 'The inner sizes match (3 and 3); the result has the outer sizes: 2 × 4.')],
  ced=('4.10', '4.11', '4.14'))
+
+
+# =====================================================================
+# 4.12, 4.13  Linear transformations and matrices
+# =====================================================================
+def _lt_fig1():
+    P = Plot((-5, 5), (-4, 6), (30, 8, 210, 196))
+    base = P.axes([-4, -2, 2, 4], [-2, 2, 4], 'x', 'y', True)
+    L = [(1, _vec(P, 0, 0, 1, 0, 'f', 'î', (0, -2)) + _vec(P, 0, 0, 0, 1, 'dd', 'ĵ', (-8, 0)), 'the basis vectors î = ⟨1, 0⟩ and ĵ = ⟨0, 1⟩', 'f'),
+         (2, _vec(P, 0, 0, 0, 1, 'f', '', (0, 0), 3.2) + _vec(P, 0, 0, -1, 0, 'dd', '', (0, 0), 3.2) + P.text(.4, .55, 'î′ = ⟨0, 1⟩', 'f', 10, 'start') + P.text(-1.1, -.9, 'ĵ′ = ⟨−1, 0⟩', 'dd', 10, 'start'), 'rotating 90° sends î to ⟨0, 1⟩ and ĵ to ⟨−1, 0⟩: these are the columns', 'dd'),
+         (3, P.dot(3, 2, 'P (3, 2)', 'ink', 6, 14, 4) + P.dot(-2, 3, 'P′ (−2, 3)', 'tan', -32, -9, 5) + P.seg(3, 2, -2, 3, 'tan', 1.4, '4 3'), 'P = (3, 2) goes to (−2, 3)', 'tan'),
+         (4, '', 'M = ⟨0 −1; 1 0⟩, and M⟨3, 2⟩ = ⟨0·3 − 1·2, 1·3 + 0·2⟩ = ⟨−2, 3⟩', 'ink')]
+    return fig(base, L, 'A 90° rotation, read from where î and ĵ land.', 215)
+
+def _lt_fig2():
+    P = Plot((-1, 8), (-1, 4), (30, 10, 210, 120))
+    base = P.axes([2, 4, 6, 8], [1, 2, 3], 'x', 'y', True)
+    L = [(1, P.dot(1, 1, 'P (1, 1)', 'ink', 0, 16, 4), 'start at P = (1, 1)', 'ink'),
+         (2, P.dot(3, 1, '', 'f', r=4) + _vec(P, 1, 1, 3, 1, 'f', '', (0, 0), 2) + P.dot(6, 1, 'DS: (6, 1)', 'dd', 6, -9, 5) + _vec(P, 3, 1, 6, 1, 'dd', '', (0, 0), 2), 'S shears P to (3, 1); then D doubles x to (6, 1): DS⟨1, 1⟩ = ⟨6, 1⟩', 'dd'),
+         (3, P.dot(2, 1, '', 'd', r=4) + P.dot(4, 1, 'SD: (4, 1)', 'tan', 0, 18, 5) + P.text(2, 2.0, 'D first', 'd', 10), 'D first doubles x to (2, 1); then S shears it to (4, 1): SD⟨1, 1⟩ = ⟨4, 1⟩', 'tan'),
+         (4, '', 'DS = ⟨2 4; 0 1⟩ ≠ SD = ⟨2 2; 0 1⟩: order matters', 'area')]
+    return fig(base, L, 'Shear then stretch is not the same as stretch then shear.', 150)
+
+def _lt_fig3():
+    P = Plot((-1, 5), (-1, 4), (30, 8, 210, 140))
+    base = P.axes([1, 2, 3, 4], [1, 2, 3], 'x', 'y', True)
+    L = [(1, poly([(P.X(0), P.Y(0)), (P.X(1), P.Y(0)), (P.X(1), P.Y(1)), (P.X(0), P.Y(1))], 'area', .5, 'area', 1.6), 'the unit square has area 1', 'area'),
+         (2, _vec(P, 0, 0, 3, 1, 'f', '', (0, 0), 3) + _vec(P, 0, 0, 1, 2, 'dd', '', (0, 0), 3) + P.text(3.1, .55, '⟨3, 1⟩', 'f', 10, 'start') + P.text(.2, 2.35, '⟨1, 2⟩', 'dd', 10, 'start'), 'the columns of M = ⟨3 1; 1 2⟩ are where î and ĵ go', 'f'),
+         (3, poly([(P.X(0), P.Y(0)), (P.X(3), P.Y(1)), (P.X(4), P.Y(3)), (P.X(1), P.Y(2))], 'f', .22, 'f', 1.8) + P.dot(4, 3, '', 'f', r=3.4), 'the square becomes a parallelogram', 'f'),
+         (4, P.text(2.1, 1.6, 'area 5', 'ink', 12), 'area = |det M| = |3·2 − 1·1| = 5', 'ink')]
+    return fig(base, L, 'The determinant is the area scale factor.', 175)
+
+mod('lintrans', 'Linear transformations',
+ 'A 2 × 2 matrix is a function that moves every point of the plane. Its columns say where the basis vectors land, its determinant says how areas change, and multiplying matrices composes the moves.',
+ ['A <b>linear transformation</b> sends a point (x, y) to a new point by <span class="m">⟨x, y⟩ → ⟨ax + by, cx + dy⟩</span>, which is the matrix product <span class="m">⟨a b; c d⟩⟨x, y⟩</span>. Grid lines stay straight and parallel, and the origin stays fixed. To find the matrix of a transformation, ask where the basis vectors <b>î = ⟨1, 0⟩</b> and <b>ĵ = ⟨0, 1⟩</b> go: their images are the <b>columns</b> of the matrix. A rotation by θ counterclockwise is <span class="m">⟨cos θ −sin θ; sin θ cos θ⟩</span>; a stretch by factors p and q is ⟨p 0; 0 q⟩; a reflection over the x-axis is ⟨1 0; 0 −1⟩; a shear is ⟨1 k; 0 1⟩.',
+  'The <b>determinant</b> measures area: the unit square becomes a parallelogram of area |ad − bc|, so every area is multiplied by |det|. A negative determinant means orientation is flipped (a reflection is involved). If det = 0, the whole plane collapses onto a line or a point and cannot be undone. If det ≠ 0 the <b>inverse matrix</b> is the transformation that undoes the move.',
+  '<b>Composition</b>: doing P first and then Q is the matrix product <span class="m">QP</span> (the first transformation is on the right, next to the input). Since matrix multiplication is not commutative, the order of moves matters: a rotation followed by a stretch usually differs from the stretch followed by the rotation.'],
+ ('a matrix was a table of numbers that you multiplied and inverted', 'a picture of what a matrix does', 'a matrix is also a function on the plane: it moves points, and products and inverses become compositions and undoing', 'matrices as transformations: columns as images of î and ĵ, rotations, stretches, shears, determinant as area scale, composition and inverse'),
+ [('⟨x, y⟩ → ⟨ax + by, cx + dy⟩', 'M⟨x, y⟩'), ('columns = images of î and ĵ', 'build the matrix'), ('area × |det M|', 'ad − bc'), ('P then Q: QP', 'composition'), ('M⁻¹ undoes M', 'det ≠ 0')],
+ [lab('lt-lab', 'Transform the plane', canvas='lt-canvas', aria='The coordinate grid and unit square before and after a matrix transformation, with the images of the two basis vectors and of a chosen point.',
+   seg=('lt-pre', 'Presets', [('idn', 'Identity'), ('rot', 'Rotate 90°'), ('sca', 'Stretch'), ('shr', 'Shear'), ('ref', 'Reflect'), ('sqz', 'Squash flat')]),
+   ctl=[('lt-a', 'a (top left)', -3, 3, .1, 1), ('lt-b', 'b (top right)', -3, 3, .1, 0), ('lt-c', 'c (bottom left)', -3, 3, .1, 0), ('lt-d', 'd (bottom right)', -3, 3, .1, 1), ('lt-px', 'test point x', -3, 3, .5, 2), ('lt-py', 'test point y', -3, 3, .5, 1)],
+   out=[('lt-m', 'matrix', 'x'), ('lt-det', 'determinant and area', 'v'), ('lt-img', 'your test point goes to', '')]),
+  lab('lt-lab2', 'Compose two transformations', canvas='lt-canvas2', aria='A letter F, then its images when two chosen transformations are applied in the two possible orders.',
+   seg=('lt-p', 'First', [('rot', 'Rotate 90°'), ('str', 'Stretch x by 2'), ('shr', 'Shear'), ('ref', 'Reflect over y-axis'), ('hlf', 'Shrink by ½')]),
+   pre='<div class="ctl"><span class="lbl">Then</span><div class="seg" id="lt-q" role="group" aria-label="Then">' + ''.join(f'<button type="button" data-k="{k}" aria-pressed="{"true" if i == 1 else "false"}">{t}</button>' for i, (k, t) in enumerate([('rot', 'Rotate 90°'), ('str', 'Stretch x by 2'), ('shr', 'Shear'), ('ref', 'Reflect over y-axis'), ('hlf', 'Shrink by ½')])) + '</div></div>',
+   out=[('lt-qp', 'first, then second (blue)', 'x'), ('lt-pq', 'second, then first (magenta)', 'v'), ('lt-same', 'same result?', '')])],
+ [('Choose <b>Rotate 90°</b> and look at where î and ĵ end up. What are the columns of the matrix?', show(['click', '#lt-pre [data-k=rot]']), 'î goes to ⟨0, 1⟩ and ĵ to ⟨−1, 0⟩: the matrix is ⟨0 −1; 1 0⟩, with determinant 1 (areas unchanged, orientation kept).'),
+  ('Choose <b>Reflect</b>. What is the determinant, and what does its sign mean?', show(['click', '#lt-pre [data-k=ref]']), 'The determinant is −1: areas are unchanged but orientation is flipped (a clockwise loop becomes counterclockwise).'),
+  ('Choose <b>Squash flat</b>. Where does the whole grid go? Can you undo it?', show(['click', '#lt-pre [data-k=sqz]']), 'It collapses onto a line (det = 0): different points land in the same place, so no inverse exists.'),
+  ('In the second lab choose First = Rotate 90° and Then = Stretch x by 2, and compare the two results.', show(['click', '#lt-p [data-k=rot]'], ['click', '#lt-q [data-k=str]']), 'The blue and magenta pictures differ: a rotation then a stretch is not the same as a stretch then a rotation. The two products are different matrices.')],
+ [{'h': 'Worked example: build a rotation matrix', 'fig': _lt_fig1(),
+   'prob': 'Find the matrix of the transformation that rotates the plane 90° counterclockwise about the origin, and use it to find the image of P = (3, 2).',
+   'steps': ['<b>Follow the basis vectors.</b> A 90° counterclockwise rotation turns î = ⟨1, 0⟩ into ⟨0, 1⟩ and ĵ = ⟨0, 1⟩ into ⟨−1, 0⟩.',
+    '<b>Columns of the matrix.</b> M = <b>⟨0 −1; 1 0⟩</b> (first column ⟨0, 1⟩, second column ⟨−1, 0⟩). This matches ⟨cos 90° −sin 90°; sin 90° cos 90°⟩.',
+    '<b>Apply to P.</b> M⟨3, 2⟩ = ⟨0·3 + (−1)·2, 1·3 + 0·2⟩ = <b>⟨−2, 3⟩</b>.',
+    '<b>Check.</b> The distance from the origin is unchanged: √(3² + 2²) = √13 and √((−2)² + 3²) = √13 ✓, and det M = 0·0 − (−1)(1) = 1, so areas are preserved.']},
+  {'h': 'Worked example 2: composing a shear and a stretch', 'fig': _lt_fig2(),
+   'prob': 'S = ⟨1 2; 0 1⟩ shears the plane and D = ⟨2 0; 0 1⟩ doubles x. Find the matrix of "S first, then D" and of "D first, then S". Apply each to P = (1, 1).',
+   'steps': ['<b>Order.</b> "S first, then D" is the product DS (the first move is written on the right).',
+    '<b>DS.</b> ⟨2 0; 0 1⟩⟨1 2; 0 1⟩ = ⟨2·1 + 0·0, 2·2 + 0·1; 0·1 + 1·0, 0·2 + 1·1⟩ = <b>⟨2 4; 0 1⟩</b>. And SD = ⟨1 2; 0 1⟩⟨2 0; 0 1⟩ = <b>⟨2 2; 0 1⟩</b>.',
+    '<b>Apply to P = (1, 1).</b> DS⟨1, 1⟩ = ⟨2 + 4, 1⟩ = <b>⟨6, 1⟩</b>. Check by steps: S sends (1, 1) to (3, 1), then D to (6, 1) ✓. SD⟨1, 1⟩ = ⟨2 + 2, 1⟩ = <b>⟨4, 1⟩</b>.',
+    '<b>Compare.</b> DS ≠ SD, so the order matters. Their determinants agree: det DS = det SD = 2 = (det D)(det S) = 2·1.']},
+  {'h': 'Worked example 3: the determinant as area', 'fig': _lt_fig3(),
+   'prob': 'M = ⟨3 1; 1 2⟩. Find the area of the image of the unit square, and find the inverse of M.',
+   'steps': ['<b>Images of î and ĵ.</b> The columns: î → ⟨3, 1⟩ and ĵ → ⟨1, 2⟩. The unit square becomes the parallelogram with vertices (0, 0), (3, 1), (4, 3), (1, 2).',
+    '<b>Area.</b> det M = 3·2 − 1·1 = <b>5</b>, so the area is 5 times the original: <b>5</b>.',
+    '<b>Inverse.</b> M⁻¹ = (1/5)⟨2 −1; −1 3⟩ = <b>⟨0.4 −0.2; −0.2 0.6⟩</b>. It maps the parallelogram back to the unit square and scales areas by 1/5.',
+    '<b>Check.</b> M M⁻¹: first row (3, 1)·(0.4, −0.2) = 1.2 − 0.2 = 1 and (3, 1)·(−0.2, 0.6) = −0.6 + 0.6 = 0, as the identity requires.']}],
+ ['Writing the images of î and ĵ as the rows of the matrix: they are the columns.', 'Composing in the wrong order: "P first, then Q" is QP, not PQ.', 'Forgetting that a determinant of 0 means the plane collapses and there is no inverse.', 'Thinking a negative determinant means a negative area: it means orientation flips; the area scale is |det|.', 'Assuming every transformation fixes points other than the origin: only the origin is always fixed.'],
+ ('Why every linear map is determined by two vectors',
+  ['Because the transformation keeps grid lines straight and parallel, the image of any point ⟨x, y⟩ = x î + y ĵ is x times the image of î plus y times the image of ĵ. So two columns are all you need to know. This is why matrices are so efficient for computer graphics: every rotation, resize and shear of an image is a single 2 × 2 matrix applied to every pixel.']),
+ [('The matrix that sends î to ⟨2, 0⟩ and ĵ to ⟨0, 3⟩ is', ['⟨2 0; 0 3⟩', '⟨0 2; 3 0⟩', '⟨2 3; 0 0⟩', '⟨3 0; 0 2⟩'], 0, 'The columns are the images: first column ⟨2, 0⟩, second column ⟨0, 3⟩.'),
+  ('A transformation has determinant −3. It multiplies areas by', ['3 and flips orientation', '−3', '3 and keeps orientation', '1/3'], 0, 'Areas scale by |det| = 3, and the negative sign means orientation is reversed.')],
+ ced=('4.12', '4.13'))
