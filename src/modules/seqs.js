@@ -9,7 +9,7 @@
     ctx.strokeStyle=alpha(T.ce,.8);ctx.lineWidth=1.4;ctx.setLineDash([5,4]);ctx.beginPath();A.forEach((v,i)=>{i?ctx.lineTo(P.X(i),P.Y(v)):ctx.moveTo(P.X(i),P.Y(v));});ctx.stroke();ctx.setLineDash([]);
     A.forEach((v,i)=>dot(ctx,P.X(i),P.Y(v),5.5,T.cx,T.surface));
     label(ctx,'a(n)',P.box.x+8,P.box.y+11,T.muted,'left','middle',MONO);label(ctx,'n',P.box.x+P.box.w-6,P.box.y+P.box.h-8,T.muted,'right','middle',MONO);
-    const geo=kind==='geom',m=Math.max(...B.map(Math.abs),geo?2:1)*1.3,lo2=geo?0:Math.min(0,...B)<0?-m:-m*.15,hi2=geo?m:Math.max(0,...B)>0?m:m*.15,Q=gpanel(ctx,{x:46,y:12+gh+28,w:w-60,h:h-gh-58},[-.5,10.5],[lo2,hi2],{xn:10,yn:2});
+    const geo=kind==='geom',m=Math.max(...B.map(Math.abs),geo?2:1)*1.75,lo2=geo?0:Math.min(0,...B)<0?-m:-m*.15,hi2=geo?m:Math.max(0,...B)>0?m:m*.15,Q=gpanel(ctx,{x:46,y:12+gh+28,w:w-60,h:h-gh-58},[-.5,10.5],[lo2,hi2],{xn:10,yn:2});
     const bw=Math.max(6,(Q.X(1)-Q.X(0))*.5);B.forEach((v,i)=>{const x0=Q.X(i+.5)-bw/2,y0=Q.Y(geo?0:0),y1=Q.Y(v);ctx.fillStyle=alpha(T.hot,.78);ctx.fillRect(x0,Math.min(y0,y1),bw,Math.abs(y1-y0));
       if(i<8)label(ctx,fmt(v,2),Q.X(i+.5),y1+(v>=0?-9:9),T.hot,'center','middle','600 10px "IBM Plex Mono",monospace');});
     if(geo)line(ctx,Q,-.5,1,10.5,1,alpha(T.ce,.9),1.2,[4,4]);
