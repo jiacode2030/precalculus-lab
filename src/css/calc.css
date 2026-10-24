@@ -1,0 +1,308 @@
+
+/* ---------------- Precalculus Lab additions ---------------- */
+.legend .lg{display:flex;align-items:center;gap:9px}
+.legend .lg i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--k)}
+.mod.soon{opacity:.6;border-style:dashed;cursor:default;pointer-events:none}
+.heroseg{margin:10px 4px 2px}
+.lab3d-hero{min-height:250px}
+.fs-tabs{padding:10px 18px 4px;border-bottom:1px solid var(--line)}
+.fs-tabs .seg{width:100%}
+.fs-tabs .seg button{flex:1;min-height:36px;white-space:nowrap}
+.fs.wide{width:min(800px,100vw)}
+@media (min-width:1500px){.fs.open:not(.wide)~.app{padding-right:400px}.fs.wide.open~.app{padding-right:0}}
+.pfig{max-width:520px}.pfig svg{display:block;width:100%;height:auto}
+.sopts button.picked{border-color:var(--cx);box-shadow:0 0 0 2px color-mix(in srgb,var(--cx) 25%,transparent)}
+.sopts button{min-height:36px}
+.atomkey{display:flex;flex-wrap:wrap;gap:6px 14px;font:500 12px var(--f-mono);color:var(--muted);padding:2px 2px 0}
+.atomkey span{display:inline-flex;align-items:center;gap:6px}
+.atomkey i{width:12px;height:12px;border-radius:50%;background:var(--k);box-shadow:inset -2px -2px 3px rgba(0,0,0,.28),0 0 0 1px rgba(0,0,0,.25)}
+.lab + .lab{margin-top:-6px}
+.molname{font:600 19px/1.2 var(--f-display);margin:0}
+.molname small{font:500 12px var(--f-mono);color:var(--muted);margin-left:8px;letter-spacing:.04em;text-transform:uppercase}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);font:500 12.5px var(--f-mono);background:var(--surface)}
+.chip.yes{color:var(--good);border-color:color-mix(in srgb,var(--good) 45%,var(--line))}
+.chip.no{color:var(--hot);border-color:color-mix(in srgb,var(--hot) 45%,var(--line))}
+.toggles{display:flex;flex-wrap:wrap;gap:8px 18px}
+.toggles .check{min-height:32px}
+.toggles input{width:18px;height:18px;accent-color:var(--ink)}
+.ctl select{min-height:40px}
+.mono{font-family:var(--f-mono)}
+
+
+
+/* ---- unit-cancelling lab ---- */
+.un-chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;min-height:84px;padding:12px;border:1px dashed var(--line);border-radius:12px;background:var(--sunk)}
+.un-chain .times{font:600 18px var(--f-math);color:var(--muted)}
+.frac{display:inline-flex;flex-direction:column;align-items:center;font:500 14.5px/1.35 var(--f-mono);padding:2px 4px;border-radius:8px;background:var(--surface);border:1px solid var(--line);animation:pop-in var(--d-3) var(--ease-spring) both;cursor:default}
+.frac.rm{cursor:pointer}.frac.rm:hover{border-color:var(--bad)}
+.frac .n,.frac .d{padding:1px 6px;white-space:nowrap}.frac .n{border-bottom:1.5px solid var(--ink)}
+.frac .n.one,.frac .d.one{color:var(--muted)}
+.u{display:inline-block;transition:color var(--d-2),opacity var(--d-3),transform var(--d-3) var(--ease-out)}
+.u.x{color:var(--bad);text-decoration:line-through;text-decoration-thickness:2px;opacity:.55;transform:translateY(-1px) scale(.92)}
+.un-tiles{display:flex;flex-wrap:wrap;gap:10px}
+.un-tile{display:flex;align-items:center;gap:4px}
+.un-tile .frac{cursor:pointer;transition:transform var(--d-1),box-shadow var(--d-1)}.un-tile .frac:hover{transform:translateY(-2px);box-shadow:var(--shadow-1)}
+.un-tile .flip{border:1px solid var(--line);background:var(--surface);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:15px;line-height:1}
+.un-res{font:600 17px var(--f-mono);min-height:30px}
+.un-res.ok{color:var(--good)}.un-res.warn{color:var(--hot)}
+.un-q{margin:0;font-weight:500}
+
+/* ---- sig figs ---- */
+.chips{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px;min-height:64px;padding:10px 12px;border-radius:12px;background:var(--sunk)}
+.chip-d{display:inline-flex;flex-direction:column;align-items:center;gap:3px;font:600 26px/1 var(--f-mono);min-width:26px}
+.chip-d b{font:inherit;padding:6px 7px;border-radius:8px;border:2px solid var(--line);background:var(--surface);transition:background var(--d-2),border-color var(--d-2),transform var(--d-2) var(--ease-spring)}
+.chip-d small{font:500 9.5px var(--f-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);height:11px}
+.chip-d.sig b{border-color:var(--good);background:color-mix(in srgb,var(--good) 16%,var(--surface));transform:translateY(-3px)}
+.chip-d.lead b{color:var(--muted);border-style:dashed}
+.chip-d.amb b{border-color:var(--hot);border-style:dashed;background:color-mix(in srgb,var(--hot) 12%,var(--surface))}
+.chip-d.pt b{border:0;background:none;padding:6px 1px;color:var(--ink)}
+.chip-x{font:600 22px var(--f-mono);padding:0 6px;align-self:center}
+.colmath{font:500 20px/1.5 var(--f-mono);overflow-x:auto;padding:10px 12px;border-radius:12px;background:var(--sunk);white-space:pre}
+.colmath .row{display:block}
+.colmath .cd{display:inline-block;width:1ch;text-align:center}
+.colmath .unc{color:var(--hot);background:color-mix(in srgb,var(--hot) 14%,transparent);border-radius:3px}
+.colmath .lim{outline:2px solid var(--cv);outline-offset:1px;border-radius:3px}
+.colmath .sep{display:block;border-top:2px solid var(--ink);margin:3px 0}
+
+/* ---- equation steppers ---- */
+.eq-steppers{display:flex;flex-wrap:wrap;gap:10px 6px;align-items:center}
+.stp{display:inline-flex;align-items:center;gap:6px}
+.stp .arr{font:600 22px var(--f-math);color:var(--muted);padding:0 6px}
+.stp-b{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.stp-b button{border:0;background:transparent;width:36px;height:40px;font:600 20px var(--f-body);cursor:pointer;color:var(--ink)}
+.stp-b button:hover{background:var(--sunk)}
+.stp-b output{min-width:28px;text-align:center;font:700 17px var(--f-mono)}
+.stp-f{font:600 19px var(--f-math)}
+.eq-line{margin:0;font:500 22px/1.4 var(--f-math);overflow-x:auto;white-space:nowrap}
+
+.eq-block{display:flex;flex-direction:column;gap:6px;font:500 17px/1.5 var(--f-math);overflow-x:auto}
+.eq-block .lbl{font:500 11px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block}
+.eq-block .ln{white-space:nowrap}
+.eq-block .sp{color:var(--muted);text-decoration:line-through;text-decoration-thickness:2px}
+.eq-block .net{color:var(--good);font-weight:600}
+table.data th,table.data td{padding:6px 6px;font-size:13px;text-align:center;border-bottom:1px solid var(--line,#d8dde6)}
+table.data th{font-weight:600;color:var(--muted)}
+table.data{min-width:0}
+.ctl[hidden]{display:none!important}
+.steps-list{display:grid;gap:6px}
+.stp{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}
+.stp em{font-style:normal;font-size:12px;margin-left:6px;padding:1px 8px;border-radius:99px}
+.stp em.slow{background:var(--hot);color:#fff}
+.stp em.fast{background:var(--surface-2,#eef1f5);border:1px solid var(--line)}
+.derive{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15px}
+.hl-rows{display:grid;gap:8px}
+.hl-row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.hl-eq{font:500 14px var(--f-mono)}.hl-eq small{color:var(--muted);margin-left:6px}
+.hl-row label{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+/* touch targets: at least ~44px on phones */
+@media (max-width:900px){
+  .btn{min-height:44px;padding:10px 16px}
+  .btn.link{min-height:40px}
+  .seg button{min-height:40px;padding:8px 14px}
+  select,input[type=text]{min-height:44px}
+  input[type=checkbox]{width:22px;height:22px}
+  .check,.pt{min-height:44px;align-items:center}
+  .pt input{margin-top:0}
+  .quiz .opts button,.sopts button{min-height:44px}
+  input[type=range]{min-height:44px}
+  .steps a{min-height:40px}
+}
+
+/* =====================================================================
+   Rose-magenta theme layer (Precalculus): a soft pink page, raspberry accent, lavender "assumption" cards.
+   Graph color roles: main curve blue, second curve green, cosine/third curve magenta, moving point/tangent orange, guides gold.
+   ===================================================================== */
+:root{
+  --bg:#FAF4F7; --surface:#FFFCFD; --sunk:#F2E5EB; --ink:#2A1620; --muted:#6E5560; --line:#E7D3DC; --grid:#F1E4EA;
+  --accent:#B3245C; --accent-d:#97194B; --accent-soft:#FBE4ED; --accent-ink:#FFFFFF; --blush:#EEE8FB; --peach:#FDEBD8; --lav-line:#D9CCF0;
+  --shadow-1:0 1px 2px rgba(80,30,50,.05),0 4px 14px rgba(80,30,50,.05);
+  --shadow-2:0 2px 4px rgba(80,30,50,.07),0 16px 34px rgba(80,30,50,.11);
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#140B10; --surface:#1E1218; --sunk:#2A1821; --ink:#F8EAF0; --muted:#CDB3C0; --line:#4A2E3C; --grid:#24151D;
+  --accent:#F27BAF; --accent-d:#F8A8CA; --accent-soft:#3B1A2A; --accent-ink:#24030F; --blush:#231D38; --peach:#35291B; --lav-line:#4A3F6E;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4); --shadow-2:0 2px 4px rgba(0,0,0,.4),0 14px 30px rgba(0,0,0,.45);}}
+:root[data-theme="dark"]{
+  --bg:#140B10; --surface:#1E1218; --sunk:#2A1821; --ink:#F8EAF0; --muted:#CDB3C0; --line:#4A2E3C; --grid:#24151D;
+  --accent:#F27BAF; --accent-d:#F8A8CA; --accent-soft:#3B1A2A; --accent-ink:#24030F; --blush:#231D38; --peach:#35291B; --lav-line:#4A3F6E;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4); --shadow-2:0 2px 4px rgba(0,0,0,.4),0 14px 30px rgba(0,0,0,.45);}
+
+/* page: a flat soft pink with one faint glow */
+html,body{background:var(--bg)}
+body{background:radial-gradient(900px 520px at 88% -8%,color-mix(in srgb,var(--accent) 7%,transparent),transparent 70%),var(--bg);background-attachment:fixed}
+main::before{opacity:.55}
+a{color:var(--accent-d)}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:2px}
+
+/* side rail */
+.rail{background:linear-gradient(180deg,color-mix(in srgb,var(--accent-soft) 55%,var(--surface)),var(--surface) 45%);border-right:1px solid var(--line)}
+.brand{color:var(--ink)}
+.nav a{border-radius:12px;padding:7px 12px;color:var(--muted);transition:background .18s,color .18s,transform .18s}
+.nav a:hover{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink);transform:translateX(2px)}
+.nav a[aria-current="page"]{background:var(--accent);color:var(--accent-ink);font-weight:600;box-shadow:0 4px 12px color-mix(in srgb,var(--accent) 35%,transparent)}
+.nav .ind{background:var(--accent);border-radius:12px;box-shadow:0 4px 12px color-mix(in srgb,var(--accent) 35%,transparent)}
+.nav.has-ind a[aria-current="page"]{color:var(--accent-ink)}
+.nav .grp{color:var(--accent-d);letter-spacing:.09em}
+.nav a.done::after{color:var(--accent)}
+.rmeter{background:color-mix(in srgb,var(--accent) 18%,var(--surface));height:8px}
+.rmeter i{background:linear-gradient(90deg,#F58BB2,var(--accent))}
+.searchbtn,.themebtn{border-radius:14px;background:color-mix(in srgb,var(--surface) 70%,var(--accent-soft));border-color:var(--line)}
+.searchbtn:hover,.themebtn:hover{border-color:var(--accent)}
+
+/* buttons */
+.btn{border-radius:12px;border-color:var(--line);background:var(--surface)}
+.btn:hover{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 32%,transparent)}
+.btn.primary:hover{background:var(--accent-d);border-color:var(--accent-d);opacity:1}
+.btn.link{color:var(--accent-d)}
+.btn.isdone{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.fs-btn{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:var(--shadow-2)}
+.seg{background:color-mix(in srgb,var(--accent) 12%,var(--sunk));border-radius:12px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--accent-d);box-shadow:0 1px 4px rgba(60,40,40,.18)}
+input[type=range],input[type=checkbox]{accent-color:var(--accent)}
+select,input[type=text]{border-radius:11px;background:var(--surface);border-color:var(--line)}
+select:focus,input[type=text]:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+
+/* cards and panels */
+.lab,.example,.sorter,.frq,.prob,.strobe,.start>div,.mod,.modnav a,.tablewrap,.hs-row,.stp{border-radius:var(--r);border-color:var(--line);background:var(--surface);box-shadow:var(--shadow-1)}
+.lab::before,.strobe::before{background:linear-gradient(90deg,#F58BB2 0 34%,#F4B6CF 34% 67%,#E9967A 67% 100%);height:5px;width:64px;border-radius:0 0 4px 4px}
+.mod:hover{border-color:var(--accent);box-shadow:var(--shadow-2)}
+.mod::before{background:var(--accent)}
+.readout{border-radius:14px;background:var(--line);border-color:var(--line)}
+.coach{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:14px}
+.coach b{color:var(--accent-d)}
+.intuit{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 var(--r) var(--r) 0}
+.intuit .k{color:var(--accent-d)}
+.try{background:color-mix(in srgb,#CFE6FA 26%,var(--surface));border-color:color-mix(in srgb,#8DBCEB 40%,var(--line));border-radius:var(--r)}
+.assume.upgrade{background:var(--blush);border-color:var(--lav-line);border-radius:var(--r)}
+.assume.upgrade h3{color:var(--accent-d)}
+.oops{background:color-mix(in srgb,var(--peach) 55%,var(--surface));border-left-color:#E5895B;border-radius:0 var(--r) var(--r) 0;padding:14px 18px}
+.oops h3{color:#B5502A}
+.note{background:var(--peach);border-radius:12px;border-left-color:#E5895B;padding:10px 14px}
+.ttip{background:var(--peach);border-radius:var(--r)}
+.eqgrid .eqc,.eqgrid .eqn{background:var(--sunk);border:1px solid transparent;border-radius:14px}
+.eq-block{background:var(--sunk);border-radius:14px}
+.tag{background:color-mix(in srgb,var(--accent-soft) 60%,var(--surface));border-color:color-mix(in srgb,var(--accent) 30%,var(--line));color:var(--accent-d)}
+.tag.ap{background:var(--accent-soft);color:var(--accent-d);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
+.eyebrow{color:var(--accent-d)}
+details summary{border-color:color-mix(in srgb,var(--accent) 40%,transparent);color:var(--accent-d)}
+details summary:hover,details[open] summary{background:var(--accent-soft)}
+details>p,details>div{border-left-color:var(--accent);background:var(--surface)}
+.quiz .opts button{border-radius:12px}
+.quiz .opts button:hover{background:var(--accent-soft)}
+.example h3,.try h3,.sorter h3{color:var(--accent-d)}
+.meter{background:color-mix(in srgb,var(--accent) 16%,var(--surface))}.meter i{background:linear-gradient(90deg,#F58BB2,var(--accent))}
+
+/* step pills */
+.steps a{border-radius:999px;background:var(--surface);border-color:var(--line)}
+.steps .ind{background:var(--accent);box-shadow:0 4px 12px color-mix(in srgb,var(--accent) 35%,transparent)}
+.steps a.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.steps a.on .sn{color:var(--accent-ink)}
+.steps.has-ind a.on{color:var(--accent-ink)}
+
+/* headings and hero */
+h1{letter-spacing:-.03em}
+.hero h1 .hl{background:none;animation:none}
+.wrap>.head h2::after{background:var(--accent);border-radius:3px}
+.hero .copy .btn.primary{padding:12px 20px;font-size:15px}
+.strobe{background:linear-gradient(160deg,var(--surface),color-mix(in srgb,var(--accent-soft) 55%,var(--surface)))}
+.lede{color:var(--muted)}
+.gloss{text-decoration-color:var(--accent)}
+#gtip,.cmd,.pop{border-radius:var(--r)}
+#cmd-list li[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.bubble{background:var(--accent);color:var(--accent-ink)}
+@media (max-width:900px){.rail{background:var(--surface);backdrop-filter:blur(8px)}}
+
+/* AP exam countdown + credit row */
+.countdown{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);background:var(--surface);padding:12px 16px;max-width:62ch;box-shadow:var(--shadow-1)}
+.countdown:empty{display:none}
+.countdown .num{font:800 38px/1 var(--f-display);letter-spacing:-.03em;color:var(--accent-d);font-variant-numeric:tabular-nums}
+.countdown .lbl{display:flex;flex-direction:column;gap:2px;font-size:14px;color:var(--ink)}
+.countdown .lbl small{font:500 11.5px var(--f-mono);color:var(--muted)}
+#rail-count:empty{display:none}#rail-count{color:var(--accent-d);font-weight:600}
+.credit-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:0 0 6px;font-size:13.5px;color:var(--ink)}
+.li-link{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:600 12.5px var(--f-body);text-decoration:none;min-height:32px}
+.li-link svg{width:14px;height:14px;fill:#0A66C2}.li-link:hover{border-color:#0A66C2;color:#0A66C2}
+.prob header .tag{white-space:normal;max-width:100%}
+
+/* =====================================================================
+   AB / BC: BC-only parts carry .bc (modules, groups, rows); BC extras inside shared modules are .bcx boxes.
+   Choosing AB hides them all (body.is-ab).
+   ===================================================================== */
+.course{display:flex;align-items:center;gap:10px;margin:2px 0 4px}
+.course .seg button{min-width:52px;font-weight:600}
+.bcbadge{font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ca);border:1px solid color-mix(in srgb,var(--ca) 45%,transparent);border-radius:999px;padding:1px 7px;margin-left:8px;vertical-align:middle;white-space:nowrap}
+.nav a[aria-current="page"] .bcbadge{color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent-ink) 60%,transparent)}
+.bcdiv{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ca);margin:18px 12px 0;padding-top:12px;border-top:1px dashed var(--line)}
+.bcx{border:1px dashed color-mix(in srgb,var(--ca) 55%,var(--line));background:color-mix(in srgb,var(--ca) 6%,var(--surface));border-radius:12px;padding:12px 16px;margin:6px 0;display:flex;flex-direction:column;gap:6px;max-width:72ch}
+.bcx>b:first-child,.bcx>.k{font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ca)}
+body.is-ab .bc,body.is-ab .bcx{display:none!important}
+.modgroup.bc .mod{border-style:dashed}
+body.is-ab .prob.bc{display:none!important}
+.eqgrid .eqn{flex-wrap:wrap;white-space:normal}.eqgrid .eqn small{text-align:right}
+.readout strong{white-space:normal;overflow-wrap:anywhere;font-size:clamp(13px,1.6vw,17px);line-height:1.3}
+body.is-ab .mitem.bc,body.is-ab .frq.bc,body.is-ab tr.bc{display:none!important}
+
+/* tables inside problem text, and long FRQ headers on phones */
+.lmtbl{min-width:0;width:auto;border-collapse:collapse;font:500 13px var(--f-mono);margin-top:8px}
+.lmtbl th,.lmtbl td{border:1px solid var(--line);padding:5px 9px;text-align:right;white-space:nowrap}
+.lmtbl th{background:var(--sunk);font-weight:600}
+.prob .q .lmtbl{display:block;max-width:100%;overflow-x:auto}
+.frq .fh .row{flex-wrap:wrap}
+.frq .fh .tag{white-space:normal}
+.ap-set{padding:0;min-height:0}
+@media (max-width:900px){.ap-set{padding:12px 8px;min-height:44px}}
+
+/* very small phones: long formulas may wrap */
+@media (max-width:360px){.m{white-space:normal}}
+
+/* Dark mode: no colored glows (same as the other Intulab sites). Light mode is unchanged. */
+:root[data-theme="dark"] .nav a[aria-current="page"],:root[data-theme="dark"] .nav .ind,:root[data-theme="dark"] .steps .ind,:root[data-theme="dark"] .btn.primary{box-shadow:none}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .nav a[aria-current="page"],:root:not([data-theme="light"]) .nav .ind,:root:not([data-theme="light"]) .steps .ind,:root:not([data-theme="light"]) .btn.primary{box-shadow:none}
+}
+
+/* readable headings on the yellow theme (4.5:1): teaching tip in light, mistakes and "Try this" notes in dark */
+.ttip h3,.note b{color:#9A4A0C}
+:root[data-theme="dark"] .ttip h3,:root[data-theme="dark"] .note b{color:#F2A04E}
+:root[data-theme="dark"] .oops h3{color:#F59A72}
+:root[data-theme="dark"] .try .small{color:#D6CCAA}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .ttip h3,:root:not([data-theme="light"]) .note b{color:#F2A04E}
+  :root:not([data-theme="light"]) .oops h3{color:#F59A72}
+  :root:not([data-theme="light"]) .try .small{color:#D6CCAA}
+}
+
+/* Dark mode legibility: calmer "Try this" panel, steadier surfaces and borders */
+:root[data-theme="dark"] .try{background:color-mix(in srgb,var(--cx) 11%,var(--surface));border-color:color-mix(in srgb,var(--cx) 38%,var(--line))}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .try{background:color-mix(in srgb,var(--cx) 11%,var(--surface));border-color:color-mix(in srgb,var(--cx) 38%,var(--line))}
+}
+
+/* Pointer feel (shared with the Intulab landing page): a soft glow follows the mouse, module cards tilt toward it and light up. Mouse and trackpad only; off for reduced motion. */
+#ptr{position:fixed;left:0;top:0;width:560px;height:560px;margin:-280px 0 0 -280px;border-radius:50%;pointer-events:none;z-index:0;opacity:0;transition:opacity .5s;
+  background:radial-gradient(circle,color-mix(in srgb,var(--accent,#5CB8FF) 12%,transparent),transparent 66%);will-change:transform}
+#ptr.on{opacity:1}
+@media (hover:hover) and (pointer:fine){
+  a.mod:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-3px);
+    background-image:radial-gradient(220px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--accent,#5CB8FF) 15%,transparent),transparent 70%)}
+}
+@media (prefers-reduced-motion:reduce){#ptr{display:none}a.mod:hover{transform:translateY(-3px)}}
+
+/* Predict-then-reveal drills (same markup as Mechanics Lab): .sorter.drill > .fcases > .fcase[data-correct] */
+.fcases{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.fcase{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.fcpics{background:var(--sunk);border-radius:10px;padding:4px}
+.fcpics svg{display:block;width:100%;max-width:260px;margin:0 auto;height:auto}
+.fcpics svg[hidden]{display:none!important}
+.fcbody{display:flex;flex-direction:column;gap:8px;min-width:0}
+.fcase .fq{margin:0}
+.fcase .sopts{display:flex;flex-wrap:wrap;gap:6px}
+.fcase .sopts button{flex:1 1 auto;min-height:40px}
+.sopts button.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--surface));color:var(--ink)}
+.sopts button.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.fcwhy p{margin:0;font-size:13.5px}
+.fcscore{font:600 12.5px var(--f-mono);color:var(--accent-d)}
+.course .seg button{white-space:nowrap;min-width:0}
+@media (max-width:900px){.course>.small{display:none}.course .seg{flex-wrap:nowrap;flex-direction:row}}

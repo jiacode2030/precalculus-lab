@@ -1,0 +1,10 @@
+[
+ {"w":"Unit 1","name":"Polynomial and rational functions","tag":"AP Unit 1","bc":false,
+  "ids":["roc","linquad","polyfn","zeros","endbeh","rational","holes","equiv","transform","models"]},
+ {"w":"Unit 2","name":"Exponential and logarithmic functions","tag":"AP Unit 2","bc":false,
+  "ids":["seqs","expfn","expmanip","expmodel","compose","inverse","logfn","logrules","expeq","logmodel","semilog"]},
+ {"w":"Unit 3","name":"Trigonometric and polar functions","tag":"AP Unit 3","bc":false,
+  "ids":["periodic","unitcircle","sinegraph","sinusoid","sinmodel","tangent","invtrig","trigeq","recip","identities","polarcoord","polargraph","polarroc"]},
+ {"w":"Unit 4","name":"Functions involving parameters, vectors and matrices","tag":"AP Unit 4 · not on exam","bc":true,
+  "ids":["param","paramroc","implicit","conics","vectors","matrices","lintrans"]}
+]

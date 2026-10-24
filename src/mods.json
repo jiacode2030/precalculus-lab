@@ -1,0 +1,207 @@
+{
+ "roc": {
+  "t": "Change in tandem & rates of change",
+  "d": "How two quantities move together, and the average rate of change between two points.",
+  "bc": false
+ },
+ "linquad": {
+  "t": "Linear vs quadratic change",
+  "d": "Constant rate of change versus a rate of change that changes at a constant rate.",
+  "bc": false
+ },
+ "polyfn": {
+  "t": "Polynomial functions",
+  "d": "Turning points, extrema and inflection: where a polynomial's rate of change switches.",
+  "bc": false
+ },
+ "zeros": {
+  "t": "Zeros & complex zeros",
+  "d": "Real zeros, multiplicity, and the complex zeros that come in conjugate pairs.",
+  "bc": false
+ },
+ "endbeh": {
+  "t": "End behavior",
+  "d": "What the leading term does to a polynomial as x gets huge.",
+  "bc": false
+ },
+ "rational": {
+  "t": "Rational functions",
+  "d": "End behavior, zeros and vertical asymptotes of a ratio of polynomials.",
+  "bc": false
+ },
+ "holes": {
+  "t": "Holes",
+  "d": "When a factor cancels: the graph keeps going but one point is missing.",
+  "bc": false
+ },
+ "equiv": {
+  "t": "Equivalent forms",
+  "d": "Long division, factored and expanded forms, and the binomial theorem.",
+  "bc": false
+ },
+ "transform": {
+  "t": "Transformations",
+  "d": "Shift, stretch and reflect any graph with a, b, h and k.",
+  "bc": false
+ },
+ "models": {
+  "t": "Building function models",
+  "d": "Choose a model, state its assumptions, and use piecewise functions.",
+  "bc": false
+ },
+ "seqs": {
+  "t": "Arithmetic & geometric sequences",
+  "d": "Adding the same amount versus multiplying by the same factor.",
+  "bc": false
+ },
+ "expfn": {
+  "t": "Exponential functions",
+  "d": "Growth and decay by a constant factor: f(x) = a·bˣ.",
+  "bc": false
+ },
+ "expmanip": {
+  "t": "Exponent rules",
+  "d": "Rewrite exponential expressions: product, power and negative exponents.",
+  "bc": false
+ },
+ "expmodel": {
+  "t": "Exponential models & data",
+  "d": "Fit a·bˣ to data, compare models, and read residuals.",
+  "bc": false
+ },
+ "compose": {
+  "t": "Composition of functions",
+  "d": "Feed one function into another, and pull composites apart.",
+  "bc": false
+ },
+ "inverse": {
+  "t": "Inverse functions",
+  "d": "Undo a function: swap inputs and outputs, reflect across y = x.",
+  "bc": false
+ },
+ "logfn": {
+  "t": "Logarithms & log functions",
+  "d": "A logarithm is an exponent. Log graphs are exponential graphs turned sideways.",
+  "bc": false
+ },
+ "logrules": {
+  "t": "Log properties",
+  "d": "Product, quotient and power rules, and change of base.",
+  "bc": false
+ },
+ "expeq": {
+  "t": "Exponential & log equations",
+  "d": "Solve for the exponent, and watch the domain of the log.",
+  "bc": false
+ },
+ "logmodel": {
+  "t": "Logarithmic models",
+  "d": "When growth keeps slowing: logs fit data that levels off without a ceiling.",
+  "bc": false
+ },
+ "semilog": {
+  "t": "Semi-log plots",
+  "d": "On a log scale, exponential data becomes a straight line.",
+  "bc": false
+ },
+ "periodic": {
+  "t": "Periodic phenomena",
+  "d": "Patterns that repeat: period, amplitude and midline from a graph.",
+  "bc": false
+ },
+ "unitcircle": {
+  "t": "Sine, cosine & the unit circle",
+  "d": "Angles as rotation, radians, and the point (cos θ, sin θ).",
+  "bc": false
+ },
+ "sinegraph": {
+  "t": "Sine & cosine graphs",
+  "d": "Unroll the circle: the height and width of the point as θ grows.",
+  "bc": false
+ },
+ "sinusoid": {
+  "t": "Sinusoidal transformations",
+  "d": "Amplitude, period, phase shift and midline: f(θ) = a sin(b(θ + c)) + d.",
+  "bc": false
+ },
+ "sinmodel": {
+  "t": "Sinusoidal models",
+  "d": "Tides, Ferris wheels and daylight: build a sinusoid from a context.",
+  "bc": false
+ },
+ "tangent": {
+  "t": "The tangent function",
+  "d": "Slope of the radius: period π and an asymptote wherever cos θ = 0.",
+  "bc": false
+ },
+ "invtrig": {
+  "t": "Inverse trig functions",
+  "d": "arcsin, arccos and arctan, and why their outputs are restricted.",
+  "bc": false
+ },
+ "trigeq": {
+  "t": "Trig equations & inequalities",
+  "d": "Every solution in a period, then add the period.",
+  "bc": false
+ },
+ "recip": {
+  "t": "Secant, cosecant & cotangent",
+  "d": "The reciprocal functions and where their asymptotes come from.",
+  "bc": false
+ },
+ "identities": {
+  "t": "Trig identities",
+  "d": "Pythagorean, sum and double-angle identities, seen on the circle.",
+  "bc": false
+ },
+ "polarcoord": {
+  "t": "Polar coordinates",
+  "d": "Locate a point by distance and angle, and convert to and from (x, y).",
+  "bc": false
+ },
+ "polargraph": {
+  "t": "Polar graphs",
+  "d": "Drag r(θ) and watch roses, limaçons and spirals draw themselves.",
+  "bc": false
+ },
+ "polarroc": {
+  "t": "Rates of change in polar",
+  "d": "Is the curve moving toward or away from the origin?",
+  "bc": false
+ },
+ "param": {
+  "t": "Parametric functions",
+  "d": "x(t) and y(t) together: a path with a direction and a clock.",
+  "bc": true
+ },
+ "paramroc": {
+  "t": "Parametric rates of change",
+  "d": "Horizontal and vertical speed, and the slope dy/dx of a path.",
+  "bc": true
+ },
+ "implicit": {
+  "t": "Implicit functions",
+  "d": "Curves that aren't functions of x, defined by an equation in x and y.",
+  "bc": true
+ },
+ "conics": {
+  "t": "Conic sections",
+  "d": "Parabolas, ellipses and hyperbolas from their equations.",
+  "bc": true
+ },
+ "vectors": {
+  "t": "Vectors",
+  "d": "Magnitude and direction, adding, scaling and the dot product.",
+  "bc": true
+ },
+ "matrices": {
+  "t": "Matrices",
+  "d": "Multiply, find the determinant and the inverse of a 2 × 2 matrix.",
+  "bc": true
+ },
+ "lintrans": {
+  "t": "Linear transformations",
+  "d": "Matrices as functions that rotate, stretch and shear the plane.",
+  "bc": true
+ }
+}
