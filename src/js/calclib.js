@@ -135,6 +135,8 @@ function glab(id,o){const cv=$('#'+id);if(!cv)return null;let last=null;const mx
 const sgn=v=>(v<0?' − ':' + ')+Math.abs(+(+v).toFixed(4));
 /* number text with a true minus sign */
 const nz=v=>String(+(+v).toFixed(4)).replace('-','−');
+/* a number (or number text) in parentheses when it is negative, for products and differences in worked solutions: pn(-4) -> "(−4)" */
+const pn=v=>{const s=typeof v==='number'?nz(v):String(v).replace(/^-/,'−');return s[0]==='−'?`(${s})`:s;};
 /* a draggable handle on a panel: returns true when the pointer is within r px of (x,y) */
 const near=(P,px,py,x,y,r=14)=>Math.hypot(P.X(x)-px,P.Y(y)-py)<r;
 /* text of the factor (x − r): lin(3) -> "x − 3", lin(-2) -> "x + 2", lin(0) -> "x" */

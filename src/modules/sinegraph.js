@@ -75,5 +75,5 @@
   PROBS.push({id:'sg-aroc',topic:'sinegraph',title:'Average rate of change of sin or cos',gen(){const fn=pick(['sin','cos']),f=fn==='sin'?Math.sin:Math.cos;
     const i=ri(0,7),j=i+ri(1,3),[a,an]=SPECIAL[i],[b,bn]=SPECIAL[j],ans=(f(b)-f(a))/(b-a);
     return {q:`Find the average rate of change of y = ${fn} θ on [${an}, ${bn}], to three decimals.`,ans,unit:'',abs:.0015,chk:(()=>{const da=Math.round(a*180/Math.PI),db=Math.round(b*180/Math.PI),r=Math.PI/180;return (f(db*r)-f(da*r))/((db-da)*r);})(),
-      hint:'(f(b) − f(a)) / (b − a), with the angles in radians.',sol:`${fn}(${bn}) = ${exactTrig(f(b))} and ${fn}(${an}) = ${exactTrig(f(a))}. (${exactTrig(f(b))} − ${exactTrig(f(a))}) / (${bn} − ${an}) ≈ <b>${fmt(ans,3)}</b>.`};}});
+      hint:'(f(b) − f(a)) / (b − a), with the angles in radians.',sol:`${fn}(${bn}) = ${exactTrig(f(b))} and ${fn}(${an}) = ${exactTrig(f(a))}. (${exactTrig(f(b))} − ${pn(exactTrig(f(a)))}) / (${bn} − ${an}) ≈ <b>${fmt(ans,3)}</b>.`};}});
 })();

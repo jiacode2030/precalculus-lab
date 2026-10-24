@@ -59,7 +59,7 @@
 })();
 
 (function(){
-  PROBS.push({id:'tn-period',topic:'tangent',title:'Period of a tangent function',gen(){const [b,bt]=pick([[2,'2'],[3,'3'],[4,'4'],[.5,'1/2'],[Math.PI,'π'],[Math.PI/2,'π/2'],[Math.PI/4,'π/4']]),a=ri(2,5),ans=Math.PI/b;
+  PROBS.push({id:'tn-period',topic:'tangent',title:'Period of a tangent function',gen(){const [b,bt]=pick([[2,'2'],[3,'3'],[4,'4'],[.5,'(1/2)'],[Math.PI,'π'],[Math.PI/2,'(π/2)'],[Math.PI/4,'(π/4)']]),a=ri(2,5),ans=Math.PI/b;
     return {q:`Find the period of f(θ) = ${a} tan(${bt}θ).`,ans,unit:'',tol:.005,chk:TAU/(2*b),show:piText(ans),hint:'The period of tangent is π, not 2π. Divide by |b|.',
       sol:`Period = π ÷ ${bt} = <b>${piText(ans)}</b>.`};}});
   PROBS.push({id:'tn-asym',topic:'tangent',title:'First asymptote',gen(){const b=pick([1,2,3,4]),sh=pick([0,Math.PI/6,Math.PI/4,Math.PI/3]),f=t=>Math.cos(b*(t-sh));

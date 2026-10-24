@@ -80,8 +80,8 @@
   const sg=v=>String(v).replace('-','−');
   PROBS.push({id:'ro-avg',topic:'roc',title:'Average rate from a formula',gen(){const c3=pick([0,0,1,-1]),c2=ri(-3,3),c1=ri(-5,5),c0=ri(-6,6),f=x=>c3*x**3+c2*x*x+c1*x+c0,a=ri(-3,2),b=a+ri(1,4);
     const ans=(f(b)-f(a))/(b-a),chk=c3*(a*a+a*b+b*b)+c2*(a+b)+c1,form=polyTxt([c3,c2,c1,c0].slice(c3?0:1));
-    return {q:`f(x) = ${form}. Find the average rate of change of f on [${sg(a)}, ${b}].`,ans,unit:'',abs:.001,chk,show:frac(ans),hint:'(f(b) − f(a)) / (b − a).',
-      sol:`f(${sg(a)}) = ${sg(f(a))} and f(${b}) = ${sg(f(b))}, so (${sg(f(b))} − ${f(a)<0?'('+sg(f(a))+')':f(a)}) / (${b} − ${a<0?'('+sg(a)+')':a}) = ${sg(f(b)-f(a))}/${b-a} = <b>${frac(ans)}</b>.`};}});
+    return {q:`f(x) = ${form}. Find the average rate of change of f on [${sg(a)}, ${sg(b)}].`,ans,unit:'',abs:.001,chk,show:frac(ans),hint:'(f(b) − f(a)) / (b − a).',
+      sol:`f(${sg(a)}) = ${sg(f(a))} and f(${sg(b)}) = ${sg(f(b))}, so (${sg(f(b))} − ${pn(f(a))}) / (${sg(b)} − ${pn(a)}) = ${sg(f(b)-f(a))}/${b-a} = <b>${frac(ans)}</b>.`};}});
   PROBS.push({id:'ro-table',topic:'roc',title:'Average rate from a table',gen(){const ctx=pick([{n:'temperature of an oven',u:'°F',tu:'minute',start:ri(70,90),step:[ri(20,45)]},{n:'height of a sunflower',u:'cm',tu:'day',start:ri(10,30),step:[ri(2,6)]},{n:'water level in a reservoir',u:'ft',tu:'week',start:ri(40,60),step:[-ri(1,4)]}]);
     const ts=[0,2,5,7,10],vals=ts.map((t,i)=>i?0:ctx.start);for(let i=1;i<ts.length;i++)vals[i]=vals[i-1]+(ts[i]-ts[i-1])*ctx.step[0]+ri(-3,3);
     const i=ri(0,2),j=ri(i+1,4),ans=(vals[j]-vals[i])/(ts[j]-ts[i]);
@@ -91,5 +91,5 @@
   PROBS.push({id:'ro-est',topic:'roc',title:'Estimate a rate at a point',gen(){const p=pick([1,2,-1]),q=ri(-3,3),f=x=>p*x**3+q*x*x,a=ri(1,3),h=pick([.1,.01]),ans=(f(a+h)-f(a))/h;
     const chk=p*(3*a*a+3*a*h+h*h)+q*(2*a+h);
     return {q:`f(x) = ${polyTxt([p,q,0,0])}. Estimate the rate of change of f at x = ${a} using the average rate of change on [${a}, ${a+h}]. Give 4 decimal places.`,ans,unit:'',abs:.0005,chk,show:fmt(ans,4),
-      hint:`Compute (f(${a+h}) − f(${a})) / ${h}.`,sol:`f(${a+h}) = ${fmt(f(a+h),6)} and f(${a}) = ${f(a)}, so the average rate is (${fmt(f(a+h),6)} − ${f(a)})/${h} = <b>${fmt(ans,4)}</b>. A smaller interval gives a better estimate of the rate at x = ${a}.`.replace(/-(\d)/g,'−$1')};}});
+      hint:`Compute (f(${a+h}) − f(${a})) / ${h}.`,sol:`f(${a+h}) = ${fmt(f(a+h),6)} and f(${a}) = ${f(a)}, so the average rate is (${fmt(f(a+h),6)} − ${pn(f(a))})/${h} = <b>${fmt(ans,4)}</b>. A smaller interval gives a better estimate of the rate at x = ${a}.`.replace(/-(\d)/g,'−$1')};}});
 })();

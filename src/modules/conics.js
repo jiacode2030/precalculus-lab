@@ -74,7 +74,7 @@
   const sg=v=>String(+(+v).toFixed(4)).replace('-','−');
   PROBS.push({id:'cn-type',topic:'conics',title:'Name the conic',gen(){const A=pick([4,9,16,25]),B=pick([1,4,9]);const t=pick(['ell','hyp','circ','par']);let eq,right;
     if(t==='ell'){eq=`x²/${A} + y²/${A+pick([5,11])} = 1`;right='ellipse';}else if(t==='hyp'){eq=pick([`x²/${A} − y²/${B} = 1`,`y²/${A} − x²/${B} = 1`,`${B}x² − ${A}y² = ${A*B}`]);right='hyperbola';}
-    else if(t==='circ'){eq=pick([`x² + y² = ${A}`,`(x − ${B})² + (y + 2)² = ${A}`]);right='circle';}else{eq=pick([`y = ${B}x²`,`x² = ${4*B}y`,`(x − 1)² = 8(y + 3)`]);right='parabola';}
+    else if(t==='circ'){eq=pick([`x² + y² = ${A}`,`(x − ${B})² + (y + 2)² = ${A}`]);right='circle';}else{eq=pick([`y = ${B===1?'':B}x²`,`x² = ${4*B}y`,`(x − 1)² = 8(y + 3)`]);right='parabola';}
     const {choices,ans}=mcq(right,['circle','ellipse','hyperbola','parabola'].filter(v=>v!==right),4);
     return {q:`What kind of conic is ${eq}?`,choices,ans,hint:'Count the squared terms and look at their signs and coefficients.',sol:`${right==='parabola'?'Only one of x, y is squared':right==='hyperbola'?'The squared terms have opposite signs':right==='circle'?'Both squared, added, with equal coefficients':'Both squared and added, with different denominators'}: a <b>${right}</b>.`};}});
   PROBS.push({id:'cn-ell',topic:'conics',title:'Distance to an ellipse focus',gen(){const A=ri(5,12),B=ri(2,A-1),a2=A*A,b2=B*B,ans=Math.sqrt(a2-b2);
@@ -85,6 +85,6 @@
     return {q:`The hyperbola x²/${A*A} − y²/${B*B} = 1 has asymptotes y = ±mx. Find m (the positive slope). Round to 3 decimal places.`,ans,unit:'',abs:.002,chk:Math.exp(Math.log(B)-Math.log(A)),show:ans.toFixed(3),hint:'The asymptotes are the diagonals of the a-by-b box: slope b/a.',sol:`a = ${A} and b = ${B}, so m = b/a = ${B}/${A} ≈ <b>${ans.toFixed(3)}</b>.`};}});
   PROBS.push({id:'cn-par',topic:'conics',title:'Focus of a parabola',gen(){const kk=pick([2,4,6,8,10,12,16,20]),ans=kk/4;
     return {q:`The parabola x² = ${kk}y has its vertex at the origin. How far above the vertex is its focus?`,ans,unit:'',abs:.006,chk:Math.exp(Math.log(kk)-Math.log(4)),show:String(ans),hint:'Match x² = 4py. Then p = the coefficient of y divided by 4.',sol:`4p = ${kk}, so p = ${kk}/4 = <b>${sg(ans)}</b>. The focus is (0, ${sg(ans)}) and the directrix is y = −${sg(ans)}.`};}});
-  PROBS.push({id:'cn-center',topic:'conics',title:'Center from the equation',gen(){const h=ri(-6,6),kk=ri(-6,6),A=pick([4,9,16]),B=pick([1,4,9]);if(h===0)return this.gen();
-    return {q:`The ellipse (x ${h<0?'+':'−'} ${Math.abs(h)})²/${A} + (y ${kk<0?'+':'−'} ${Math.abs(kk)})²/${B} = 1 is centered at (h, k). Find h.`,ans:h,unit:'',abs:.006,chk:-(-2*h)/2,show:String(h),hint:'The center is where each bracket is zero: x − h = 0.',sol:`x ${h<0?'+':'−'} ${Math.abs(h)} = x − (${h}), so h = <b>${sg(h)}</b> (and k = ${sg(kk)}).`};}});
+  PROBS.push({id:'cn-center',topic:'conics',title:'Center from the equation',gen(){const h=ri(-6,6),kk=ri(-6,6),A=pick([4,9,16]),B=pick([1,4,9].filter(v=>v!==A));if(h===0||kk===0)return this.gen();
+    return {q:`The ellipse (x ${h<0?'+':'−'} ${Math.abs(h)})²/${A} + (y ${kk<0?'+':'−'} ${Math.abs(kk)})²${B===1?'':'/'+B} = 1 is centered at (h, k). Find h.`,ans:h,unit:'',abs:.006,chk:-(-2*h)/2,show:String(h),hint:'The center is where each bracket is zero: x − h = 0.',sol:`x ${h<0?'+':'−'} ${Math.abs(h)} = x − ${pn(h)}, so h = <b>${sg(h)}</b> (and k = ${sg(kk)}).`};}});
 })();

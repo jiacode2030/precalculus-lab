@@ -64,7 +64,7 @@
   PROBS.push({id:'md-avg',topic:'models',title:'How many items for a target cost?',gen(){const v=pick([2,3,4,5,8]),n=pick([20,25,40,50,80,100]),d=pick([1,2,4,5]),F=n*d,t=v+d;
     let best=0,bd=1e9;for(let m=1;m<=2000;m++){const e=Math.abs((F+v*m)/m-t);if(e<bd){bd=e;best=m;}}
     return {q:`Total cost is ${F} + ${v}n dollars for n items. For what n does the average cost per item equal $${t}?`,ans:n,unit:'',abs:0,chk:best,hint:`Set (${F} + ${v}n)/n = ${t} and solve for n.`,
-      sol:`${F} + ${v}n = ${t}n gives ${F} = ${d}n, so n = <b>${n}</b>.`};}});
+      sol:`${F} + ${v}n = ${t}n gives ${F} = ${d===1?'':d}n, so n = <b>${n}</b>.`};}});
   PROBS.push({id:'md-quad',topic:'models',title:'Predict from a quadratic model',gen(){const a=pick([-2,-1,1,2,3]),b=ri(-5,5),c=ri(-6,6),f=x=>a*x*x+b*x+c,y=[f(0),f(1),f(2)],x=ri(4,7);
     /* a from second difference, b and c from the first two values */
     const A=(y[2]-2*y[1]+y[0])/2,B=y[1]-y[0]-A,ans=A*x*x+B*x+y[0];

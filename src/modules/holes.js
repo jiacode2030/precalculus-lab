@@ -55,16 +55,16 @@
 (function(){
   const sg=v=>String(v).replace('-','−'),lin=r=>r===0?'x':`(x ${r<0?'+':'−'} ${Math.abs(r)})`,UP=['','','²','³'];
   const rr=()=>pick([-5,-4,-3,-2,-1,1,2,3,4,5]);
-  PROBS.push({id:'ho-height',topic:'holes',title:'Height of the hole',gen(){const h=rr();let b=rr(),c=rr();while(b===h)b=rr();while(c===h)c=rr();
+  PROBS.push({id:'ho-height',topic:'holes',title:'Height of the hole',gen(){const h=rr();let b=rr(),c=rr();while(b===h)b=rr();while(c===h||c===b)c=rr();
     const two=Math.random()<.5,top=polyTxt([1,-(h+b),h*b]),bot=two?polyTxt([1,-(h+c),h*c]):`x ${h<0?'+':'−'} ${Math.abs(h)}`,ans=two?(h-b)/(h-c):h-b;
     const f=two?x=>(x*x-(h+b)*x+h*b)/(x*x-(h+c)*x+h*c):x=>(x*x-(h+b)*x+h*b)/(x-h);
     return {q:`f(x) = (${top}) / (${bot}) has a hole at x = ${sg(h)}. Find the y-coordinate of the hole.`,ans,unit:'',abs:.001,chk:(f(h+1e-6)+f(h-1e-6))/2,show:frac(ans),hint:'Factor top and bottom, cancel the common factor, then plug x into what is left.',
       sol:`f(x) = ${lin(h)}${lin(b)} / ${two?lin(h)+lin(c):lin(h)}. Cancel (x ${h<0?'+':'−'} ${Math.abs(h)}): ${two?`${lin(b)} / ${lin(c)}`:lin(b)}. At x = ${sg(h)}: <b>${frac(ans)}</b>.`};}});
-  PROBS.push({id:'ho-kind',topic:'holes',title:'Hole or asymptote?',gen(){const h=rr();let b=rr(),c=rr();while(b===h)b=rr();while(c===h)c=rr();const p=pick([1,2]),q=pick([1,2]),hole=q<=p;
+  PROBS.push({id:'ho-kind',topic:'holes',title:'Hole or asymptote?',gen(){const h=rr();let b=rr(),c=rr();while(b===h)b=rr();while(c===h||c===b)c=rr();const p=pick([1,2]),q=pick([1,2]),hole=q<=p;
     const right=hole?'a hole':'a vertical asymptote',all=['a hole','a vertical asymptote','a zero that is not a hole','a horizontal asymptote'],{choices,ans}=mcq(right,all.filter(s=>s!==right),4);
     const f=x=>Math.pow(x-h,p)*(x-b)/(Math.pow(x-h,q)*(x-c)),chk=Math.abs(f(h+1e-5))>1e3?0:1;
     return {q:`f(x) = ${lin(h)}${UP[p]}${lin(b)} / (${lin(h)}${UP[q]}${lin(c)}). At x = ${sg(h)}, the graph has`,choices,ans,chk,hint:'Cancel as many copies of the shared factor as you can, then look at what is left in the denominator.',
-      sol:`The top has ${p} copy${p>1?'ies':''} of ${lin(h)} and the bottom has ${q}. ${hole?`After cancelling, none is left in the denominator, so it is <b>a hole</b>.`:`After cancelling, ${q-p} is left in the denominator, so it is <b>a vertical asymptote</b>.`}`};}});
+      sol:`The top has ${p} cop${p>1?'ies':'y'} of ${lin(h)} and the bottom has ${q}. ${hole?`After cancelling, none is left in the denominator, so it is <b>a hole</b>.`:`After cancelling, ${q-p} is left in the denominator, so it is <b>a vertical asymptote</b>.`}`};}});
   PROBS.push({id:'ho-lim',topic:'holes',title:'Limit at a hole',gen(){const h=rr(),r=rr(),a=pick([1,2,3,-1,-2]),f=x=>a*(x-h)*(x-r)/(x-h),ans=a*(h-r);
     return {q:`Find lim f(x) as x → ${sg(h)} for f(x) = (${polyTxt([a,-a*(h+r),a*h*r])}) / (x ${h<0?'+':'−'} ${Math.abs(h)}).`,ans,unit:'',abs:.001,chk:(f(h+1e-6)+f(h-1e-6))/2,hint:'The function is undefined at x itself, but the limit only cares about nearby x. Factor and cancel.',
       sol:`The top factors as ${a===1?'':sg(a)}${lin(h)}${lin(r)}. Cancel ${lin(h)}: ${a===1?'':sg(a)}${lin(r)}. At x = ${sg(h)}: <b>${sg(ans)}</b>.`};}});

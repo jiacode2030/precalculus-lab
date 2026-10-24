@@ -21,7 +21,7 @@
       if(drag==='max'){const na=clamp(Math.round((y-d)*10)/10,-3,3);a=Math.abs(na)<.1?.1:na;const u=(fn==='sin'?Math.PI/2:0)+(a<0?Math.PI:0);c=clamp(Math.round((u/b-x)*100)/100,-3.14,3.14);set('sn-a',a);set('sn-c',c);}
       else if(drag==='mid'){d=clamp(Math.round(y*10)/10,-2,2);set('sn-d',d);}upd();}});
   function set(id,v){$('#'+id).value=v;}
-  const num=v=>{const m=[[Math.PI,'π'],[Math.PI/2,'π/2'],[Math.PI/4,'π/4'],[Math.PI/3,'π/3'],[Math.PI/6,'π/6'],[3*Math.PI/4,'3π/4'],[2*Math.PI/3,'2π/3']].find(([q])=>Math.abs(Math.abs(v)-q)<.006);return m?(v<0?'−':'')+m[1]:nz(+v.toFixed(2));};
+  const num=v=>{const m=[[Math.PI,'π'],[Math.PI/2,'π/2'],[Math.PI/4,'(π/4)'],[Math.PI/3,'π/3'],[Math.PI/6,'(π/6)'],[3*Math.PI/4,'3π/4'],[2*Math.PI/3,'2π/3']].find(([q])=>Math.abs(Math.abs(v)-q)<.006);return m?(v<0?'−':'')+m[1]:nz(+v.toFixed(2));};
   function upd(){const per=TAU/b,inner=Math.abs(c)<.005?`${b===1?'':nz(b)}θ`:`${b===1?'':nz(b)}(θ ${c<0?'−':'+'} ${num(Math.abs(c))})`;
     setHTML('sn-eq',`f(θ) = ${a===1?'':a===-1?'−':nz(a)} ${fn}(${inner})${Math.abs(d)<.05?'':` ${d<0?'−':'+'} ${nz(Math.abs(d))}`}`);
     setText('sn-amp',`|a| = ${nz(Math.abs(a))}${a<0?' (flipped)':''}`);setText('sn-per',`2π/${nz(b)} = ${num(per)===nz(+per.toFixed(2))?fmt(per,3):num(per)+' ≈ '+fmt(per,3)}`);
@@ -61,12 +61,12 @@
 })();
 
 (function(){
-  PROBS.push({id:'sn-period',topic:'sinusoid',title:'Period from the equation',gen(){const [b,bt]=pick([[2,'2'],[3,'3'],[4,'4'],[.5,'1/2'],[Math.PI,'π'],[Math.PI/2,'π/2'],[Math.PI/6,'π/6']]),a=ri(2,6),d=ri(-3,3),fn=pick(['sin','cos']),ans=TAU/b;
+  PROBS.push({id:'sn-period',topic:'sinusoid',title:'Period from the equation',gen(){const [b,bt]=pick([[2,'2'],[3,'3'],[4,'4'],[.5,'(1/2)'],[Math.PI,'π'],[Math.PI/2,'(π/2)'],[Math.PI/6,'(π/6)']]),a=ri(2,6),d=ri(-3,3),fn=pick(['sin','cos']),ans=TAU/b;
     return {q:`Find the period of f(θ) = ${a} ${fn}(${bt}θ)${d?` ${d<0?'−':'+'} ${Math.abs(d)}`:''}.`,ans,unit:'',tol:.005,chk:Math.PI*2/b,show:piText(ans)===fmt(ans,3)?fmt(ans,3):piText(ans),hint:'Period = 2π/|b|.',
-      sol:`b = ${bt}, so the period is 2π ÷ ${bt} = <b>${Math.abs(ans-Math.round(ans))<1e-9?Math.round(ans):piText(ans)}</b>.`};}});
+      sol:`b = ${bt.replace(/[()]/g,'')}, so the period is 2π ÷ ${bt} = <b>${Math.abs(ans-Math.round(ans))<1e-9?Math.round(ans):piText(ans)}</b>.`};}});
   PROBS.push({id:'sn-maxmin',topic:'sinusoid',title:'Midline and amplitude from max and min',gen(){const mn=ri(-6,4),mx=mn+2*ri(1,6),which=pick(['amp','mid']),ans=which==='amp'?(mx-mn)/2:(mx+mn)/2;
-    return {q:`A sinusoidal function has maximum value ${mx} and minimum value ${mn}. Find its ${which==='amp'?'amplitude':'midline value d'}.`,ans,unit:'',abs:.01,chk:which==='amp'?Math.abs(mn-mx)/2:mn+(mx-mn)/2,
-      hint:'Amplitude = (max − min)/2. Midline = (max + min)/2.',sol:which==='amp'?`(${mx} − ${mn})/2 = <b>${ans}</b>.`:`(${mx} + ${mn})/2 = <b>${ans}</b>: the midline is y = ${ans}.`};}});
+    return {q:`A sinusoidal function has maximum value ${nz(mx)} and minimum value ${nz(mn)}. Find its ${which==='amp'?'amplitude':'midline value d'}.`,ans,unit:'',abs:.01,chk:which==='amp'?Math.abs(mn-mx)/2:mn+(mx-mn)/2,
+      hint:'Amplitude = (max − min)/2. Midline = (max + min)/2.',sol:which==='amp'?`(${nz(mx)} − ${pn(mn)})/2 = <b>${ans}</b>.`:`(${nz(mx)} + ${pn(mn)})/2 = <b>${nz(ans)}</b>: the midline is y = ${nz(ans)}.`};}});
   PROBS.push({id:'sn-shift',topic:'sinusoid',title:'Phase shift',gen(){const b=pick([2,3,4]),k=pick([1,2,3]),den=pick([2,3,4,6]),sg=pick([1,-1]),inside=k*Math.PI/den,ans=-sg*inside/b;
     const it=piText(inside);
     return {q:`f(θ) = sin(${b}θ ${sg>0?'+':'−'} ${it}). By how much is the graph shifted horizontally? Give a signed answer (positive = right, negative = left).`,ans,unit:'',abs:.005,chk:-(sg*k*Math.PI/den)/b,show:piText(ans),
