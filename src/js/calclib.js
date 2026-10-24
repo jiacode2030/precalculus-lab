@@ -191,3 +191,19 @@ function polarStroke(ctx,P,f,a,b,w=2.6,al=1,rect){const n=Math.max(60,Math.ceil(
   let prev=null;for(let i=0;i<=n;i++){const t=a+(b-a)*i/n,r=f(t);const pt=rect?[P.X(t),P.Y(r)]:[P.X(r*Math.cos(t)),P.Y(r*Math.sin(t))];
     if(prev){ctx.strokeStyle=alpha(prev[2]<0||r<0&&prev[2]<=0?T.ca:T.cx,al);ctx.beginPath();ctx.moveTo(prev[0],prev[1]);ctx.lineTo(pt[0],pt[1]);ctx.stroke();}prev=[pt[0],pt[1],r];}ctx.restore();}
 
+/* a unit circle beside a graph: wide screens side by side, phones stacked (circle on top). Returns circle center/radius and the graph box. */
+function circLayout(w,h){const wide=w>=560;if(wide){const R=Math.min(h/2-34,w*.17);return {wide,cx:R+44,cy:h/2,R,gx:2*R+104,gy:16,gw:w-(2*R+104)-14,gh:h-48};}
+  const R=Math.min(w/2-46,120);return {wide,cx:w/2,cy:R+30,R,gx:40,gy:2*R+70,gw:w-54,gh:h-(2*R+70)-30};}
+/* the circle, its axes and the special-angle ticks */
+function circBase(ctx,L,labels=true){const {cx,cy,R}=L;ctx.save();ctx.strokeStyle=T.grid;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx-R-18,cy+.5);ctx.lineTo(cx+R+18,cy+.5);ctx.moveTo(cx+.5,cy-R-18);ctx.lineTo(cx+.5,cy+R+18);ctx.stroke();
+  ctx.fillStyle=alpha(T.surface,.6);ctx.strokeStyle=T.muted;ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(cx,cy,R,0,TAU);ctx.fill();ctx.stroke();ctx.restore();
+  SPECIAL.forEach(([a,t])=>{dot(ctx,cx+R*Math.cos(a),cy-R*Math.sin(a),2,T.muted);if(labels)label(ctx,t,cx+(R+15)*Math.cos(a),cy-(R+13)*Math.sin(a),T.muted,'center','middle','10px "IBM Plex Mono",monospace');});}
+/* an angle arc from 0 to θ at radius r (gold) */
+function angArc(ctx,cx,cy,r,th,col){ctx.save();ctx.strokeStyle=col||T.ce;ctx.lineWidth=2.6;ctx.beginPath();const n=Math.max(8,Math.ceil(Math.abs(th)*20));for(let i=0;i<=n;i++){const a=th*i/n;i?ctx.lineTo(cx+r*Math.cos(a),cy-r*Math.sin(a)):ctx.moveTo(cx+r*Math.cos(a),cy-r*Math.sin(a));}ctx.stroke();ctx.restore();}
+/* π labels under a θ-axis that runs over [a, b] */
+function piTicks(ctx,P,a,b,step=Math.PI/2){for(let k=Math.ceil(a/step-1e-9);k*step<=b+1e-9;k++){if(!k)continue;label(ctx,piText(k*step),P.X(k*step),P.box.y+P.box.h+14,T.muted,'center','middle',MONO);}}
+/* which way a moving point goes, from the signs of its horizontal and vertical change */
+function dirText(dx,dy,eps=1e-6){const h=dx>eps?'right':dx<-eps?'left':'',v=dy>eps?'up':dy<-eps?'down':'';return h&&v?`${h} and ${v}`:h||v||'momentarily stopped';}
+/* Catmull–Rom curve through values V at t = 0, 1, ..., V.length − 1 (ends held) */
+function crSpline(V,t){const n=V.length-1,u=clamp(t,0,n),i=Math.min(n-1,Math.floor(u)),s=u-i,p0=V[Math.max(0,i-1)],p1=V[i],p2=V[i+1],p3=V[Math.min(n,i+2)];
+  return .5*((2*p1)+(-p0+p2)*s+(2*p0-5*p1+4*p2-p3)*s*s+(-p0+3*p1-3*p2+p3)*s*s*s);}

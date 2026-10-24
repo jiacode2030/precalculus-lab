@@ -1,3 +1,4 @@
 tests/shots/
 node_modules/
 chemistry-lab-handoff.tar.gz
+__pycache__/

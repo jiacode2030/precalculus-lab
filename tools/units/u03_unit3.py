@@ -418,3 +418,376 @@ mod('polarroc', 'Rates of change in polar',
  [('On an interval, r = f(θ) is negative and increasing. The polar curve is', ['moving away from the origin', 'moving toward the origin', 'at a maximum distance', 'passing through the origin'], 1, '|r| shrinks when a negative r increases toward 0, so the point gets closer.'),
   ('For r = 4 sin θ, what is the average rate of change of r on [0, π/6]?', ['2/π', '12/π', '6/π', 'π/12'], 1, 'r(0) = 0 and r(π/6) = 2. (2 − 0)/(π/6) = 12/π ≈ 3.82.')],
  ced=('3.15',))
+
+# =====================================================================
+# Batch 2 helpers
+# =====================================================================
+def ptext(t):
+    """t (radians) as a multiple of π when it is one (denominator ≤ 12), else a decimal."""
+    if abs(t) < 1e-9: return '0'
+    for d in (1, 2, 3, 4, 6, 12):
+        k = round(t / PI * d)
+        if k and abs(t - k * PI / d) < 1e-7: return pfrac(k, d)
+    return f'{t:.3f}'.replace('-', '−')
+
+def qticks(P, y=None, labels=('π/2', 'π', '3π/2', '2π'), step=PI / 2, start=1):
+    """tick marks and π labels along the θ-axis of a Plot"""
+    y0 = P.Y(0) if y is None else y; o = ''
+    for i, s in enumerate(labels):
+        t = (start + i) * step
+        o += ln(P.X(t), y0 - 3, P.X(t), y0 + 3, 'mut', 1.2) + txt(P.X(t), y0 + 13, s, 'mut', 9, mono=True, w=500)
+    return o
+
+def tan_pieces(P, f, a, b, lim, c='f', w=2.6, dash='', centers=()):
+    """draw a tangent-like curve one branch at a time, keeping |f| ≤ lim (no vertical joins)"""
+    o = ''
+    for lo, hi in centers:
+        lo, hi = max(lo, a), min(hi, b)
+        if hi > lo: o += P.curve(f, lo, hi, c, w, dash, 80)
+    return o
+
+# =====================================================================
+# 3.4  Sine and cosine function graphs
+# =====================================================================
+def _sg_fig():
+    P = Plot((0, 2 * PI), (-1.6, 1.5), (30, 14, 218, 176))
+    base = P.axes([], [-1, 1], 'θ', 'y') + qticks(P) + P.curve(math.sin, 0, 2 * PI, 'f', 2.4, '', 120) + P.curve(math.cos, 0, 2 * PI, 'dd', 2.4, '', 120)
+    base += txt(252, 22, 'sin θ', 'f', 11, 'end') + txt(252, 36, 'cos θ', 'dd', 11, 'end')
+    yb1, yb2 = P.Y(-1.32), P.Y(-1.5)
+    L = [(1, P.curve(math.sin, PI / 2, 3 * PI / 2, 'f', 4.6, '', 60) + ln(P.X(PI / 2), yb1, P.X(3 * PI / 2), yb1, 'f', 4), 'sin decreasing on (π/2, 3π/2)', 'f'),
+         (2, P.curve(math.cos, 0, PI, 'dd', 4.6, '', 60) + ln(P.X(0), yb2, P.X(PI), yb2, 'dd', 4), 'cos decreasing on (0, π)', 'dd'),
+         (3, rect(P.X(PI / 2), P.Y(1.5), P.X(PI) - P.X(PI / 2), P.Y(-1.6) - P.Y(1.5), 'area', .28), 'both: (π/2, π)', 'area'),
+         (4, P.text(2.35, 1.12, '∩', 'f', 14) + P.text(2.35, -1.08, '∪', 'dd', 14), 'sin concave down, cos concave up', 'ink')]
+    return fig(base, L, 'y = sin θ (blue) and y = cos θ (magenta) over one period.', 214)
+
+def _pedal_fig():
+    P = Plot((0, 2 * PI), (0, 52), (34, 12, 214, 186))
+    h = lambda t: 28 + 17 * math.sin(t)
+    base = P.axes([], [11, 28, 45], 'θ', 'h (cm)') + qticks(P) + P.curve(h, 0, 2 * PI, 'f', 2.6, '', 120)
+    L = [(1, P.seg(0, 28, 2 * PI, 28, 'area', 1.8, '6 4') + P.text(2 * PI - .05, 30.5, 'midline 28', 'area', 10, 'end'), 'h(θ) = 28 + 17 sin θ', 'f'),
+         (2, P.dot(PI / 2, 45, '45', 'f', 0, -8) + P.dot(3 * PI / 2, 11, '11', 'f', 0, 16), 'max 45 cm, min 11 cm', 'f'),
+         (3, P.dot(7 * PI / 6, 19.5, '', 'tan', r=5) + P.text(7 * PI / 6 - .12, 16, '19.5', 'tan', 10, 'end'), 'h(7π/6) = 19.5 cm', 'tan'),
+         (4, P.curve(h, PI / 2, 3 * PI / 2, 'dd', 4.4, '', 60), 'going down on (π/2, 3π/2)', 'dd'),
+         (5, P.seg(0, 28, PI / 6, 36.5, 'tan', 2.6) + P.seg(PI / 3, 28 + 17 * math.sqrt(3) / 2, PI / 2, 45, 'tan', 2.6), '16.2 then 4.35 cm per radian', 'tan')]
+    return fig(base, L, 'Height of a bicycle pedal as the crank turns through one revolution.', 222)
+
+mod('sinegraph', 'Sine & cosine graphs',
+ 'Unroll the unit circle: the height of the moving point is the sine wave, its width is the cosine wave.',
+ ['Run a point around the unit circle and record its <b>height</b> at every angle: plotted against θ, that is <span class="m">y = sin θ</span>. Record its <b>width</b> instead and you get <span class="m">y = cos θ</span>. Both repeat every 2π, both stay between −1 and 1, and both have midline y = 0.',
+  'Read the behavior straight off the circle. Going up the right side of the circle (θ from −π/2 to π/2) the height grows, so <b>sin is increasing</b> there; going down the left side it is decreasing. The width shrinks over the top half (0 to π), so <b>cos is decreasing</b> on (0, π) and increasing on (π, 2π).',
+  'Near the top and bottom of the circle the point moves sideways, so the height barely changes: the sine wave flattens at its maximum and minimum. Near the sides it moves straight up or down: the sine wave is steepest where it crosses its midline. That is why <b>sin is concave down</b> above the midline and <b>concave up</b> below it.',
+  'Symmetry: the angle −θ is the mirror image of θ across the x-axis. Same width, opposite height, so <span class="m">cos(−θ) = cos θ</span> (cosine is <b>even</b>) and <span class="m">sin(−θ) = −sin θ</span> (sine is <b>odd</b>).'],
+ ('sin θ and cos θ were numbers you looked up for one angle at a time', 'the shape of the whole function or where it rises and falls', 'they are functions of θ with graphs that repeat', 'the graphs of sine and cosine, where they increase, decrease and change concavity, and their symmetry'),
+ [('y = sin θ: height', 'odd: sin(−θ) = −sin θ'), ('y = cos θ: width', 'even: cos(−θ) = cos θ'), ('period 2π', 'f(θ + 2π) = f(θ)'), ('range [−1, 1]', 'amplitude 1, midline y = 0'), ('cos θ = sin(θ + π/2)', 'same wave, shifted')],
+ [lab('sg-lab', 'Unroll the circle', canvas='sg-canvas', aria='Left: the unit circle with a moving point and its height and width. Right: the sine and cosine graphs traced up to the current angle, with a line carrying the height across.',
+   seg=('sg-fn', 'Trace', [('both', 'both'), ('sin', 'sin (height)'), ('cos', 'cos (width)')]),
+   pre='<div class="row"><button type="button" class="btn primary" id="sg-play">Play</button></div>',
+   ctl=[('sg-th', 'Angle θ (radians)', 0, 6.283, .005, 1)],
+   out=[('sg-val', 'sin θ · cos θ', 'x'), ('sg-sin', 'sin is', 'x'), ('sg-cos', 'cos is', 'a')]),
+  lab('sg-lab2', 'Symmetry and rate of change', canvas='sg-canvas2', aria='Graph of sine or cosine from −2π to 2π with a point at θ, its mirror point at −θ, and a secant line over [θ, θ + π/6].',
+   seg=('sg-fn2', 'Function', [('sin', 'sin θ'), ('cos', 'cos θ')]),
+   pre='<label class="check"><input type="checkbox" id="sg-mir" checked> Show the mirror angle −θ</label>',
+   ctl=[('sg-x', 'θ (radians)', -6.28, 6.28, .01, 1)],
+   out=[('sg-pair', 'f(θ) and f(−θ)', 'x'), ('sg-sym', 'symmetry', 'v'), ('sg-roc', 'average rate on [θ, θ + π/6]', 'a')])],
+ [('Press Play and watch the blue line carry the height across. At which angles is the height 0? At which is it biggest?', show(['click', '#sg-fn [data-k=sin]'], ['#sg-th', 0]), 'Height 0 at θ = 0, π and 2π (the point is on the x-axis). The biggest height, 1, is at θ = π/2 (top of the circle); the smallest, −1, at 3π/2.'),
+  ('Set θ = π/2 (1.571) and nudge it a little either way. Why does the sine graph look flat there?', show(['click', '#sg-fn [data-k=sin]'], ['#sg-th', 1.571]), 'At the top of the circle the point is moving sideways, so its height hardly changes: sin θ stays near 1. The sine graph has a turning point there and is concave down.'),
+  ('Trace cos only and drag θ from 0 to π. What happens to the width, and to the graph?', show(['click', '#sg-fn [data-k=cos]'], ['#sg-th', 0]), 'The width falls from 1 to −1 as the point goes over the top of the circle, so cos is decreasing on (0, π). It falls fastest at θ = π/2, where the point moves straight left.'),
+  ('In the second lab, set θ = 1 with sin, then switch to cos. Compare f(θ) and f(−θ) each time.', show(['click', '#sg-fn2 [data-k=sin]'], ['#sg-x', 1], ['#sg-mir', True]), 'sin(1) ≈ 0.841 and sin(−1) ≈ −0.841: opposite, so sine is odd (symmetric about the origin). cos(1) ≈ 0.540 and cos(−1) ≈ 0.540: equal, so cosine is even (symmetric about the y-axis).'),
+  ('With sin, slide θ from 0 to 1.3 and watch the secant slope on [θ, θ + π/6]. What happens to the average rate?', show(['click', '#sg-fn2 [data-k=sin]'], ['#sg-x', 0]), 'It shrinks from about 0.955 toward 0 and then turns negative: sine is increasing but more and more slowly, the signature of concave down. On [0, π/6] it is (1/2 − 0)/(π/6) = 3/π ≈ 0.955.')],
+ [('On [0, 2π], find the interval where both sin θ and cos θ are decreasing. On that interval, describe the concavity of each graph.', [
+   '<b>Sine.</b> The height falls as the point goes down the left side of the circle: sin is decreasing on <b>(π/2, 3π/2)</b>.',
+   '<b>Cosine.</b> The width falls as the point goes over the top: cos is decreasing on <b>(0, π)</b>.',
+   '<b>Both.</b> The overlap of (π/2, 3π/2) and (0, π) is <b>(π/2, π)</b>: quadrant II.',
+   '<b>Concavity.</b> On (π/2, π) sine is above its midline, so it is <b>concave down</b>: decreasing faster and faster. Cosine is below its midline there, so it is <b>concave up</b>: still decreasing, but more and more slowly.'], _sg_fig()),
+  {'h': 'Worked example 2: a bicycle pedal', 'fig': _pedal_fig(),
+   'prob': 'A bicycle crank is 17 cm long and the pedal axle is 28 cm above the ground. With the crank horizontal and pointing forward at θ = 0, and θ measured counterclockwise as seen from the right side, the pedal\'s height is h(θ) = 28 + 17 sin θ cm. (a) Find the highest and lowest pedal heights. (b) Find h(7π/6). (c) On which interval of one turn is the pedal going down? (d) Compare the average rate of change of h on [0, π/6] and on [π/3, π/2].',
+   'steps': ['<b>Model.</b> The pedal is a point on a circle of radius 17 around the axle, so its height is the axle height plus 17 times the sine: h(θ) = 28 + 17 sin θ, midline 28.',
+    '<b>(a)</b> sin θ is between −1 and 1, so h is between 28 − 17 = <b>11 cm</b> (at θ = 3π/2) and 28 + 17 = <b>45 cm</b> (at θ = π/2).',
+    '<b>(b)</b> sin(7π/6) = −1/2, so h = 28 − 8.5 = <b>19.5 cm</b>.',
+    '<b>(c)</b> h decreases exactly where sin θ does: <b>π/2 &lt; θ &lt; 3π/2</b>, the half turn from the top to the bottom.',
+    '<b>(d)</b> On [0, π/6]: (36.5 − 28)/(π/6) = 51/π ≈ <b>16.2 cm per radian</b>. On [π/3, π/2]: 17(1 − √3/2)/(π/6) ≈ <b>4.35 cm per radian</b>. Same angle turned, much less rise near the top: the graph is concave down there.']}],
+ ['Swapping the two: sine is the height (y), cosine is the width (x).', 'Saying sin is increasing on (0, π). It increases only to π/2, then decreases.', 'Thinking the steepest part of a sine wave is at the max. The max is flat; the steepest part is at the midline.', 'Mixing up odd and even: cosine is even (the graph is symmetric about the y-axis), sine is odd.', 'Graphing with θ in degrees but labeling the axis in radians (or the other way around).'],
+ ('Concavity without calculus',
+  ['Compare average rates of change over equal steps. For sin on [0, π/6], [π/6, π/3], [π/3, π/2] the rises are 0.5, 0.366 and 0.134: equal steps in θ, smaller and smaller rises. Decreasing rates of change mean concave down. Below the midline the rates increase, so the graph is concave up. The <b>points of inflection</b> are where the wave crosses its midline.']),
+ [('On which interval is cos θ increasing?', ['(0, π)', '(π/2, 3π/2)', '(π, 2π)', '(−π/2, π/2)'], 2, 'The width grows from −1 at θ = π (far left) to 1 at θ = 2π (far right), as the point travels along the bottom half of the circle.'),
+  ('If sin a = 0.3, what is sin(−a)?', ['0.3', '−0.3', '0.7', '1/0.3'], 1, 'Sine is odd: sin(−a) = −sin a = −0.3.')],
+ ced=('3.4',))
+
+# =====================================================================
+# 3.8  The tangent function
+# =====================================================================
+def _tn_fig():
+    P = Plot((-2 * PI, 2 * PI), (-5, 7), (30, 12, 220, 196))
+    g = lambda t: 3 * math.tan(t / 2) + 1
+    base = P.axes([], [-2, 1, 4], 'θ', 'y')
+    for t, s in ((-PI, '−π'), (PI, 'π'), (2 * PI, '2π'), (-2 * PI, '')):
+        if s: base += ln(P.X(t), P.Y(0) - 3, P.X(t), P.Y(0) + 3, 'mut', 1.2) + txt(P.X(t) + (9 if t < 0 else -9), P.Y(0) + 13, s, 'mut', 9, 'start' if t < 0 else 'end', mono=True, w=500)
+    w = 2 * math.atan(2)
+    L = [(1, P.seg(-PI, -5, -PI, 7, 'area', 1.8, '5 4') + P.seg(PI, -5, PI, 7, 'area', 1.8, '5 4'), 'asymptotes θ = ±π', 'area'),
+         (2, P.seg(-PI, -4.6, PI, -4.6, 'tan', 2.4) + P.text(0, -4.1, 'period 2π', 'tan', 10), 'period π ÷ (1/2) = 2π', 'tan'),
+         (3, P.curve(g, -w, w, 'f', 2.8, '', 80) + P.curve(g, PI + (PI - w), 2 * PI, 'f', 2.8, '', 40) + P.curve(g, -2 * PI, -PI - (PI - w), 'f', 2.8, '', 40) + P.dot(0, 1, '', 'f', r=4.5), 'center (0, 1)', 'f'),
+         (4, P.dot(PI / 2, 4, '(π/2, 4)', 'tan', 0, -9, 5) + P.dot(-PI / 2, -2, '(−π/2, −2)', 'tan', 0, 16, 5), 'g(π/2) = 4, g(−π/2) = −2', 'tan')]
+    return fig(base, L, 'g(θ) = 3 tan(θ/2) + 1: one full branch between the asymptotes θ = −π and θ = π.', 220)
+
+def _rocket_fig():
+    P = Plot((0, PI / 2), (0, 300), (40, 12, 196, 186))
+    h = lambda t: 50 * math.tan(t)
+    base = P.axes([], [50, 100, 200, 300], 'θ', 'h (m)')
+    for t, s in ((PI / 6, 'π/6'), (PI / 4, 'π/4'), (PI / 3, 'π/3'), (PI / 2, 'π/2')):
+        base += ln(P.X(t), P.Y(0) - 3, P.X(t), P.Y(0) + 3, 'mut', 1.2) + txt(P.X(t), P.Y(0) + 13, s, 'mut', 9, mono=True, w=500)
+    base += P.curve(h, 0, math.atan(6), 'f', 2.6, '', 120) + P.seg(PI / 2, 0, PI / 2, 300, 'area', 1.8, '5 4')
+    L = [(1, '', 'h = 50 tan θ', 'f'),
+         (2, P.dot(PI / 6, 50 / math.sqrt(3), '28.9', 'f', -12, -4) + P.dot(PI / 4, 50, '50', 'f', -10, -6) + P.dot(PI / 3, 50 * math.sqrt(3), '86.6', 'f', -14, -4), '28.9, 50, 86.6 m', 'f'),
+         (3, P.seg(PI / 6, 50 / math.sqrt(3), PI / 4, 50, 'tan', 2.6) + P.seg(PI / 4, 50, PI / 3, 50 * math.sqrt(3), 'tan', 2.6), '80.7 then 139.8 m per radian', 'tan'),
+         (4, P.text(PI / 2 - .03, 270, 'θ → π/2', 'area', 10, 'end'), 'asymptote at θ = π/2', 'area')]
+    return fig(base, L, 'Rocket height seen from a camera 50 m from the launch pad.', 222)
+
+mod('tangent', 'The tangent function',
+ 'Tangent is the slope of the radius. It repeats every half turn and shoots off to infinity whenever the radius stands straight up.',
+ ['On the unit circle the radius to the angle θ runs from (0, 0) to (cos θ, sin θ), so its slope is <span class="m">tan θ = sin θ / cos θ</span>. Extend the radius until it hits the vertical line x = 1: it hits at height tan θ. That segment is where the name "tangent" comes from.',
+  'When the radius is vertical (θ = π/2, 3π/2, ...) cos θ = 0 and the slope is undefined: the graph has a <b>vertical asymptote</b>. Between two asymptotes the slope runs through every real number, from −∞ to ∞, and it is <b>increasing</b> the whole way.',
+  'Turning the radius by half a turn (π) points it the opposite way, but a line through the origin has the same slope in both directions, so <span class="m">tan(θ + π) = tan θ</span>: the <b>period is π</b>, not 2π. Transformations work as for sine: <span class="m">f(θ) = a tan(b(θ + c)) + d</span> has period π/|b|.'],
+ ('sine and cosine were bounded, between −1 and 1, and repeated every 2π', 'functions with asymptotes or a different period', 'tangent is a ratio, so it can be any real number and is undefined where cos θ = 0', 'the tangent graph, its period π, its asymptotes, and its transformations'),
+ [('tan θ = sin θ / cos θ', 'slope of the radius'), ('period π', 'tan(θ + π) = tan θ'), ('asymptotes θ = π/2 + kπ', 'where cos θ = 0'), ('a tan(b(θ + c)) + d', 'period π/|b|'), ('tan(−θ) = −tan θ', 'odd')],
+ [lab('tn-lab', 'Tangent is a slope', canvas='tn-canvas', aria='Left: the unit circle, the radius extended to the line x = 1, and the tangent segment. Right: the graph of tan θ with its asymptotes and the current point.',
+   ctl=[('tn-th', 'Angle θ (radians)', 0, 6.283, .005, 1)],
+   out=[('tn-sc', 'sin θ / cos θ', 'x'), ('tn-val', 'tan θ = slope', 'v'), ('tn-note', 'what you see', '')]),
+  lab('tn-lab2', 'Transform the tangent', canvas='tn-canvas2', aria='Graph of a transformed tangent function with its vertical asymptotes; the parent tan θ is dashed.',
+   pre='<p class="small" id="tn-eq" style="margin:0;font:600 15px var(--f-math)"></p>',
+   ctl=[('tn-a', 'a (vertical stretch)', -3, 3, .1, 1), ('tn-b', 'b (horizontal squeeze)', .25, 3, .05, 1), ('tn-c', 'c (inside shift)', -3.14, 3.14, .01, 0), ('tn-d', 'd (vertical shift)', -2, 2, .1, 0)],
+   out=[('tn-per', 'period π/|b|', 'v'), ('tn-asy', 'asymptotes', 'a'), ('tn-cen', 'center point', 'x')])],
+ [('Drag θ from 0 toward π/2 (1.571). What happens to the orange tangent segment and to tan θ?', show(['#tn-th', 1.3]), 'The radius gets steeper, the segment on x = 1 climbs faster and faster, and tan θ grows without bound: tan 1.3 ≈ 3.6, tan 1.5 ≈ 14.1. At π/2 it is undefined.'),
+  ('Go just past π/2, to about 1.65. Where is the tangent segment now?', show(['#tn-th', 1.65]), 'Far below the axis: tan 1.65 ≈ −12.6. The radius now slopes down to the right when extended backward through the origin to x = 1. The graph jumps from +∞ to −∞ across the asymptote.'),
+  ('Set θ = 0.5, then θ = 0.5 + π ≈ 3.64. Compare the values.', show(['#tn-th', .5]), 'Both are ≈ 0.546. The two radii point opposite ways along the same line through the origin, so they have the same slope: the period of tangent is π.'),
+  ('In the second lab set b = 2. Where are the asymptotes now, and what is the period?', show(['#tn-a', 1], ['#tn-b', 2], ['#tn-c', 0], ['#tn-d', 0]), 'tan(2θ) is undefined when 2θ = π/2 + kπ, so θ = π/4 + kπ/2: every π/2. The period is π/2, half the parent period.'),
+  ('Set a = −1 (b = 1). Is the graph still increasing between asymptotes?', show(['#tn-a', -1], ['#tn-b', 1], ['#tn-c', 0], ['#tn-d', 0]), 'No: a negative a flips it, so each branch is decreasing. The asymptotes and the period do not change.')],
+ [('For g(θ) = 3 tan(θ/2) + 1, find the period and the vertical asymptotes, and evaluate g(π/2) and g(−π/2).', [
+   '<b>Asymptotes.</b> tan(θ/2) is undefined when θ/2 = π/2 + kπ, so <b>θ = π + 2kπ</b>: …, −π, π, 3π, …',
+   '<b>Period.</b> b = 1/2, so the period is π ÷ (1/2) = <b>2π</b>: the distance between neighboring asymptotes.',
+   '<b>Center of a branch.</b> At θ = 0, tan 0 = 0 and g(0) = 1. Each branch passes through its center on the line y = 1 (the d value).',
+   '<b>Values.</b> g(π/2) = 3 tan(π/4) + 1 = 3 + 1 = <b>4</b>, and g(−π/2) = 3 tan(−π/4) + 1 = −3 + 1 = <b>−2</b>. Since a = 3 &gt; 0, each branch increases from −∞ to ∞.'], _tn_fig()),
+  {'h': 'Worked example 2: tracking a rocket', 'fig': _rocket_fig(),
+   'prob': 'A camera on the ground 50 m from a launch pad tilts up to follow a rocket rising straight up. When the camera\'s angle of elevation is θ, the rocket\'s height is h = 50 tan θ meters. (a) Find h at θ = π/6, π/4 and π/3. (b) Find the average rate of change of h on [π/6, π/4] and on [π/4, π/3]. (c) What happens as θ approaches π/2?',
+   'steps': ['<b>Model.</b> In the right triangle, the side opposite θ is the height h and the side adjacent is 50 m, so tan θ = h/50 and h = 50 tan θ.',
+    '<b>(a)</b> h(π/6) = 50 · √3/3 ≈ <b>28.87 m</b>; h(π/4) = 50 · 1 = <b>50 m</b>; h(π/3) = 50√3 ≈ <b>86.60 m</b>.',
+    '<b>(b)</b> (50 − 28.87)/(π/12) ≈ <b>80.7 m per radian</b>, then (86.60 − 50)/(π/12) ≈ <b>139.8 m per radian</b>. Equal turns of the camera cover more and more height: h is concave up on (0, π/2).',
+    '<b>(c)</b> As θ → π/2, cos θ → 0 and tan θ → ∞. At 80° the rocket is 283.6 m up, at 85° it is 571.5 m. The camera never points straight up: θ = π/2 is a vertical asymptote.']}],
+ ['Using period 2π for tangent. It is π (or π/|b| after a squeeze).', 'Putting asymptotes where sin θ = 0. Those are the zeros; the asymptotes are where cos θ = 0.', 'Evaluating tan(π/2) as 0 or 1. It is undefined.', 'Thinking a tangent graph has a maximum. Each branch goes from −∞ to ∞ (or the reverse).', 'Forgetting that the period of a tan(bθ) is π/|b|, not 2π/|b|.'],
+ ('Why the period is π',
+  ['Sine and cosine come back to the same value only after a full turn, because the point must return to the same place. Tangent only needs the same slope, and the radius at θ + π lies along the same line as the radius at θ (pointing the opposite way). Algebraically, sin(θ + π) = −sin θ and cos(θ + π) = −cos θ, and the two negatives cancel in the ratio.']),
+ [('What is the period of f(θ) = 2 tan(3θ)?', ['2π/3', 'π/3', '3π', '2π'], 1, 'Period π/|b| = π/3.'),
+  ('Where does y = tan θ have a vertical asymptote?', ['θ = 0', 'θ = π', 'θ = 3π/2', 'θ = π/4'], 2, 'cos(3π/2) = 0, so tan(3π/2) is undefined.')],
+ ced=('3.8',))
+
+# =====================================================================
+# 3.9  Inverse trigonometric functions
+# =====================================================================
+def _it_pic(fn, v, ans, after, title):
+    cx, cy, R = 130, 112, 60
+    b = ucircle(cx, cy, R, False)
+    if fn == 'arccos': b += anglearc(cx, cy, R, 0, PI, 'area', 5)
+    else: b += anglearc(cx, cy, R, -PI / 2, PI / 2, 'area', 5)
+    if fn == 'arcsin': b += ln(cx - R - 14, cy - R * v, cx + R + 14, cy - R * v, 'f', 1.8, '5 4')
+    elif fn == 'arccos': b += ln(cx + R * v, cy - R - 14, cx + R * v, cy + R + 14, 'dd', 1.8, '5 4')
+    else: b += ln(cx + R, 6, cx + R, 204, 'mut', 1.4) + dot(cx + R, cy - R * v, '', 'tan', r=4.5)
+    b += txt(14, 20, title, 'ink', 13, 'start') + txt(14, 204, 'gold: outputs allowed', 'area', 10, 'start', 500)
+    if not after: return svg(b, 214, title)
+    px, py = cx + R * math.cos(ans), cy - R * math.sin(ans)
+    if fn == 'arctan': b += ln(cx, cy, cx + R, cy - R * v, 'tan', 1.6, '4 3')
+    b += ln(cx, cy, px, py, 'ink', 2) + anglearc(cx, cy, 16, 0, ans, 'tan', 2.6) + dot(px, py, '', 'tan', r=5.5)
+    b += txt(246, 20, f'= {ptext(ans)}', 'tan', 14, 'end')
+    return svg(b, 214, title)
+
+def _it_drill():
+    S2, S3 = math.sqrt(2) / 2, math.sqrt(3) / 2
+    D = [('arcsin', .5, 'arcsin(1/2)', ['π/6', '5π/6', 'π/3'], 'Height 1/2 happens at π/6 and 5π/6, but arcsin only answers on the right half of the circle (−π/2 to π/2). So <b>π/6</b>.'),
+         ('arcsin', -S2, 'arcsin(−√2/2)', ['5π/4', '−π/4', '7π/4'], '7π/4 points the right way, but it is outside [−π/2, π/2]. The same direction inside the allowed range is <b>−π/4</b>.'),
+         ('arccos', -.5, 'arccos(−1/2)', ['2π/3', '4π/3', '−π/3'], 'Width −1/2 happens at 2π/3 and 4π/3. arccos only answers on the top half (0 to π), so <b>2π/3</b>.'),
+         ('arccos', S3, 'arccos(√3/2)', ['−π/6', 'π/3', 'π/6'], 'Width √3/2 on the top half is at <b>π/6</b>. (−π/6 has the same width but is on the bottom half.)'),
+         ('arctan', -1, 'arctan(−1)', ['3π/4', '−π/4', '7π/4'], 'Slope −1 at 3π/4 and at −π/4 (the same line). arctan answers on the right half, open interval (−π/2, π/2): <b>−π/4</b>.'),
+         ('arctan', math.sqrt(3), 'arctan(√3)', ['π/3', 'π/6', '4π/3'], 'Slope √3 = sin/cos = (√3/2)/(1/2): the angle <b>π/3</b>. 4π/3 lies on the same line but outside the range.'),
+         ('arcsin', -1, 'arcsin(−1)', ['3π/2', '−π/2', 'π'], 'Height −1 is the bottom of the circle. In [−π/2, π/2] that angle is <b>−π/2</b>, not 3π/2.'),
+         ('arccos', 0, 'arccos(0)', ['−π/2', '0', 'π/2'], 'Width 0 on the top half: straight up, <b>π/2</b>.'),
+         ('arccos', -S2, 'arccos(−√2/2)', ['3π/4', '5π/4', '−3π/4'], 'Width −√2/2 on the top half is in quadrant II: <b>3π/4</b>.'),
+         ('arcsin', .5, 'arcsin(sin(5π/6))', ['5π/6', 'π/6', '−π/6'], 'sin(5π/6) = 1/2, so this is arcsin(1/2) = <b>π/6</b>. arcsin cannot return 5π/6: it is outside [−π/2, π/2]. "arcsin undoes sin" only on that range.'),
+         ('arctan', -math.sqrt(3) / 3, 'arctan(−√3/3)', ['5π/6', '−π/6', '11π/6'], 'Slope −√3/3 = −tan(π/6). In (−π/2, π/2): <b>−π/6</b>.')]
+    cases = []
+    for fn, v, title, opts, why in D:
+        ans = {'arcsin': math.asin, 'arccos': math.acos, 'arctan': math.atan}[fn](v)
+        c = opts.index(ptext(ans))
+        q = f'{title} = ?'
+        cases.append((q, _it_pic(fn, v, ans, False, title), _it_pic(fn, v, ans, True, title), opts, c, why))
+    return drill('Pick the one the function gives: 11 values', 'Each inverse gives one angle, from its gold range. Find the direction first, then the angle in the range.', cases, 'it-drill')
+
+def _it_fig():
+    cx, cy, R = 130, 120, 84
+    base = ucircle(cx, cy, R)
+    th = 2 * PI / 3; px, py = cx + R * math.cos(th), cy - R * math.sin(th)
+    L = [(1, anglearc(cx, cy, R, 0, PI, 'area', 5), 'arccos answers in [0, π]', 'area'),
+         (2, ln(px, cy - R - 10, px, cy + R + 10, 'dd', 2, '5 4') + txt(px - 4, cy + R + 14, 'x = −1/2', 'dd', 10, 'end'), 'width −1/2', 'dd'),
+         (3, ln(cx, cy, px, py, 'ink', 2) + anglearc(cx, cy, 20, 0, th, 'tan', 2.6) + dot(px, py, '', 'tan', r=6) + txt(cx + 22, cy - 24, '2π/3', 'tan', 11, 'start'), 'arccos(−1/2) = 2π/3', 'tan'),
+         (4, dot(cx + R * math.cos(3 * PI / 4), cy - R * math.sin(3 * PI / 4), '', 'f', r=5) + txt(cx + R * math.cos(3 * PI / 4) - 8, cy - R * math.sin(3 * PI / 4) - 6, '3π/4', 'f', 10, 'end')
+          + dot(cx + R * math.cos(PI / 4), cy - R * math.sin(PI / 4), '', 'f', r=5) + txt(cx + R * math.cos(PI / 4) + 8, cy - R * math.sin(PI / 4) - 6, 'π/4', 'f', 10, 'start'), 'sin(3π/4) = sin(π/4): arcsin gives π/4', 'f')]
+    return fig(base, L, 'arccos picks its answer from the top half of the circle; arcsin from the right half.', 236)
+
+def _ladder_fig():
+    s = 26; x0, y0 = 46, 196
+    base = ln(20, y0, 240, y0, 'mut', 2) + ln(x0 + 1.5 * s + 70, y0, x0 + 1.5 * s + 70, 20, 'mut', 2)
+    wx = x0 + 1.5 * s + 70; fx = wx - 1.5 * s; top = y0 - math.sqrt(36 - 2.25) * s
+    base += ln(fx, y0, wx, top, 'f', 4) + txt(wx + 6, 34, 'wall', 'mut', 10, 'start', 500)
+    L = [(1, txt((fx + wx) / 2 - 14, (y0 + top) / 2, '6 m', 'f', 12, 'end'), 'ladder 6 m', 'f'),
+         (2, ln(fx, y0 + 8, wx, y0 + 8, 'dd', 2.4) + txt((fx + wx) / 2, y0 + 20, '1.5 m', 'dd', 11), 'foot 1.5 m out', 'dd'),
+         (3, anglearc(fx, y0, 18, 0, math.acos(.25), 'tan', 2.6) + txt(fx - 6, y0 - 22, 'θ ≈ 75.5°', 'tan', 11, 'end'), 'θ = arccos(1.5/6) ≈ 75.5°', 'tan'),
+         (4, ln(16, 196, 88, 190, 'f', 3) + txt(16, 182, 'ramp 1 : 12', 'f', 10, 'start'), 'ramp: arctan(1/12) ≈ 4.76°', 'f')]
+    return fig(base, L, 'A 6 m ladder with its foot 1.5 m from the wall, and a 1 : 12 ramp.', 222)
+
+mod('invtrig', 'Inverse trig functions',
+ 'Ask the question backwards: which angle has this sine? Infinitely many do, so each inverse function agrees to give just one.',
+ ['Sine takes an angle and gives a height. The inverse question, "which angle has height 1/2?", has infinitely many answers (π/6, 5π/6, π/6 + 2π, ...). A function must give one output, so we <b>restrict the domain</b> of sine to an interval where it is one-to-one and takes every value once: <span class="m">[−π/2, π/2]</span>, the right half of the circle. On that piece, the inverse is <span class="m">arcsin</span> (also written sin⁻¹).',
+  'The same idea for the others: cosine is restricted to <span class="m">[0, π]</span> (the top half), giving <span class="m">arccos</span>; tangent to <span class="m">(−π/2, π/2)</span>, giving <span class="m">arctan</span>. So arcsin and arctan always answer between −π/2 and π/2, and arccos always answers between 0 and π.',
+  'The graph of an inverse is the graph of the restricted function reflected over the line y = x: inputs and outputs trade places. arcsin and arccos take inputs only from [−1, 1] (heights and widths on the unit circle); arctan takes any real number (any slope).'],
+ ('sin, cos and tan took an angle and gave a number', 'to go from the number back to the angle', 'given a ratio (a height, a slope), find the angle', 'inverse trig functions, their restricted ranges, and how to pick the one angle they return'),
+ [('θ = arcsin x ⇔ sin θ = x', 'θ in [−π/2, π/2]'), ('θ = arccos x ⇔ cos θ = x', 'θ in [0, π]'), ('θ = arctan x ⇔ tan θ = x', 'θ in (−π/2, π/2)'), ('arcsin and arccos: −1 ≤ x ≤ 1', 'domain'), ('sin(arcsin x) = x', 'but arcsin(sin θ) = θ only on the range')],
+ [lab('it-lab', 'Flip the graph over y = x', canvas='it-canvas', aria='The restricted sine, cosine or tangent graph in blue, its inverse in green, the line y = x, and a matching pair of points reflected across it.',
+   seg=('it-fn', 'Function', [('asin', 'arcsin'), ('acos', 'arccos'), ('atan', 'arctan')]),
+   pre='<label class="check"><input type="checkbox" id="it-full"> Show the whole unrestricted graph (faded)</label>',
+   ctl=[('it-v', 'Input x', -1, 1, .01, .87)],
+   out=[('it-out', 'output angle', 'v'), ('it-chk', 'check', 'x'), ('it-rng', 'outputs always in', 'a')]),
+  lab('it-lab2', 'Many angles, one answer', canvas='it-canvas2', aria='The full sine, cosine or tangent graph from −2π to 2π, a horizontal line at the chosen value, every crossing marked, and the one the inverse returns highlighted.',
+   seg=('it-fn2', 'Function', [('sin', 'sin'), ('cos', 'cos'), ('tan', 'tan')]),
+   ctl=[('it-k', 'Value k', -1, 1, .01, .5)],
+   out=[('it-all', 'angles with this value (shown)', 'x'), ('it-pick', 'the inverse picks', 'v')])],
+ [('With arcsin, set x = 0.87 (it snaps to √3/2). Read the output, then find the matching point on the blue sine graph.', show(['click', '#it-fn [data-k=asin]'], ['#it-v', .87]), 'arcsin(√3/2) = π/3 ≈ 1.047. The blue point (π/3, √3/2) on the sine graph and the green point (√3/2, π/3) on the arcsin graph are mirror images across y = x: input and output trade places.'),
+  ('Tick "Show the whole unrestricted graph". Why can\'t the whole sine wave be flipped?', show(['click', '#it-fn [data-k=asin]'], ['#it-full', True]), 'Flipped, the full wave would fail the vertical line test: one x would go to many angles. Only the solid piece on [−π/2, π/2] passes the horizontal line test, so only it has an inverse function.'),
+  ('Switch to arccos and set x = −0.5. Is the answer negative?', show(['click', '#it-fn [data-k=acos]'], ['#it-v', -.5]), 'No: arccos(−0.5) = 2π/3 ≈ 2.094. arccos answers on the top half of the circle, [0, π], so its outputs are never negative. A negative input means an angle in quadrant II.'),
+  ('In the second lab choose sin and k = 0.5. How many angles in view have sine 0.5? Which does arcsin pick?', show(['click', '#it-fn2 [data-k=sin]'], ['#it-k', .5]), 'Four in [−2π, 2π] (−11π/6, −7π/6, π/6, 5π/6), and infinitely many overall. arcsin picks π/6, the one on the gold restricted piece.'),
+  ('Choose tan and push k to 4, then −4. Does arctan ever reach π/2?', show(['click', '#it-fn2 [data-k=tan]'], ['#it-k', 4]), 'No. arctan 4 ≈ 1.326 and arctan(−4) ≈ −1.326. As k grows the answer creeps toward π/2 ≈ 1.571 but never gets there: y = ±π/2 are horizontal asymptotes of arctan.')],
+ [('Evaluate exactly: (a) arccos(−1/2) (b) arcsin(sin(3π/4)) (c) cos(arcsin(3/5)).', [
+   '<b>(a) Range first.</b> arccos answers in [0, π], the top half of the circle.',
+   '<b>(a) Find the angle.</b> Width −1/2 on the top half is in quadrant II with reference angle π/3: <b>arccos(−1/2) = 2π/3</b>.',
+   '<b>(a) Check.</b> cos(2π/3) = −1/2 and 2π/3 is in [0, π]. ✓',
+   '<b>(b)</b> sin(3π/4) = √2/2. arcsin(√2/2) must be in [−π/2, π/2], so it is <b>π/4</b>, not 3π/4. The inverse undoes sine only on its restricted range.',
+   '<b>(c)</b> Let θ = arcsin(3/5): sin θ = 3/5 with θ in quadrant I. On a 3-4-5 right triangle (or from sin² + cos² = 1), cos θ = √(1 − 9/25) = <b>4/5</b>, positive because θ is in [−π/2, π/2].'], _it_fig()),
+  {'h': 'Worked example 2: ladders and ramps', 'fig': _ladder_fig(),
+   'prob': 'A 6 m ladder leans against a wall with its foot 1.5 m from the wall. (a) Find the angle θ between the ladder and the ground. (b) A wheelchair ramp rises 0.5 m over a horizontal run of 6 m. Find its angle with the ground.',
+   'steps': ['<b>Set up (a).</b> The ladder is the hypotenuse (6 m) and the distance along the ground is the side adjacent to θ (1.5 m), so cos θ = 1.5/6 = 0.25.',
+    '<b>Which inverse?</b> We know a cosine and want the angle, so θ = arccos(0.25). An acute angle is in arccos\'s range [0, π], so this is the one we want.',
+    '<b>(a) Answer.</b> θ = arccos(0.25) ≈ 1.318 rad ≈ <b>75.5°</b>. This is the "4 to 1" ladder safety rule: the foot one quarter of the ladder\'s length from the wall.',
+    '<b>(b)</b> Rise over run is the tangent: tan θ = 0.5/6 = 1/12, so θ = arctan(1/12) ≈ 0.0831 rad ≈ <b>4.76°</b>. A 1 : 12 slope is the steepest ramp the US accessibility standards allow.']}],
+ ['Answering arcsin(1/2) = 5π/6 or 150°. Both have sine 1/2, but arcsin only returns angles in [−π/2, π/2].', 'Giving a negative answer for arccos. Its range is [0, π].', 'Assuming arcsin(sin θ) = θ always. It is true only when θ is in [−π/2, π/2].', 'Reading sin⁻¹ x as 1/sin x. The −1 means inverse function, not reciprocal; 1/sin x is csc x.', 'Taking arcsin of a number bigger than 1. No angle has sine 1.2: it is not in the domain.'],
+ ('Why these ranges',
+  ['Each range is chosen to contain the acute angles (so right-triangle problems work directly), to hit every output value exactly once, and to be one connected piece. For sine that is [−π/2, π/2]: from the bottom of the circle up the right side to the top. For cosine it is [0, π], the top half, because the right half would give each width twice.']),
+ [('What is arctan(−1)?', ['3π/4', '−π/4', '7π/4', '−3π/4'], 1, 'arctan answers in (−π/2, π/2). The angle there with slope −1 is −π/4.'),
+  ('What is arccos(cos(−π/3))?', ['−π/3', 'π/3', '2π/3', '5π/3'], 1, 'cos(−π/3) = 1/2, and arccos(1/2) = π/3, in [0, π].')],
+ extra_after_labs=_it_drill(), ced=('3.9',))
+
+# =====================================================================
+# 3.10  Trigonometric equations and inequalities
+# =====================================================================
+def _te_drill():
+    S2, S3 = math.sqrt(2) / 2, math.sqrt(3) / 2
+    D = [('sin θ = 1/2', math.sin, .5, ['π/6 and 5π/6', 'π/3 and 2π/3', 'π/6 and 11π/6'], 'Height 1/2: π/6 in quadrant I and its mirror π − π/6 = 5π/6 in quadrant II, where sine is also positive.'),
+         ('cos θ = −√2/2', math.cos, -S2, ['3π/4 and 7π/4', '3π/4 and 5π/4', 'π/4 and 7π/4'], 'Width −√2/2: quadrants II and III (cosine negative), reference angle π/4: 3π/4 and 5π/4.'),
+         ('tan θ = 1', math.tan, 1, ['π/4 and 3π/4', 'π/4 only', 'π/4 and 5π/4'], 'Tangent repeats every π: π/4 and π/4 + π = 5π/4.'),
+         ('sin θ = −1', math.sin, -1, ['3π/2', 'π/2 and 3π/2', 'π'], 'The line y = −1 just touches the bottom of the wave once per period: θ = 3π/2.'),
+         ('2 cos θ − 1 = 0', math.cos, .5, ['π/3 and 2π/3', 'π/3 and 5π/3', 'π/6 and 11π/6'], 'Isolate first: cos θ = 1/2. Quadrants I and IV: π/3 and 2π − π/3 = 5π/3.'),
+         ('sin(2θ) = 0', lambda t: math.sin(2 * t), 0, ['0 and π', 'π/2 and 3π/2', '0, π/2, π and 3π/2'], 'sin(2θ) completes two cycles in [0, 2π), so twice as many zeros: 2θ = 0, π, 2π, 3π gives θ = 0, π/2, π, 3π/2.'),
+         ('cos θ = 2', math.cos, 2, ['θ = 0', 'no solution', 'θ = π/3'], 'The line y = 2 never meets the cosine wave: cosine never exceeds 1. No solution.'),
+         ('tan θ = −√3', math.tan, -math.sqrt(3), ['2π/3 and 5π/3', '2π/3 and 4π/3', 'π/3 and 4π/3'], 'Slope −√3: reference angle π/3 in quadrants II and IV, where tangent is negative: 2π/3 and 5π/3 (π apart).')]
+    cases = []
+    for eq, f, k, opts, why in D:
+        istan = f is math.tan
+        P = Plot((0, 2 * PI), (-3.2, 3.2) if istan else (-2.4, 2.4), (30, 30, 216, 150))
+        b = P.axes([], [], 'θ', 'y') + qticks(P)
+        if istan:
+            w = math.atan(3.2)
+            for lo, hi in ((0, w), (PI - w, PI + w), (2 * PI - w, 2 * PI)): b += P.curve(f, lo, hi, 'f', 2.4, '', 60)
+            b += P.seg(PI / 2, -3.2, PI / 2, 3.2, 'area', 1.2, '4 4') + P.seg(3 * PI / 2, -3.2, 3 * PI / 2, 3.2, 'area', 1.2, '4 4')
+        else:
+            b += P.curve(f, 0, 2 * PI, 'f', 2.4, '', 160) + P.seg(0, 1, 2 * PI, 1, 'line', 1, '2 3') + P.seg(0, -1, 2 * PI, -1, 'line', 1, '2 3')
+        b += P.seg(0, k, 2 * PI, k, 'tan', 1.8, '6 4') + txt(250, 18, eq, 'ink', 13, 'end') + txt(36, 18, '[0, 2π)', 'mut', 10, 'start', 500)
+        g = (lambda t: f(t) - k)
+        sols = []
+        for i in range(2400):
+            t0, t1 = 2 * PI * i / 2400, 2 * PI * (i + 1) / 2400
+            v0, v1 = g(t0), g(t1)
+            if abs(v0) < 1e-12: sols.append(t0); continue
+            if v0 * v1 < 0 and abs(v0 - v1) < 5:
+                lo, hi = t0, t1
+                for _ in range(80):
+                    m = (lo + hi) / 2
+                    if (g(m) < 0) == (g(lo) < 0): lo = m
+                    else: hi = m
+                sols.append((lo + hi) / 2)
+        # tangency (sin θ = −1): the minimum touches the line
+        if not sols and abs(k) == 1 and not istan:
+            sols = [t for t in (PI / 2, PI, 3 * PI / 2, 0) if abs(f(t) - k) < 1e-12]
+        ded = []
+        for t in sols:
+            if not ded or abs(t - ded[-1]) > 1e-6: ded.append(t)
+        sols = ded; a = b
+        for i, t in enumerate(sols):
+            a += P.seg(t, 0, t, k, 'tan', 1.2, '3 3') + P.dot(t, k, '', 'tan', r=5) + txt(P.X(t), P.Y(k) + (-10 if (k >= 0) ^ (i % 2 == 1) else 18), ptext(t), 'tan', 10)
+        ans = ' and '.join(ptext(t) for t in sols) if sols else 'no solution'
+        if len(sols) == 4: ans = ', '.join(ptext(t) for t in sols[:3]) + ' and ' + ptext(sols[3])
+        c = opts.index(ans)
+        cases.append((f'Solve {eq} on [0, 2π).', svg(b, 200, f'Graph for {eq}'), svg(a, 200, f'Solutions of {eq}'), opts, c, why))
+    return drill('Where does the line cross? 8 equations', 'Each equation is a horizontal line meeting a wave. Predict the crossings, then check.', cases, 'te-drill')
+
+def _te_fig():
+    P = Plot((0, 2 * PI), (-1.5, 1.5), (30, 14, 218, 176))
+    base = P.axes([], [-1, 1], 'θ', 'y') + qticks(P) + P.curve(math.sin, 0, 2 * PI, 'f', 2.4, '', 120)
+    a, b = 7 * PI / 6, 11 * PI / 6
+    L = [(1, P.seg(0, -.5, 2 * PI, -.5, 'tan', 1.8, '6 4') + P.text(.1, -.38, 'y = −1/2', 'tan', 10, 'start'), 'sin θ = −1/2', 'tan'),
+         (2, P.dot(a, -.5, '7π/6', 'tan', -6, 16, 5), 'quadrant III: 7π/6', 'tan'),
+         (3, P.dot(b, -.5, '11π/6', 'tan', 6, 16, 5), 'quadrant IV: 11π/6', 'tan'),
+         (4, P.curve(math.sin, 0, a, 'd', 4, '', 80) + P.curve(math.sin, b, 2 * PI, 'd', 4, '', 20), 'sin θ > −1/2: [0, 7π/6) ∪ (11π/6, 2π)', 'd')]
+    return fig(base, L, 'y = sin θ and the line y = −1/2 on [0, 2π).', 214)
+
+def _tide_fig():
+    P = Plot((0, 12), (0, 5), (34, 12, 214, 186))
+    h = lambda t: 3 + 1.5 * math.cos(PI * t / 6)
+    base = P.axes([0, 2, 4, 6, 8, 10, 12], [1.5, 3, 4.5], 't (h)', 'depth (m)') + P.curve(h, 0, 12, 'f', 2.6, '', 120)
+    L = [(1, P.seg(0, 3.75, 12, 3.75, 'tan', 1.8, '6 4') + P.text(6, 3.95, '3.75 m needed', 'tan', 10), 'need h ≥ 3.75', 'tan'),
+         (2, '', 'cos(πt/6) ≥ 1/2', 'ink'),
+         (3, P.dot(2, 3.75, '', 'tan', r=5) + P.dot(10, 3.75, '', 'tan', r=5), 'boundaries t = 2 and t = 10', 'tan'),
+         (4, rect(P.X(0), P.Y(5), P.X(2) - P.X(0), P.Y(0) - P.Y(5), 'd', .22) + rect(P.X(10), P.Y(5), P.X(12) - P.X(10), P.Y(0) - P.Y(5), 'd', .22), 'safe: 0 ≤ t ≤ 2 and 10 ≤ t ≤ 12', 'd')]
+    return fig(base, L, 'Water depth in a harbor over one 12-hour tide cycle (simplified model).', 222)
+
+mod('trigeq', 'Trig equations & inequalities',
+ 'Solving a trig equation means finding where a wave meets a horizontal line: find every crossing in one period, then add whole periods.',
+ ['To solve <span class="m">sin θ = k</span>, isolate the trig function first, then picture the line y = k crossing the wave (or the horizontal line at height k crossing the unit circle). For −1 &lt; k &lt; 1 it crosses <b>twice per period</b>; at k = ±1 it touches once; for |k| &gt; 1 there is no solution.',
+  'Find the two angles in [0, 2π) with the reference angle and the quadrant signs. Then the <b>general solution</b> adds whole periods: <span class="m">θ = θ₁ + 2πk</span> and <span class="m">θ = θ₂ + 2πk</span> for sine and cosine, <span class="m">θ = θ₁ + πk</span> for tangent. The inverse function gives one solution; the picture gives the rest.',
+  'For an <b>inequality</b> like sin θ &gt; k, the solutions of the equation are the boundaries. Between them, the wave is either above the line or below it: test one point, or just look. With an inside factor, as in sin(2θ) = k, solve for 2θ over the stretched interval [0, 4π) first, then divide.'],
+ ('equations had one solution, or two for a quadratic', 'a way to find infinitely many solutions', 'periodic functions repeat, so if one angle works, so does every angle a period away', 'to find all solutions in one period, write the general solution, and solve inequalities from the graph'),
+ [('sin θ = k: θ₁ = arcsin k, θ₂ = π − θ₁', '+ 2πk'), ('cos θ = k: θ₁ = arccos k, θ₂ = 2π − θ₁', '+ 2πk'), ('tan θ = k: θ₁ = arctan k', '+ πk'), ('|k| > 1 for sin or cos', 'no solution'), ('inequality: boundaries from the equation', 'then test a side')],
+ [lab('te-lab', 'Solve it on the circle and the graph', canvas='te-canvas', aria='Left: the unit circle with the line for the chosen value and the solution points. Right: the graph of the function on [0, 2π) with the horizontal line, the solutions, and the solution intervals of the inequality shaded.',
+   seg=('te-fn', 'Function', [('sin', 'sin θ'), ('cos', 'cos θ'), ('tan', 'tan θ')]),
+   pre='<div class="ctl"><span class="lbl">Solve</span><div class="seg" id="te-op" role="group" aria-label="Equation or inequality"><button type="button" data-k="eq" aria-pressed="true">f(θ) = k</button><button type="button" data-k="gt" aria-pressed="false">f(θ) &gt; k</button><button type="button" data-k="lt" aria-pressed="false">f(θ) &lt; k</button></div></div><label class="check"><input type="checkbox" id="te-snap" checked> Snap k to exact values</label>',
+   ctl=[('te-k', 'k', -1.3, 1.3, .01, .5)],
+   out=[('te-sol', 'solutions in [0, 2π)', 'v'), ('te-gen', 'all solutions', 'x'), ('te-int', 'inequality holds on', 'a')]),
+  lab('te-lab2', 'More cycles, more solutions', canvas='te-canvas2', aria='Graph of sin(bθ) on [0, 2π) with a horizontal line y = k and every solution marked.',
+   ctl=[('te-b', 'b in sin(bθ) = k', 1, 4, 1, 2), ('te-k2', 'k', -1, 1, .05, .5)],
+   out=[('te-cnt', 'number of solutions in [0, 2π)', 'v'), ('te-list', 'solutions', 'x')])],
+ [('Solve sin θ = 1/2: set k = 0.5. Where are the two solutions on the circle?', show(['click', '#te-fn [data-k=sin]'], ['click', '#te-op [data-k=eq]'], ['#te-k', .5]), 'π/6 and 5π/6: the horizontal line at height 1/2 cuts the circle in quadrants I and II, mirror images across the y-axis.'),
+  ('Switch to cos with k = 0.5. Why are the solutions now in quadrants I and IV?', show(['click', '#te-fn [data-k=cos]'], ['click', '#te-op [data-k=eq]'], ['#te-k', .5]), 'Cosine is the width, so the line is vertical, x = 1/2. It cuts the circle at π/3 and 5π/3, mirror images across the x-axis.'),
+  ('Choose sin and "f(θ) > k" with k = −0.5. Read the shaded intervals.', show(['click', '#te-fn [data-k=sin]'], ['click', '#te-op [data-k=gt]'], ['#te-k', -.5]), '[0, 7π/6) ∪ (11π/6, 2π): everywhere except the bottom stretch of the circle where the height dips below −1/2.'),
+  ('Choose tan with k = 1. How many solutions in [0, 2π), and how far apart?', show(['click', '#te-fn [data-k=tan]'], ['click', '#te-op [data-k=eq]'], ['#te-k', 1]), 'Two, π/4 and 5π/4, exactly π apart: the period of tangent. The line y = x through the origin cuts the circle at both.'),
+  ('In the second lab set k = 0.5 and step b from 1 to 4. Count the solutions.', show(['#te-k2', .5], ['#te-b', 1]), '2, 4, 6, 8: sin(bθ) runs through b full cycles in [0, 2π), and each cycle meets the line twice.')],
+ [('Solve 2 sin θ + 1 = 0 on [0, 2π), give the general solution, then solve 2 sin θ + 1 &gt; 0 on [0, 2π).', [
+   '<b>Isolate.</b> 2 sin θ = −1, so sin θ = <b>−1/2</b>.',
+   '<b>Reference angle and quadrants.</b> |−1/2| = sin(π/6), so the reference angle is π/6. Sine is negative in quadrants III and IV: θ = π + π/6 = <b>7π/6</b>…',
+   '…and θ = 2π − π/6 = <b>11π/6</b>. General solution: θ = 7π/6 + 2πk or θ = 11π/6 + 2πk, for any integer k.',
+   '<b>Inequality.</b> sin θ &gt; −1/2 everywhere the wave is above the line: <b>[0, 7π/6) ∪ (11π/6, 2π)</b>. Check θ = 0: 2(0) + 1 = 1 &gt; 0 ✓.'], _te_fig()),
+  {'h': 'Worked example 2: when can the boat leave?', 'fig': _tide_fig(),
+   'prob': 'In a simplified model, the depth of water at a harbor entrance is h(t) = 3 + 1.5 cos(πt/6) meters, t hours after high tide. A boat needs at least 3.75 m of water. During which times in the first 12 hours can it pass?',
+   'steps': ['<b>Inequality.</b> 3 + 1.5 cos(πt/6) ≥ 3.75.',
+    '<b>Isolate.</b> 1.5 cos(πt/6) ≥ 0.75, so cos(πt/6) ≥ <b>1/2</b>. Let u = πt/6; for 0 ≤ t ≤ 12, u runs over [0, 2π].',
+    '<b>Boundaries.</b> cos u = 1/2 at u = π/3 and u = 5π/3, so t = 6u/π = <b>2</b> and <b>10</b> hours.',
+    '<b>Which side?</b> cos u ≥ 1/2 near u = 0 (width close to 1): u in [0, π/3] or [5π/3, 2π]. So <b>0 ≤ t ≤ 2 and 10 ≤ t ≤ 12</b>: the 2 hours on either side of high tide, 4 hours of every 12.']}],
+ ['Stopping at the one answer the calculator gives. arcsin(−1/2) = −π/6 is not even in [0, 2π); the two answers are 7π/6 and 11π/6.', 'Dividing by the trig function and losing solutions: in sin θ cos θ = sin θ, factor (sin θ(cos θ − 1) = 0) instead of dividing by sin θ.', 'Forgetting to solve for the inside: for sin(2θ) = 1/2, solve for 2θ on [0, 4π), then divide by 2.', 'Using + 2πk for tangent. Its period is π, so θ = θ₁ + πk.', 'Getting the inequality backwards: check one test point.'],
+ ('Why there are two solutions per period',
+  ['A horizontal line at height k (with −1 &lt; k &lt; 1) cuts the unit circle in two points, mirror images across the y-axis: θ and π − θ. A vertical line at width k cuts it in two points mirrored across the x-axis: θ and −θ (or 2π − θ). That is the whole reason behind the formulas θ₂ = π − θ₁ for sine and θ₂ = 2π − θ₁ for cosine.']),
+ [('How many solutions does cos θ = −0.3 have in [0, 2π)?', ['0', '1', '2', '4'], 2, '−1 &lt; −0.3 &lt; 1, so the vertical line x = −0.3 cuts the circle twice (quadrants II and III).'),
+  ('Which is the general solution of tan θ = √3?', ['θ = π/3 + 2πk', 'θ = π/3 + πk', 'θ = π/6 + πk', 'θ = π/3 + πk/2'], 1, 'arctan √3 = π/3, and tangent has period π.')],
+ extra_after_labs=_te_drill(), ced=('3.10',))
