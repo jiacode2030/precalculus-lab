@@ -666,3 +666,110 @@ mod('logmodel', 'Logarithmic models & data',
  [('For y = 10 + 4 ln x, doubling x changes y by', ['4 ln 2 ≈ 2.77', '4', '8', '10 ln 2'], 0, 'y(2x) − y(x) = 4 ln(2x) − 4 ln x = 4 ln 2.'),
   ('y = 3 + 2 ln x. Solve y = 9 for x.', ['x = e³', 'x = 3', 'x = e⁶', 'x = 6'], 0, '2 ln x = 6, ln x = 3, x = e³ ≈ 20.1.')],
  ced=('2.14',))
+
+
+# =====================================================================
+# 2.15  Semi-log plots
+# =====================================================================
+L10 = math.log10
+
+def _slp(xr, kmax, box, xt, minor=True, ylab=True):
+    """a plot whose vertical axis is log10 y: y values must be passed as log10(y)"""
+    P = Plot(xr, (-.2, kmax + .15), box)
+    g = ''
+    for k in range(kmax + 1):
+        g += ln(P.X(xr[0]), P.Y(k), P.X(xr[1]), P.Y(k), 'line', 1)
+        if minor and k < kmax:
+            for m in range(2, 10): g += ln(P.X(xr[0]), P.Y(k + L10(m)), P.X(xr[1]), P.Y(k + L10(m)), 'line', .5)
+    x0 = max(0, xr[0])
+    g += P.axes(xt, [], 'x', '') + ''.join(txt(P.X(x0) - 6, P.Y(k) + 3.5, str(10 ** k), 'mut', 10, 'end', mono=True, w=500) for k in range(kmax + 1))
+    return P, g + (txt(P.X(x0) + 6, P.Y(kmax + .15) + 10, 'y (log scale)', 'mut', 10, 'start', 500) if ylab else '')
+
+def _sl_tab_fig():
+    P, base = _slp((-.5, 5), 3, (44, 12, 196, 170), [1, 2, 3, 4])
+    ys = [5, 15, 45, 135, 405]
+    L = [(1, ''.join(P.dot(i, L10(y), '', 'f', r=4.6) for i, y in enumerate(ys)), 'the five data points on a log y-axis', 'f'),
+         (2, P.seg(0, L10(5), 4, L10(405), 'd', 2.4), 'they fall on one straight line', 'd'),
+         (3, P.seg(1, L10(15), 2, L10(15), 'tan', 2) + P.seg(2, L10(15), 2, L10(45), 'tan', 2) + P.text(2.15, (L10(15) + L10(45)) / 2 - .05, '×3 each step', 'tan', 10, 'start'), 'each step of 1 in x multiplies y by 3', 'tan'),
+         (4, P.dot(0, L10(5), 'a = 5', 'dd', 20, -8, 5) + P.text(2.9, .35, 'y = 5·3ˣ', 'dd', 12), 'the line starts at 5, so y = 5·3ˣ', 'dd')]
+    return fig(base, L, 'Exponential data is a straight line on a log y-axis.', 210)
+
+def _sl_read_fig():
+    P, base = _slp((-.5, 10.5), 3, (44, 12, 196, 170), [2, 4, 6, 8, 10], ylab=False)
+    t = math.log2(800)
+    L = [(1, P.dot(2, L10(200), '(2, 200)', 'f', 34, -9, 5) + P.dot(6, L10(12.5), '(6, 12.5)', 'f', 36, -9, 5), 'two points read from the graph', 'f'),
+         (2, P.seg(0, L10(800), t, 0, 'd', 2.4) + P.dot(0, L10(800), 'a = 800', 'dd', 30, -8, 5), 'extend the line back to x = 0: y = 800', 'dd'),
+         (3, P.text(.3, .75, '÷16 over 4 steps', 'tan', 10, 'start') + P.text(.3, .45, 'so b = 1/2', 'tan', 10, 'start'), 'b = (12.5/200)^(1/4) = 1/2', 'tan'),
+         (4, P.dot(t, 0, 'x ≈ 9.64', 'tan', -2, -24, 5) + P.seg(t, 0, t, .4, 'tan', 1.2, '3 3'), 'y = 1 when 800(1/2)ˣ = 1, so x = log₂ 800 ≈ 9.64', 'tan')]
+    return fig(base, L, 'A straight line on a log axis through (2, 200) and (6, 12.5).', 210)
+
+def _sl_scat(xs, ys, log):
+    if log:
+        k = math.ceil(L10(max(ys)))
+        P, base = _slp((-.5, max(xs) + .8), k, (30, 14, 218, 132), [], minor=False)
+        pts = [(x, L10(y)) for x, y in zip(xs, ys)]
+        base = base.replace('y (log scale)', '')
+    else:
+        P = Plot((-.5, max(xs) + .8), (0, max(ys) * 1.1), (14, 14, 234, 132))
+        base = P.axes([], [], 'x', '')
+        pts = list(zip(xs, ys))
+    return base + ''.join(P.dot(x, y, '', 'f', r=4.2) for x, y in pts), P, pts
+
+def _sl_drill():
+    sets = [('y = 3·1.8ˣ', list(range(7)), [3 * 1.8 ** x for x in range(7)], True),
+            ('y = x², for x = 1 to 8', list(range(1, 9)), [x * x for x in range(1, 9)], False),
+            ('y = 90·0.6ˣ', list(range(7)), [90 * .6 ** x for x in range(7)], True),
+            ('y = 5 + 12x', list(range(7)), [5 + 12 * x for x in range(7)], False)]
+    cases = []
+    for nm, xs, ys, ok in sets:
+        b, _, _ = _sl_scat(xs, ys, False)
+        a, P, pts = _sl_scat(xs, ys, True)
+        if ok: a += P.seg(pts[0][0], pts[0][1], pts[-1][0], pts[-1][1], 'd', 2.2)
+        else: a += pline([(P.X(x), P.Y(y)) for x, y in pts], 'tan', 2.2)
+        why = ('Each step multiplies y by the same factor, so log y rises by the same amount each step: the points lie on a straight line.' if ok else
+               ('A polynomial grows by smaller and smaller factors, so log y bends (it curves, and flattens as x grows).' if 'x²' in nm else
+                'Adding the same amount each step is a shrinking percentage change, so log y climbs fast and then flattens: it curves.'))
+        cases.append((f'The points of {nm} are drawn on ordinary axes. Replot with a logarithmic y-axis: will they fall on a straight line?',
+                      svg(b + txt(64, 26, 'ordinary axes', 'mut', 10, 'start', 500), 160, f'Points of {nm} on ordinary axes'),
+                      svg(a + txt(64, 26, 'log y-axis', 'mut', 10, 'start', 500), 160, f'Points of {nm} on a log y-axis'),
+                      ['yes, a straight line', 'no, it curves'], 0 if ok else 1, why))
+    return drill('Straight or curved?', 'Exponential data is straight on a log y-axis. Predict, then look.', cases, 'sl-drill')
+
+mod('semilog', 'Semi-log plots',
+ 'On a log scale each step up the axis multiplies by 10 instead of adding 10. Exponential data, which curves on ordinary axes, becomes a straight line.',
+ ['A <b>semi-log plot</b> has an ordinary x-axis and a <b>logarithmic y-axis</b>. Equal distances up the y-axis mean equal <i>ratios</i> (1, 10, 100, 1000), not equal differences. If y = a·bˣ, then <span class="m">log y = log a + x·log b</span>, which is a line in x with slope log b and intercept log a. So <b>data that is a straight line on a semi-log plot is exponential</b>, and one that curves is not.',
+  'From the line you read the model. The y-intercept of the line is the starting value a (at x = 0). Each step of 1 in x multiplies y by b, so b = (y₂/y₁)^(1/(x₂ − x₁)) for two points. A line sloping upward means growth (b > 1), downward means decay (0 < b < 1). Take care: reading values off a log axis means reading powers of 10, so the gridlines are 1, 10, 100, 1000 and the marks between them (2, 3, … 9) bunch up toward the next power.',
+  'The mirror image is the <b>logarithmic model</b> y = a + b ln x. There you plot y against x on a log <i>x</i>-axis, and that is the straight line. Which axis to put on a log scale depends on which variable is "multiplicative". Scientists use semi-log plots for populations, sound levels, earthquake energy and drug concentrations, where values range over several powers of 10.'],
+ ('you built exponential and log models by solving equations', 'a way to test and read an exponential model by eye', 'values spanning powers of 10 are common, and a log axis makes ratios visible', 'semi-log plots: log axes, why exponential data is linear there, and reading the model from the line'),
+ [('log y = log a + x log b', 'exponential on a semi-log plot'), ('slope = log b', 'intercept = log a'), ('b = (y₂/y₁)^(1/(x₂ − x₁))', 'two points on the line'), ('straight line ⇒ exponential', 'curve ⇒ not'), ('equal gaps on a log axis', 'mean equal ratios')],
+ [lab('sl-lab', 'Ordinary axes or log axes?', canvas='sl-canvas', aria='Data points and an exponential model a times b to the x, drawn on either ordinary axes or a logarithmic y-axis, where an exponential model is a straight line.',
+   seg=('sl-set', 'Data', [('exp', 'Bacteria'), ('decay', 'Medicine'), ('quad', 'x²'), ('lin', 'Linear')]),
+   pre='<div class="seg" id="sl-ax" role="group" aria-label="y-axis scale"><button type="button" data-k="lin" aria-pressed="true">Ordinary y-axis</button><button type="button" data-k="log" aria-pressed="false">Log y-axis</button></div><div class="row"><button type="button" class="btn primary" id="sl-best">Best fit</button></div>',
+   ctl=[('sl-a', 'a (value at x = 0)', 1, 1000, 1, 100), ('sl-b', 'b (factor per step)', .3, 4, .01, 1.5)],
+   out=[('sl-eq', 'your model', 'x'), ('sl-slope', 'slope on the log graph = log b', 'v'), ('sl-r2', 'how straight the data are on the log axis (r²)', '')]),
+  lab('sl-lab2', 'Read the model from a line', canvas='sl-canvas2', aria='A straight line on a semi-log plot through two marked points, with the model read from it and a point you can slide along the line.',
+   seg=('sl-case', 'Graph', [('a', 'Medicine'), ('b', 'Culture'), ('c', 'Signal')]),
+   ctl=[('sl-x', 'Read at x =', 0, 10, .1, 5)],
+   out=[('sl-md', 'the model', 'x'), ('sl-fac', 'each step of 1 in x multiplies y by', 'v'), ('sl-val', 'y at your x', 'v'), ('sl-tm', 'doubling time / half-life', '')])],
+ [('Choose <b>Bacteria</b> and press Best fit. Switch between the two y-axes. What happens to the model curve?', show(['click', '#sl-set [data-k=exp]'], ['click', '#sl-best'], ['click', '#sl-ax [data-k=log]']), 'On the log axis the curve becomes a straight line through the data. On ordinary axes it curves upward more and more steeply.'),
+  ('Choose <b>x²</b> and press Best fit on the log axis. Do the points sit on a line?', show(['click', '#sl-set [data-k=quad]'], ['click', '#sl-best'], ['click', '#sl-ax [data-k=log]']), 'No: they bend (r² is noticeably below 1). A power function is not exponential, so no straight line fits.'),
+  ('Choose <b>Medicine</b>. Is the line falling or rising on the log axis, and what does that tell you about b?', show(['click', '#sl-set [data-k=decay]'], ['click', '#sl-best'], ['click', '#sl-ax [data-k=log]']), 'It falls, so b < 1: decay. Here b ≈ 0.5, so the amount halves each hour.'),
+  ('In the second lab choose <b>Culture</b> and slide x to 4. Does y match the second marked point?', show(['click', '#sl-case [data-k=b]'], ['#sl-x', 4]), 'Yes: at x = 4 the line is at y = 162, the second marked point. The model is y = 2·3ˣ.')],
+ [{'h': 'Worked example: is this table exponential?', 'fig': _sl_tab_fig(), 'table': ([['x', '0', '1', '2', '3', '4'], ['y', '5', '15', '45', '135', '405']], 'A measured quantity'),
+   'prob': 'Test whether the data is exponential by looking at log₁₀ y, and find the model.',
+   'steps': ['<b>Take log₁₀ of y.</b> log 5 = 0.699, log 15 = 1.176, log 45 = 1.653, log 135 = 2.130, log 405 = 2.607.',
+    '<b>Look for equal steps.</b> The differences are 0.477 every time. So log y is linear in x: the points lie on a straight line on a log y-axis, and the data is exponential.',
+    '<b>Read b.</b> The slope is log b = 0.477, so b = 10^0.477 = <b>3</b>. (You can also see ratios 15/5 = 45/15 = … = 3.)',
+    '<b>Read a.</b> At x = 0, log a = 0.699, so a = <b>5</b>. The model is <b>y = 5·3ˣ</b>. Check: 5·3⁴ = 405 ✓.']},
+  {'h': 'Worked example 2: a straight line on a log axis', 'fig': _sl_read_fig(),
+   'prob': 'The amount of a medicine in the blood (mg) after x hours is a straight line on a semi-log plot, passing through (2, 200) and (6, 12.5). Find the model, and when the amount falls to 1 mg.',
+   'steps': ['<b>A line on a semi-log plot means y = a·bˣ.</b> Use both points: 200 = a·b² and 12.5 = a·b⁶.',
+    '<b>Divide to get b.</b> 12.5/200 = b⁴, so b⁴ = 1/16 and b = <b>1/2</b>. The amount halves every hour.',
+    '<b>Find a.</b> 200 = a(1/2)² = a/4, so a = <b>800</b>. The model is <b>y = 800(1/2)ˣ</b>.',
+    '<b>Solve y = 1.</b> 800(1/2)ˣ = 1, so (1/2)ˣ = 1/800 and x = ln 800 / ln 2 = 6.685/0.693 ≈ <b>9.64 hours</b>. Check: 800/2^9.64 ≈ 1 ✓.']}],
+ ['Reading the log axis like an ordinary one: the gridlines are powers of 10, not equal steps of 10.', 'Concluding that a curve is not exponential when only the y-axis was ordinary: only a straight line on a <i>log</i> y-axis proves exponential.', 'Forgetting that the line\'s slope is log b, not b.', 'Using the first y-reading as a (the start value) when the first point is not at x = 0.'],
+ ('Straight on the log axis: exponential. Straight on a log x-axis: logarithmic.',
+  ['The two semi-log plots are the two ways around. If y = a·bˣ, plot y on a log axis against ordinary x. If y = a + b ln x, plot ordinary y against x on a log axis. If both axes are logarithmic (a log-log plot), a straight line means a power function y = a·xᵖ, which you will meet in calculus and science.']),
+ [('On a plot of log₁₀ y against x the data lie on a line with slope 2. Then y is', ['a·100ˣ', 'a·2ˣ', 'a + 2x', 'a·x²'], 0, 'Slope log b = 2 (for log base 10) means b = 10² = 100.'),
+  ('Points (1, 20) and (3, 180) lie on a line on a log y-axis. Then b =', ['3', '9', '160', '80'], 0, 'b² = 180/20 = 9, so b = 3.')],
+ extra_after_labs=_sl_drill(), ced=('2.15',))

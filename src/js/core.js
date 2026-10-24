@@ -34,7 +34,7 @@ function panel(ctx,box,xr,yr,o={}){
   ctx.textAlign='center';ctx.textBaseline='top';
   for(let t=Math.ceil(xr[0]/xs-1e-9)*xs;t<=xr[1]+1e-9;t+=xs){const px=Math.round(X(t))+.5;ctx.beginPath();ctx.moveTo(px,box.y);ctx.lineTo(px,box.y+box.h);ctx.stroke();if(o.xt!==false)ctx.fillText(tick(t,xs),px,box.y+box.h+4);}
   ctx.textAlign='right';ctx.textBaseline='middle';
-  for(let v=Math.ceil(yr[0]/ys-1e-9)*ys;v<=yr[1]+1e-9;v+=ys){const py=Math.round(Y(v))+.5;ctx.beginPath();ctx.moveTo(box.x,py);ctx.lineTo(box.x+box.w,py);ctx.stroke();ctx.fillText(tick(v,ys),box.x-6,py);}
+  for(let v=Math.ceil(yr[0]/ys-1e-9)*ys;v<=yr[1]+1e-9;v+=ys){const py=Math.round(Y(v))+.5;ctx.beginPath();ctx.moveTo(box.x,py);ctx.lineTo(box.x+box.w,py);ctx.stroke();if(o.yt!==false)ctx.fillText(tick(v,ys),box.x-6,py);}
   ctx.strokeStyle=T.muted;ctx.globalAlpha=.6;
   if(yr[0]<=0&&yr[1]>=0){const py=Math.round(Y(0))+.5;ctx.beginPath();ctx.moveTo(box.x,py);ctx.lineTo(box.x+box.w,py);ctx.stroke();}
   ctx.beginPath();ctx.moveTo(box.x+.5,box.y);ctx.lineTo(box.x+.5,box.y+box.h);ctx.stroke();ctx.globalAlpha=1;

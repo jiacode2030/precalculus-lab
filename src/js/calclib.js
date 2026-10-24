@@ -127,7 +127,7 @@ function mcq(correct,distract,n=4){const s=[correct];shuffle(distract).forEach(d
    o.view(w,h) -> {xr,yr,xn?,yn?};  o.draw(ctx,P,w,h,t) draws on the panel P (P.X, P.Y, inv(P,px,py));
    o.drag(kind,x,y) gets pointer positions in data coordinates (kind: down|move|up). Returns the sim2d handle. */
 function glab(id,o){const cv=$('#'+id);if(!cv)return null;let last=null;const mx=o.mx||46;
-  const sim=sim2d(cv,{h:o.h||(w=>clamp(w*.52,250,370)),draw(ctx,w,h,t){const v=o.view(w,h);const P=gpanel(ctx,{x:mx,y:12,w:w-mx-14,h:h-36},v.xr,v.yr,{xn:v.xn||6,yn:v.yn||4,ylabel:v.ylabel,xlabel:v.xlabel,xt:v.xt});last=P;o.draw(ctx,P,w,h,t);},
+  const sim=sim2d(cv,{h:o.h||(w=>clamp(w*.52,250,370)),draw(ctx,w,h,t){const v=o.view(w,h);const P=gpanel(ctx,{x:mx,y:12,w:w-mx-14,h:h-36},v.xr,v.yr,{xn:v.xn||6,yn:v.yn||4,ylabel:v.ylabel,xlabel:v.xlabel,xt:v.xt,yt:v.yt});last=P;o.draw(ctx,P,w,h,t);},
     step:o.step,paused:o.paused,
     drag:o.drag&&((k,e)=>{if(k==='up'){o.drag('up');return;}if(!last)return;const [px,py]=ptr(e,cv),[x,y]=inv(last,px,py);o.drag(k,x,y,e);})});
   return sim;}
