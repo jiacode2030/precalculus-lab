@@ -1,15 +1,6 @@
 /* ---------------- 4.1, 4.2, 4.4 Parametric functions ---------------- */
 (function param(){
   const cv=$('#pa-canvas');if(!cv)return;
-  /* three linked panels: x(t) and y(t) on the left (or below on phones), the path on the right (or on top) */
-  function layout(w,h){const wide=w>=640;
-    if(wide){const lw=Math.min(w*.4,340),gh=(h-62)/2;return {wide,X:{x:46,y:14,w:lw-52,h:gh},Y:{x:46,y:14+gh+30,w:lw-52,h:gh},B:{x:lw+34,y:14,w:w-lw-48,h:h-40}};}
-    const ph=Math.min(w-30,h*.5),gh=(h-ph-96)/2;return {wide,B:{x:40,y:12,w:w-54,h:ph},X:{x:46,y:ph+42,w:w-60,h:gh},Y:{x:46,y:ph+42+gh+30,w:w-60,h:gh}};}
-  /* a panel with equal scales on both axes that holds the box [bx] × [by] */
-  function eqPanel(ctx,B,bx,by){const sx=B.w/(bx[1]-bx[0]),sy=B.h/(by[1]-by[0]),s=Math.min(sx,sy),cx=(bx[0]+bx[1])/2,cy=(by[0]+by[1])/2,hx=B.w/s/2,hy=B.h/s/2;
-    return gpanel(ctx,B,[cx-hx,cx+hx],[cy-hy,cy+hy],{xn:Math.max(4,Math.round(B.w/70)),yn:Math.max(3,Math.round(B.h/70))});}
-  function arrowHead(ctx,x,y,a,col){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(7,0);ctx.lineTo(-5,-5);ctx.lineTo(-5,5);ctx.closePath();ctx.fill();ctx.restore();}
-  function path(ctx,P,X,Y,a,b,col,w,n=600){ctx.save();clip(ctx,P);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineJoin='round';ctx.beginPath();for(let i=0;i<=n;i++){const t=a+(b-a)*i/n;i?ctx.lineTo(P.X(X(t)),P.Y(Y(t))):ctx.moveTo(P.X(X(t)),P.Y(Y(t)));}ctx.stroke();ctx.restore();}
   const TP=(12+Math.sqrt(163.6))/9.8;
   const PRE={circ:{x:t=>3*Math.cos(t),y:t=>3*Math.sin(t),T:TAU,eq:'x = 3 cos t,  y = 3 sin t,  0 ≤ t ≤ 2π',bx:[-3.6,3.6],by:[-3.6,3.6],note:'x(t) is a cosine and y(t) a sine: counterclockwise from (3, 0)'},
     line:{x:t=>-3+1.5*t,y:t=>2-t,T:4,eq:'x = −3 + 1.5t,  y = 2 − t,  0 ≤ t ≤ 4',bx:[-4,4],by:[-2.8,2.8],note:'both linear: the same step every second, along a straight line'},
@@ -17,14 +8,14 @@
     liss:{x:t=>3*Math.sin(t),y:t=>2*Math.sin(2*t),T:TAU,eq:'x = 3 sin t,  y = 2 sin(2t),  0 ≤ t ≤ 2π',bx:[-3.6,3.6],by:[-2.6,2.6],note:'y(t) goes up and down twice for each left-right trip: a figure-eight'},
     cyc:{x:t=>t-Math.sin(t),y:t=>1-Math.cos(t),T:4*Math.PI,eq:'x = t − sin t,  y = 1 − cos t,  0 ≤ t ≤ 4π',bx:[-.4,13],by:[-.3,2.4],note:'a pebble in a rolling tire (radius 1): it touches down at t = 0, 2π, 4π'}};
   let k='circ',t=1,play=false,lay=null;const tEl=$('#pa-t'),pb=$('#pa-play');
-  const sim=sim2d(cv,{h:w=>w>=640?clamp(w*.5,320,440):clamp(w*1.55,540,700),draw(ctx,w,h){const L=lay=layout(w,h),p=PRE[k],xs=p.x(t),ys=p.y(t);
+  const sim=sim2d(cv,{h:w=>w>=640?clamp(w*.5,320,440):clamp(w*1.55,540,700),draw(ctx,w,h){const L=lay=paLayout(w,h),p=PRE[k],xs=p.x(t),ys=p.y(t);
     const pad=(a,b)=>[a-(b-a)*.08,b+(b-a)*.08];
     const PX=gpanel(ctx,L.X,[0,p.T],pad(...p.bx),{xn:4,yn:3}),PY=gpanel(ctx,L.Y,[0,p.T],pad(...p.by),{xn:4,yn:3});
     label(ctx,'x(t)',L.X.x+6,L.X.y+11,T.ca,'left','middle',LABEL);label(ctx,'y(t)',L.Y.x+6,L.Y.y+11,T.cv,'left','middle',LABEL);
     label(ctx,'t',L.X.x+L.X.w-4,L.X.y+L.X.h-8,T.muted,'right','middle',MONO);label(ctx,'t',L.Y.x+L.Y.w-4,L.Y.y+L.Y.h-8,T.muted,'right','middle',MONO);
     [[PX,p.x,T.ca,xs],[PY,p.y,T.cv,ys]].forEach(([P,f,col,v])=>{curveD(ctx,P,f,0,p.T,alpha(col,.3),2,400);curveD(ctx,P,f,0,t,col,2.8,400);vline(ctx,P,t,T.ce);dot(ctx,P.X(t),P.Y(v),6,T.hot,T.surface);});
     const P=eqPanel(ctx,L.B,p.bx,p.by);
-    path(ctx,P,p.x,p.y,0,p.T,alpha(T.cx,.28),2.2);path(ctx,P,p.x,p.y,0,t,T.cx,3);
+    pathD(ctx,P,p.x,p.y,0,p.T,alpha(T.cx,.28),2.2);pathD(ctx,P,p.x,p.y,0,t,T.cx,3);
     [.12,.37,.62,.87].forEach(f=>{const u=f*p.T,e=p.T*1e-3,a=Math.atan2(-(P.Y(p.y(u+e))-P.Y(p.y(u-e))),P.X(p.x(u+e))-P.X(p.x(u-e)));arrowHead(ctx,P.X(p.x(u)),P.Y(p.y(u)),-a,alpha(T.cx,.75));});
     line(ctx,P,xs,ys,xs,0,alpha(T.ca,.8),1.4,[4,3]);line(ctx,P,xs,ys,0,ys,alpha(T.cv,.8),1.4,[4,3]);dot(ctx,P.X(xs),P.Y(0),4,T.ca);dot(ctx,P.X(0),P.Y(ys),4,T.cv);
     dot(ctx,P.X(xs),P.Y(ys),7.5,T.hot,T.surface);},
@@ -53,11 +44,11 @@
     rand:()=>[0,0].map(()=>[...Array(N)].map(()=>Math.round((Math.random()*7-3.5)*4)/4))};
   let [XV,YV]=PR2.line(),t2=2,lay2=null,dr=null;const cv2=$('#pa-canvas2'),R=4.5;
   const xf=u=>crSpline(XV,u),yf=u=>crSpline(YV,u);
-  const sim2=sim2d(cv2,{h:w=>w>=640?clamp(w*.5,320,440):clamp(w*1.55,540,700),draw(ctx,w,h){const L=lay2=layout(w,h);
+  const sim2=sim2d(cv2,{h:w=>w>=640?clamp(w*.5,320,440):clamp(w*1.55,540,700),draw(ctx,w,h){const L=lay2=paLayout(w,h);
     const PX=gpanel(ctx,L.X,[0,6],[-R,R],{xn:6,yn:4}),PY=gpanel(ctx,L.Y,[0,6],[-R,R],{xn:6,yn:4}),P=eqPanel(ctx,L.B,[-R,R],[-R,R]);lay2.P=[PX,PY,P];
     label(ctx,'x(t)',L.X.x+6,L.X.y+11,T.ca,'left','middle',LABEL);label(ctx,'y(t)',L.Y.x+6,L.Y.y+11,T.cv,'left','middle',LABEL);
     [[PX,xf,XV,T.ca],[PY,yf,YV,T.cv]].forEach(([Q,f,V,col])=>{curveD(ctx,Q,f,0,6,col,2.6,400);V.forEach((v,i)=>dot(ctx,Q.X(i),Q.Y(v),dr&&dr.i===i?8.5:6.5,col,T.surface));vline(ctx,Q,t2,T.ce);dot(ctx,Q.X(t2),Q.Y(f(t2)),5,T.hot);});
-    path(ctx,P,xf,yf,0,6,T.cx,2.8,600);
+    pathD(ctx,P,xf,yf,0,6,T.cx,2.8,600);
     [1,3,5].forEach(i=>{const u=i+.5,e=1e-3,a=Math.atan2(-(P.Y(yf(u+e))-P.Y(yf(u-e))),P.X(xf(u+e))-P.X(xf(u-e)));if(Math.hypot(xf(u+e)-xf(u-e),yf(u+e)-yf(u-e))>1e-6)arrowHead(ctx,P.X(xf(u)),P.Y(yf(u)),-a,alpha(T.cx,.8));});
     XV.forEach((x,i)=>{dot(ctx,P.X(x),P.Y(YV[i]),5,T.cx,T.surface);label(ctx,`t=${i}`,P.X(x)+7,P.Y(YV[i])-9,T.muted,'left','middle','10px "IBM Plex Mono",monospace');});
     dot(ctx,P.X(xf(t2)),P.Y(yf(t2)),7.5,T.hot,T.surface);},

@@ -791,3 +791,331 @@ mod('trigeq', 'Trig equations & inequalities',
  [('How many solutions does cos θ = −0.3 have in [0, 2π)?', ['0', '1', '2', '4'], 2, '−1 &lt; −0.3 &lt; 1, so the vertical line x = −0.3 cuts the circle twice (quadrants II and III).'),
   ('Which is the general solution of tan θ = √3?', ['θ = π/3 + 2πk', 'θ = π/3 + πk', 'θ = π/6 + πk', 'θ = π/3 + πk/2'], 1, 'arctan √3 = π/3, and tangent has period π.')],
  extra_after_labs=_te_drill(), ced=('3.10',))
+
+# =====================================================================
+# Batch 3 helpers
+# =====================================================================
+def safe_curve(P, f, a, b, c='f', w=2.4, dash='', k=600, lim=None):
+    """plot f on [a, b], lifting the pen where it leaves the y-range or jumps (asymptotes)"""
+    lo, hi = P.yr if lim is None else (-lim, lim); o = ''; seg = []
+    prev = None
+    for i in range(k + 1):
+        t = a + (b - a) * i / k
+        try: v = f(t)
+        except (ZeroDivisionError, ValueError): v = None
+        ok = v is not None and math.isfinite(v) and lo - (hi - lo) * .02 <= v <= hi + (hi - lo) * .02
+        if ok and prev is not None and abs(v - prev) > (hi - lo) * .6: ok2 = False
+        else: ok2 = ok
+        if ok2: seg.append((P.X(t), P.Y(v)))
+        else:
+            if len(seg) > 1: o += pline(seg, c, w, dash)
+            seg = [(P.X(t), P.Y(v))] if ok else []
+        prev = v if ok else None
+    if len(seg) > 1: o += pline(seg, c, w, dash)
+    return o
+
+# =====================================================================
+# 3.1  Periodic phenomena
+# =====================================================================
+def _tri(x):
+    u = x % 4
+    return -1 + 4 * u if u < 1 else 3 - 4 * (u - 1) if u < 2 else -1
+
+def _pe_fig():
+    P = Plot((-3, 14), (-2, 4), (30, 14, 222, 170))
+    base = P.axes([4, 8, 12], [-1, 1, 3], 'x', 'y') + P.curve(_tri, -3, 14, 'f', 2.4, '', 340)
+    L = [(1, P.seg(0, 3.6, 4, 3.6, 'tan', 2.4) + P.seg(0, 3.4, 0, 3.8, 'tan', 2) + P.seg(4, 3.4, 4, 3.8, 'tan', 2) + P.text(2, 3.75, 'period 4', 'tan', 10), 'period 4', 'tan'),
+         (2, P.seg(-3, 1, 14, 1, 'area', 1.6, '6 4') + P.seg(1, 1, 1, 3, 'dd', 2.6) + P.text(1.25, 2, '2', 'dd', 11, 'start'), 'midline y = 1, amplitude 2', 'dd'),
+         (3, P.dot(1, 3, '', 'f', r=4.5) + P.dot(13, 3, 'f(13) = 3', 'tan', 0, -9, 5), 'f(13) = f(1) = 3', 'tan'),
+         (4, P.dot(10.5, -1, 'f(10.5)', 'tan', 0, 16, 5), 'f(10.5) = f(2.5) = −1', 'tan'),
+         (5, P.dot(-2.5, 1, '', 'tan', r=5) + P.seg(-2.5, 1, -2.5, -1.45, 'tan', 1, '2 2') + P.text(-2.9, -1.75, 'f(−2.5) = 1', 'tan', 10, 'start'), 'f(−2.5) = f(1.5) = 1', 'tan')]
+    return fig(base, L, 'One cycle (from x = 0 to 4) repeats forever in both directions.', 204)
+
+def _ecg(t):
+    u = (t - .2) % .8
+    if u > .4: u -= .8
+    return 1.6 * math.exp(-(u / .018) ** 2) - .25 * math.exp(-((u + .04) / .015) ** 2) - .3 * math.exp(-((u - .04) / .02) ** 2) + .35 * math.exp(-((u - .28) / .05) ** 2) + .15 * math.exp(-((u + .17) / .035) ** 2)
+
+def _ecg_fig():
+    P = Plot((0, 3.2), (-.6, 2.1), (20, 14, 230, 160))
+    base = ''.join(P.seg(x / 5, -.6, x / 5, 2.1, 'line', .8) for x in range(17)) + P.curve(_ecg, 0, 3.2, 'f', 2, '', 900) + P.seg(0, -.6, 3.2, -.6, 'mut', 1.2)
+    for x in (0, 1, 2, 3): base += txt(P.X(x), P.Y(-.6) + 13, f'{x} s', 'mut', 9, mono=True, w=500)
+    L = [(1, ''.join(P.dot(t, 1.6, '', 'tan', r=4.5) for t in (.2, 1.0, 1.8, 2.6)), 'R peaks (the tall spikes)', 'tan'),
+         (2, P.seg(.2, 1.9, 1.0, 1.9, 'tan', 2.4) + P.text(.6, 1.98, '0.8 s', 'tan', 10), 'period 0.8 s', 'tan'),
+         (3, '', '60 ÷ 0.8 = 75 beats per minute', 'f'),
+         (4, '', '10th peak: 0.2 + 9(0.8) = 7.4 s', 'f')]
+    return fig(base, L, 'A heart-monitor strip (schematic): the same beat every 0.8 s.', 196)
+
+mod('periodic', 'Periodic phenomena',
+ 'Tides, heartbeats, seasons and wheels all repeat. Learn one cycle and you know the whole function.',
+ ['A function is <b>periodic</b> if its values repeat after a fixed horizontal distance p: <span class="m">f(x + p) = f(x)</span> for every x. The smallest such positive p is the <b>period</b>. One period of the graph is a <b>cycle</b>; copy it end to end and you have the whole graph.',
+  'Everything about one cycle repeats: where the function is increasing or decreasing, where it is concave up or down, its maximum and minimum, and its rates of change. So to find f(97) you only need to know where 97 lands inside one cycle: subtract whole periods.',
+  'Two more words describe the vertical size: the <b>midline</b> is halfway between the maximum and minimum, <span class="m">(max + min)/2</span>, and the <b>amplitude</b> is the distance from the midline to the maximum, <span class="m">(max − min)/2</span>. Periodic functions do not have to be smooth waves: a heartbeat or a sawtooth is periodic too.'],
+ ('functions either kept growing, kept shrinking, or turned around a few times', 'a way to describe something that repeats forever', 'many real quantities repeat on a schedule: time of day, season, rotation, a beat', 'period, cycle, midline and amplitude, and using the period to find values far away'),
+ [('f(x + p) = f(x)', 'p is the period'), ('midline = (max + min)/2', ''), ('amplitude = (max − min)/2', ''), ('f(x + kp) = f(x)', 'any whole number k'), ('frequency = 1/period', 'cycles per unit')],
+ [lab('pe-lab', 'Draw one cycle, get them all', canvas='pe-canvas', aria='A graph where the gold band is one cycle with draggable points; the cycle repeats across the whole graph. Matching points one period apart are marked.',
+   seg=('pe-pre', 'Start from', [('bump', 'Wave'), ('saw', 'Sawtooth'), ('pulse', 'Pulse'), ('rand', 'Random')]),
+   ctl=[('pe-p', 'Period p', 1, 6, .5, 4), ('pe-x', 'x', -9, 9, .05, 1)],
+   out=[('pe-same', 'f(x − p) = f(x) = f(x + p)', 'x'), ('pe-amp', 'max · min', 'v'), ('pe-mid', 'midline · amplitude', 'a')]),
+  lab('pe-lab2', 'Measure a real rhythm', canvas='pe-canvas2', aria='A repeating signal over time with two draggable orange cursors; the time between them is shown.',
+   seg=('pe-data', 'Signal', [('heart', 'Heartbeat'), ('breath', 'Breathing'), ('tide', 'Mixed tide')]),
+   pre='<label class="check"><input type="checkbox" id="pe-snap" checked> Snap cursors to peaks</label>',
+   out=[('pe-dt', 'time between cursors', 'v'), ('pe-rate', 'if that is one period', 'x')])],
+ [('In the first lab, set x = 1 and slide p from 4 to 2. What stays matched?', show(['click', '#pe-pre [data-k=bump]'], ['#pe-p', 4], ['#pe-x', 1]), 'The three orange points always have the same height, one period apart: f(x − p) = f(x) = f(x + p). Changing p squeezes or stretches the cycle, and the copies follow.'),
+  ('Choose <b>Sawtooth</b>, then drag a point in the gold band. Why does every tooth change?', show(['click', '#pe-pre [data-k=saw]']), 'The whole graph is copies of the one cycle in the gold band. Change the cycle and every copy changes with it.'),
+  ('Choose <b>Pulse</b> with p = 4. On which intervals is the function increasing, for all x?', show(['click', '#pe-pre [data-k=pulse]'], ['#pe-p', 4]), 'Find the increasing pieces inside one cycle, then add 4k. Whatever happens on [0, 4) happens again on [4, 8), [8, 12), and so on.'),
+  ('In the second lab choose <b>Heartbeat</b>. Drag the cursors onto two neighboring tall spikes. What is the period and the heart rate?', show(['click', '#pe-data [data-k=heart]'], ['#pe-snap', True]), 'The spikes are 0.8 s apart, so the period is 0.8 s and the rate is 60 ÷ 0.8 = 75 beats per minute.'),
+  ('Choose <b>Mixed tide</b>. Measure from one high tide to the next, then to the one after. Is the period 12.42 hours?', show(['click', '#pe-data [data-k=tide]'], ['#pe-snap', True]), 'No. Neighboring high tides have different heights, so the pattern only repeats after two of them: the period is about 24.84 hours. The period is the shortest shift that reproduces the whole graph, not just one feature.')],
+ [('The graph shows a periodic function f. Find the period, midline and amplitude, then find f(13), f(10.5) and f(−2.5).', [
+   '<b>Period.</b> The pattern on [0, 4) repeats: <b>period 4</b>.',
+   '<b>Midline and amplitude.</b> Max 3, min −1: midline (3 + (−1))/2 = <b>1</b>, amplitude (3 − (−1))/2 = <b>2</b>.',
+   '<b>f(13).</b> 13 = 1 + 3(4), so f(13) = f(1) = <b>3</b>.',
+   '<b>f(10.5).</b> 10.5 = 2.5 + 2(4), so f(10.5) = f(2.5) = <b>−1</b> (on the flat part).',
+   '<b>f(−2.5).</b> Add a period: −2.5 + 4 = 1.5, so f(−2.5) = f(1.5). Halfway down from 3 (at x = 1) to −1 (at x = 2): <b>1</b>.'], _pe_fig()),
+  {'h': 'Worked example 2: reading a heart monitor', 'fig': _ecg_fig(),
+   'prob': 'A heart-monitor strip shows the tall spikes (R peaks) at t = 0.2 s and every 0.8 s after that. (a) What is the period? (b) What is the heart rate in beats per minute? (c) When is the 10th R peak?',
+   'steps': ['<b>The repeating feature.</b> Measure from one R peak to the next; any repeated feature works, but the tall spike is easiest to read.',
+    '<b>(a)</b> The peaks are <b>0.8 s</b> apart, so the period is 0.8 s.',
+    '<b>(b)</b> Frequency = 1/period = 1.25 beats per second, so 60 × 1.25 = <b>75 beats per minute</b>, a normal resting rate.',
+    '<b>(c)</b> The first peak is at 0.2 s and each later one adds 0.8 s, so the 10th is at 0.2 + 9(0.8) = <b>7.4 s</b>.']}],
+ ['Measuring the period between a maximum and the next minimum. That is half a period for a symmetric wave.', 'Thinking a periodic function must look like a sine wave.', 'Taking the period from two features that are not the same (a high tide and a slightly lower high tide).', 'Forgetting negative shifts: f(−2.5) = f(−2.5 + 4).', 'Calling (max − min) the amplitude. Amplitude is half of that.'],
+ ('Why periods make predictions easy',
+  ['Once you know f on one cycle and the period p, every value is known. Write x = r + kp, where r is in the first cycle and k is a whole number; then f(x) = f(r). That is exactly how a calendar works: knowing what day of the week the 1st is tells you every date, because the week has period 7.']),
+ [('A periodic function has period 6 and f(2) = 5. Which must be true?', ['f(8) = 5', 'f(6) = 5', 'f(12) = 10', 'f(3) = 5'], 0, '8 = 2 + 6, one period later.'),
+  ('A Ferris wheel car is at the top every 40 seconds. What is the frequency?', ['40 per second', '1/40 rotation per second', '1/20 rotation per second', '20 seconds'], 1, 'Frequency = 1/period = 1/40 rotation per second, or 1.5 per minute.')],
+ ced=('3.1',))
+
+# =====================================================================
+# 3.7  Sinusoidal function context and data modeling
+# =====================================================================
+DAYS = [21, 52, 80, 111, 141, 172, 202, 233, 264, 294, 325, 355]
+def _daylen(n, lat=40):
+    phi = math.radians(lat); dec = math.radians(23.44) * math.sin(2 * PI * (284 + n) / 365)
+    return 24 / PI * math.acos(-math.tan(phi) * math.tan(dec))
+
+def _day_fig():
+    P = Plot((0, 365), (8, 16), (34, 12, 214, 180))
+    base = P.axes([], [9, 12, 15], 'day of year', 'hours') + ''.join(P.dot(n, _daylen(n), '', 'ink', r=3.2) for n in DAYS)
+    for n, s in ((80, 'Mar'), (172, 'Jun'), (264, 'Sep'), (355, 'Dec')): base += txt(P.X(n), P.Y(8) + 13, s, 'mut', 9, mono=True, w=500)
+    D = lambda t: 12 + 2.84 * math.cos(2 * PI * (t - 172) / 365)
+    L = [(1, P.dot(172, 14.84, '14.84 h', 'tan', -26, -8, 5) + P.dot(355, 9.16, '9.16 h', 'tan', -4, -12, 5), 'max 14.84, min 9.16', 'tan'),
+         (2, P.seg(0, 12, 365, 12, 'area', 1.6, '6 4') + P.text(360, 12.3, 'midline 12', 'area', 10, 'end'), 'midline 12, amplitude 2.84', 'area'),
+         (3, P.seg(172, 15.5, 355, 15.5, 'tan', 2.2) + P.text(263, 15.7, 'half a period', 'tan', 9), 'max to min: 183 days ≈ half of 365', 'tan'),
+         (4, P.curve(D, 0, 365, 'f', 2.6, '', 160), 'D(t) = 12 + 2.84 cos(2π(t − 172)/365)', 'f'),
+         (5, P.seg(126, 14, 218, 14, 'd', 3.4) + P.seg(0, 14, 365, 14, 'd', 1, '3 3'), 'above 14 h: day 126 to 218', 'd')]
+    return fig(base, L, 'Hours of daylight at 40° N on the 21st of each month (computed from the sun\'s position), and the model.', 214)
+
+def _turb_fig():
+    cx, cy, R = 64, 118, 46
+    base = ln(10, 196, 250, 196, 'mut', 2) + ln(cx, cy, cx, 196, 'ink', 3) + f'<circle cx="{cx}" cy="{cy}" r="{R}" style="fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:4 4"/>' + circ(cx, cy, 4, 'ink')
+    base += ln(cx, cy, cx + R, cy, 'ink', 3) + ln(cx, cy, cx - R / 2, cy - R * .866, 'ink', 3) + ln(cx, cy, cx - R / 2, cy + R * .866, 'ink', 3)
+    P = Plot((0, 8), (0, 130), (132, 20, 112, 176))
+    h = lambda t: 80 + 40 * math.sin(PI * t / 2)
+    base += P.axes([2, 4, 6, 8], [40, 80, 120], 't (s)', 'h (m)')
+    L = [(1, dot(cx + R, cy, '', 'tan', r=5) + txt(cx + R + 4, cy - 8, 'tip', 'tan', 10, 'start'), 'tip starts level with the hub, rising', 'tan'),
+         (2, P.seg(0, 80, 8, 80, 'area', 1.6, '6 4') + P.text(8, 84, '80', 'area', 10, 'end'), 'midline 80, amplitude 40', 'area'),
+         (3, P.curve(h, 0, 8, 'f', 2.6, '', 160), 'h = 80 + 40 sin(πt/2)', 'f'),
+         (4, P.dot(1.5, 80 + 40 * math.sin(3 * PI / 4), '108.3', 'tan', 0, -9, 5), 'h(1.5) ≈ 108.3 m', 'tan'),
+         (5, P.seg(1 / 3, 100, 5 / 3, 100, 'd', 3.4) + P.seg(13 / 3, 100, 17 / 3, 100, 'd', 3.4) + P.seg(0, 100, 8, 100, 'd', 1, '3 3'), 'above 100 m: 4/3 s of every 4 s', 'd')]
+    return fig(base, L, 'A blade tip on a wind turbine: hub 80 m up, blades 40 m, one turn every 4 s.', 210)
+
+mod('sinmodel', 'Sinusoidal models',
+ 'Real data that rises and falls on a schedule can be modeled with a sinusoid. Read four numbers from the data and the model writes itself.',
+ ['To model periodic data with <span class="m">f(t) = a cos(b(t − h)) + d</span>, read the features straight from the data: the <b>midline</b> d = (max + min)/2, the <b>amplitude</b> |a| = (max − min)/2, the <b>period</b> P (so b = 2π/P), and the <b>time of a maximum</b> h (cosine starts at its maximum, so it is the natural choice). If it is easier to start at a minimum, use a = −|a|; if the data starts on the midline going up, use sine.',
+  'A model is a simplification. Check it against the data: the vertical gaps between the data and the model (the <b>residuals</b>) should be small and show no pattern. A model is most trustworthy between the data points (interpolation) and over a few cycles; far outside the data the real situation can change.',
+  'In context, every parameter has units and a meaning: d is the average level, |a| how far it swings, P how long one cycle takes, h when the peak happens. AP questions often ask you to interpret one of them or the value of the model at a time.'],
+ ('a sinusoid came with its equation already given', 'a way to build the equation from a table, a graph or a story', 'real data comes first; the model is built to fit it', 'to read amplitude, midline, period and phase from data, build a model, and judge how well it fits'),
+ [('f(t) = a cos(b(t − h)) + d', 'max at t = h if a > 0'), ('d = (max + min)/2', 'midline'), ('|a| = (max − min)/2', 'amplitude'), ('b = 2π / P', 'P = period'), ('residual = data − model', 'small, no pattern')],
+ [lab('sm-lab', 'Fit a sinusoid to data', canvas='sm-canvas', aria='Data points with a sinusoidal model that you adjust; orange segments show the residuals.',
+   seg=('sm-data', 'Data', [('day', 'Daylight at 40° N'), ('wheel', 'Ferris wheel'), ('tide', 'Tide gauge')]),
+   pre='<p class="small" id="sm-eq" style="margin:0;font:600 15px var(--f-math)"></p><div class="row"><button type="button" class="btn" id="sm-auto">Fit from the max and min</button></div>',
+   ctl=[('sm-a', 'Amplitude |a|', 0, 30, .05, 2), ('sm-P', 'Period P', 1, 400, .5, 300), ('sm-h', 'Time of a maximum h', 0, 365, .5, 150), ('sm-d', 'Midline d', 0, 40, .05, 12)],
+   out=[('sm-err', 'typical miss (RMS residual)', 'v'), ('sm-fit', 'fit', '')]),
+  lab('sm-lab2', 'From the story to the equation', canvas='sm-canvas2', aria='A turning wheel with a marked point beside the graph of its height over time, traced as it turns.',
+   seg=('sm-start', 'Starts at', [('bottom', 'the bottom'), ('side', '3 o\'clock, rising'), ('top', 'the top')]),
+   pre='<div class="row"><button type="button" class="btn primary" id="sm-play">Play</button></div>',
+   ctl=[('sm-r', 'Radius (m)', 5, 40, 1, 25), ('sm-c', 'Center height (m)', 10, 90, 1, 30), ('sm-per', 'Time for one turn (min)', 2, 20, .5, 8), ('sm-t', 'Time t (min)', 0, 20, .05, 0)],
+   out=[('sm-eq2', 'height', 'x'), ('sm-ht', 'h(t)', 'v')])],
+ [('Choose <b>Daylight</b> and press "Fit from the max and min". Read the four parameters. What does each mean here?', show(['click', '#sm-data [data-k=day]'], ['click', '#sm-auto']), 'd ≈ 12 hours (the average day), |a| ≈ 2.84 hours (the swing between summer and winter), P = 365 days (a year), and h ≈ 172 (June 21, the longest day).'),
+  ('Still on daylight, change the period to 300 days. What happens to the residuals?', show(['click', '#sm-data [data-k=day]'], ['click', '#sm-auto'], ['#sm-P', 300]), 'They grow and show a pattern: the model drifts ahead of the data. A wrong period is the most damaging mistake, because the error builds up cycle after cycle.'),
+  ('Choose <b>Ferris wheel</b> and fit. The data has small wiggles. Is the model wrong?', show(['click', '#sm-data [data-k=wheel]'], ['click', '#sm-auto']), 'No: real measurements have small errors. The residuals are tiny and patternless (RMS well under 1 m), so the sinusoid is a good model.'),
+  ('In the second lab, switch between the three starting positions. Which form of the equation is simplest for each?', show(['click', '#sm-start [data-k=bottom]']), 'Bottom: h = c − r cos(2πt/T), a cosine flipped. 3 o\'clock rising: h = c + r sin(2πt/T). Top: h = c + r cos(2πt/T). Same wheel, three simplest equations.'),
+  ('Set radius 40, center 80, time for one turn 2 (a wind turbine scale, but in minutes). Press Play. When is the tip highest?', show(['#sm-r', 40], ['#sm-c', 80], ['#sm-per', 2], ['click', '#sm-start [data-k=side]']), 'Starting at 3 o\'clock rising, the tip reaches the top a quarter turn later: t = 0.5 min, at 120 m.')],
+ [{'h': 'Worked example: hours of daylight', 'fig': _day_fig(),
+   'prob': 'The table gives the hours of daylight at 40° N latitude on the 21st of each month (day 21, 52, 80, …, 355). The longest is 14.84 h on day 172 (June 21) and the shortest is 9.16 h on day 355 (December 21). Build a sinusoidal model, then use it to estimate how many days per year have more than 14 hours of daylight.',
+   'table': ([['day', '21', '52', '80', '111', '141', '172', '202', '233', '264', '294', '325', '355'], ['hours'] + [f'{_daylen(n):.2f}' for n in DAYS]], 'Daylight at 40° N'),
+   'steps': ['<b>Max and min.</b> 14.84 h at day 172 and 9.16 h at day 355.',
+    '<b>Midline and amplitude.</b> d = (14.84 + 9.16)/2 = <b>12</b> and |a| = (14.84 − 9.16)/2 = <b>2.84</b>.',
+    '<b>Period.</b> The cycle is one year: P = 365 days, so b = 2π/365. (Check: max to min is 183 days, about half a year.)',
+    '<b>Model.</b> Start at the maximum with cosine: <b>D(t) = 12 + 2.84 cos(2π(t − 172)/365)</b>.',
+    '<b>More than 14 h.</b> 2.84 cos(…) &gt; 2 gives cos(2π(t − 172)/365) &gt; 0.704, so |t − 172| &lt; (365/2π)·arccos(0.704) ≈ 45.9. That is day 126 to day 218 (about May 6 to August 6): <b>about 92 days</b>. The sun\'s actual position gives 87 days: close, but a reminder that the model is an approximation.']},
+  {'h': 'Worked example 2: a wind turbine blade', 'fig': _turb_fig(),
+   'prob': 'A wind turbine\'s hub is 80 m above the ground and each blade is 40 m long. The rotor turns once every 4 seconds. At t = 0 a blade tip is level with the hub and rising. (a) Write h(t), the tip\'s height. (b) Find h(1.5). (c) For how long during each turn is the tip above 100 m?',
+   'steps': ['<b>Features.</b> Midline = hub height <b>80 m</b>; amplitude = blade length <b>40 m</b>; period <b>4 s</b>, so b = 2π/4 = π/2.',
+    '<b>(a) Which function?</b> It starts on the midline going up, so use sine: <b>h(t) = 80 + 40 sin(πt/2)</b>.',
+    '<b>Check.</b> At t = 1 (a quarter turn) h = 80 + 40 = 120 m, the top. ✓',
+    '<b>(b)</b> h(1.5) = 80 + 40 sin(3π/4) = 80 + 20√2 ≈ <b>108.3 m</b>.',
+    '<b>(c)</b> 80 + 40 sin(πt/2) &gt; 100 gives sin(πt/2) &gt; 1/2, so π/6 &lt; πt/2 &lt; 5π/6 and 1/3 &lt; t &lt; 5/3. That is <b>4/3 s</b> of every 4-second turn: one third of the time.']}],
+ ['Using the period itself as b. b = 2π/P.', 'Reading the midline as the starting value. It is (max + min)/2.', 'Using sine when the data starts at a maximum, then fighting with a phase shift. Pick the function whose starting point matches.', 'Judging a fit by one point. Look at all the residuals: small and patternless is the goal.', 'Trusting the model far beyond the data (decades of daylight is fine; decades of stock prices is not).'],
+ ('Why cosine is usually easier for data',
+  ['Data tables almost always show the maximum and the minimum clearly; the midline crossing is between data points and harder to pin down. Cosine with a = +|a| starts at a maximum, so the phase h is just "when is it biggest". If the minimum is clearer, use −cos and the time of the minimum.']),
+ [('Temperatures in a city peak at 30 °C in late July and bottom out at 2 °C in late January. What is the amplitude of a sinusoidal model?', ['28', '16', '14', '32'], 2, '(30 − 2)/2 = 14.'),
+  ('In h(t) = 15 − 12 cos(πt/20), t in seconds, what is the period?', ['20 s', '40 s', 'π/20 s', '12 s'], 1, 'b = π/20, so P = 2π ÷ (π/20) = 40 s.')],
+ ced=('3.7',))
+
+# =====================================================================
+# 3.11  Secant, cosecant and cotangent
+# =====================================================================
+def _rc_fig():
+    cx, cy, R = 130, 116, 80
+    base = ucircle(cx, cy, R)
+    th = 2 * PI / 3; px, py = cx + R * math.cos(th), cy - R * math.sin(th)
+    L = [(1, ln(cx, cy, px, py, 'ink', 2) + anglearc(cx, cy, 18, 0, th) + dot(px, py, '(−1/2, √3/2)', 'tan', -6, -10, 5), '2π/3: (−1/2, √3/2)', 'tan'),
+         (2, ln(cx, cy, px, cy, 'dd', 3.2) + txt((cx + px) / 2, cy + 14, '−1/2', 'dd', 11), 'cos = −1/2, so sec = −2', 'dd'),
+         (3, ln(px, cy, px, py, 'f', 3.2) + txt(px - 6, (cy + py) / 2, '√3/2', 'f', 11, 'end'), 'sin = √3/2, so csc = 2/√3 = 2√3/3', 'f'),
+         (4, '', 'cot = cos/sin = −1/√3 = −√3/3', 'ink')]
+    return fig(base, L, 'The angle 2π/3 on the unit circle; the reciprocals flip each coordinate.', 226)
+
+def _lh_fig():
+    lx, ly = 40, 186; s = 30
+    base = ln(10, 40, 250, 40, 'mut', 2) + txt(246, 32, 'shoreline', 'mut', 10, 'end', 500) + rect(lx - 7, ly - 10, 14, 22, 'ink', .9) + txt(lx + 10, ly + 14, 'lighthouse', 'mut', 10, 'start', 500)
+    base += ln(lx, ly, lx, 40, 'mut', 1.4, '4 4') + txt(lx - 4, 116, '2 km', 'mut', 10, 'end')
+    th = PI / 3; ex = lx + (ly - 40) * math.tan(th) * .52; 
+    sx = lx + 2 * math.tan(th) * 73 / 2 * .9
+    # scale: 2 km = 146 px vertically; x = 2 tan θ km
+    k = (ly - 40) / 2; sx = lx + 2 * math.tan(th) * k * .55
+    L = [(1, anglearc(lx, ly, 26, PI / 2, PI / 2 - th, 'area') + txt(lx + 14, ly - 34, 'θ', 'area', 12), 'θ measured from straight out', 'area'),
+         (2, ln(lx, ly, sx, 40, 'tan', 3) + dot(sx, 40, '', 'tan', r=5), 'beam length d = 2 sec θ', 'tan'),
+         (3, ln(lx, 48, sx, 48, 'dd', 3) + txt((lx + sx) / 2, 62, 'x = 2 tan θ', 'dd', 11), 'spot x = 2 tan θ', 'dd'),
+         (4, txt(sx + 4, 30, 'θ = π/3: d = 4, x ≈ 3.46', 'tan', 10, 'end'), 'π/3: d = 4 km, x = 2√3 ≈ 3.46 km', 'tan')]
+    return fig(base, L, 'A lighthouse beam sweeping a straight shore 2 km away (horizontal distances not to scale).', 204)
+
+mod('recip', 'Secant, cosecant & cotangent',
+ 'Flip each trig function upside down and you get three more. Small values become huge, and every zero becomes an asymptote.',
+ ['The <b>reciprocal trig functions</b> are <span class="m">sec θ = 1/cos θ</span>, <span class="m">csc θ = 1/sin θ</span> and <span class="m">cot θ = 1/tan θ = cos θ / sin θ</span>. Each is undefined exactly where the function it flips is zero, which gives a <b>vertical asymptote</b>.',
+  'Flipping a number keeps its sign and swaps big and small: 1/0.5 = 2 and 1/(−0.1) = −10. Since sine and cosine stay between −1 and 1, secant and cosecant are never between −1 and 1: <span class="m">|sec θ| ≥ 1</span> and <span class="m">|csc θ| ≥ 1</span>. Where the parent touches ±1, the reciprocal touches ±1 too (the U-shaped branches turn around there).',
+  'They have lengths on the unit circle: draw the tangent line at (1, 0). The radius extended meets it at height tan θ, and the distance from the origin to that point is |sec θ|. On the horizontal tangent line y = 1 the same trick gives cot θ and |csc θ|.'],
+ ('sine, cosine and tangent were the only trig functions', 'names for their reciprocals', 'expressions like 1/cos θ show up constantly, in geometry and in identities', 'sec, csc and cot: their values, graphs, domains, ranges and asymptotes'),
+ [('sec θ = 1 / cos θ', 'asymptotes where cos θ = 0'), ('csc θ = 1 / sin θ', 'asymptotes where sin θ = 0'), ('cot θ = cos θ / sin θ', 'period π'), ('|sec θ| ≥ 1, |csc θ| ≥ 1', 'range'), ('sign of 1/f = sign of f', '')],
+ [lab('rc-lab', 'All six on one circle', canvas='rc-canvas', aria='Left: the unit circle with the tangent lines x = 1 and y = 1 and the segments whose lengths are tan, sec, cot and csc. Right: the chosen reciprocal function with its parent dashed and its asymptotes.',
+   seg=('rc-fn', 'Graph', [('sec', 'sec θ'), ('csc', 'csc θ'), ('cot', 'cot θ')]),
+   ctl=[('rc-th', 'Angle θ (radians)', 0, 6.283, .005, .8)],
+   out=[('rc-six', 'sin · cos · tan', 'x'), ('rc-rec', 'csc · sec · cot', 'v'), ('rc-note', 'what you see', '')]),
+  lab('rc-lab2', 'Flip any wave', canvas='rc-canvas2', aria='A sine wave y = a sin(bθ) (dashed) and its reciprocal 1/(a sin(bθ)) with asymptotes at the zeros of the wave.',
+   ctl=[('rc-a', 'a', .5, 3, .1, 1), ('rc-b', 'b', .5, 3, .25, 1)],
+   out=[('rc-min', 'closest the reciprocal gets to 0', 'v'), ('rc-asy', 'asymptotes', 'a')])],
+ [('Choose sec θ and drag θ to 0. Why is sec 0 = 1, and why is the secant graph at its lowest positive value there?', show(['click', '#rc-fn [data-k=sec]'], ['#rc-th', 0]), 'cos 0 = 1 is the biggest cosine can be, so its reciprocal 1/1 = 1 is the smallest positive secant. On the circle, the sec segment is just the radius along the x-axis: length 1.'),
+  ('Slide θ toward π/2 (1.571). What happens to cos θ, sec θ and the orange sec segment?', show(['click', '#rc-fn [data-k=sec]'], ['#rc-th', 1.45]), 'cos θ shrinks toward 0, so sec θ = 1/cos θ blows up. The radius line meets x = 1 farther and farther up, and at π/2 it never meets it: an asymptote.'),
+  ('Choose csc θ and set θ = 7π/6 (3.665). Predict the sign and value.', show(['click', '#rc-fn [data-k=csc]'], ['#rc-th', 3.665]), 'sin(7π/6) = −1/2, so csc(7π/6) = −2. Negative, because the reciprocal keeps the sign.'),
+  ('Choose cot θ. Where are its asymptotes, compared with tan θ?', show(['click', '#rc-fn [data-k=cot]'], ['#rc-th', .8]), 'cot θ is undefined where sin θ = 0: θ = 0, π, 2π. Those are exactly the zeros of tan θ, and cot θ is zero where tan θ has asymptotes (π/2, 3π/2).'),
+  ('In the second lab, set a = 2. How close to 0 does the reciprocal get now?', show(['#rc-a', 2], ['#rc-b', 1]), 'The wave reaches ±2, so the reciprocal reaches ±1/2 and never gets closer to 0. A taller wave gives a flatter reciprocal.')],
+ [('Find the exact values of sec(2π/3), csc(2π/3) and cot(2π/3).', [
+   '<b>The point.</b> 2π/3 is in quadrant II with reference angle π/3: (cos, sin) = <b>(−1/2, √3/2)</b>.',
+   '<b>Secant.</b> sec(2π/3) = 1/cos(2π/3) = 1/(−1/2) = <b>−2</b>.',
+   '<b>Cosecant.</b> csc(2π/3) = 1/(√3/2) = 2/√3 = <b>2√3/3</b> ≈ 1.155.',
+   '<b>Cotangent.</b> cot(2π/3) = cos/sin = (−1/2)/(√3/2) = −1/√3 = <b>−√3/3</b> ≈ −0.577. Check: tan(2π/3) = −√3, and 1/(−√3) = −√3/3 ✓.'], _rc_fig()),
+  {'h': 'Worked example 2: a lighthouse beam', 'fig': _lh_fig(),
+   'prob': 'A lighthouse stands 2 km from a straight shoreline. Its beam makes an angle θ with the line straight out to the shore. (a) Show that the beam travels d = 2 sec θ km to reach the shore and the lit spot is x = 2 tan θ km along the shore. (b) Find d and x at θ = π/3. (c) What happens as θ → π/2?',
+   'steps': ['<b>Right triangle.</b> The side adjacent to θ is the 2 km to the shore. The beam is the hypotenuse d, so cos θ = 2/d and <b>d = 2/cos θ = 2 sec θ</b>.',
+    '<b>Along the shore.</b> The opposite side is x, so tan θ = x/2 and <b>x = 2 tan θ</b>.',
+    '<b>(b)</b> θ = π/3: sec(π/3) = 1/(1/2) = 2, so d = <b>4 km</b>; tan(π/3) = √3, so x = 2√3 ≈ <b>3.46 km</b>.',
+    '<b>(c)</b> As θ → π/2, cos θ → 0, so sec θ → ∞: the beam nearly parallels the shore and the spot runs off without bound. θ = π/2 is a vertical asymptote of both d and x.']}],
+ ['Writing sec θ = 1/sin θ. The "co" functions pair up: cosecant goes with sine, secant with cosine.', 'Confusing sec θ with arccos θ (cos⁻¹ θ). One is a reciprocal, the other an inverse.', 'Putting the asymptotes of sec θ where sin θ = 0. They are where cos θ = 0.', 'Expecting sec θ = 0 somewhere. A reciprocal is never 0.', 'Forgetting the sign: csc θ is negative wherever sin θ is.'],
+ ('Reading a reciprocal graph from its parent',
+  ['Sketch the parent lightly. Draw a vertical asymptote at each zero. Where the parent is ±1, plot ±1. Then, between asymptotes, the reciprocal is on the same side of the axis as the parent and gets farther from the axis where the parent gets closer: each hump of the sine wave turns into a U opening away from the axis.']),
+ [('What is csc(π/6)?', ['1/2', '2', '√3/2', '2√3/3'], 1, 'sin(π/6) = 1/2, so csc(π/6) = 2.'),
+  ('Which is in the range of y = sec θ?', ['0', '0.5', '−0.9', '−3'], 3, '|sec θ| ≥ 1, so only −3 is possible.')],
+ ced=('3.11',))
+
+# =====================================================================
+# 3.12  Equivalent representations: identities
+# =====================================================================
+def _id_drill():
+    s, c, t = math.sin, math.cos, math.tan
+    def sec(x): return 1 / c(x)
+    def csc(x): return 1 / s(x)
+    def cot(x): return c(x) / s(x)
+    D = [('1 − cos²θ', lambda x: 1 - c(x) ** 2, ['sin²θ', 'cos²θ', '1 + sin²θ'], [lambda x: s(x) ** 2, lambda x: c(x) ** 2, lambda x: 1 + s(x) ** 2], 'sin²θ + cos²θ = 1, so 1 − cos²θ = sin²θ.'),
+         ('2 sin θ cos θ', lambda x: 2 * s(x) * c(x), ['2 sin θ', 'sin 2θ', 'sin(θ²)'], [lambda x: 2 * s(x), lambda x: s(2 * x), lambda x: s(x * x)], 'The double-angle formula: sin 2θ = 2 sin θ cos θ. The graph has period π.'),
+         ('cos²θ − sin²θ', lambda x: c(x) ** 2 - s(x) ** 2, ['1', '−cos 2θ', 'cos 2θ'], [lambda x: 1, lambda x: -c(2 * x), lambda x: c(2 * x)], 'cos 2θ = cos²θ − sin²θ. (The Pythagorean identity would give 1 only for cos² + sin².)'),
+         ('sin(θ + π/2)', lambda x: s(x + PI / 2), ['cos θ', 'sin θ + 1', '−cos θ'], [c, lambda x: s(x) + 1, lambda x: -c(x)], 'Shifting sine left by π/2 gives cosine: sin(θ + π/2) = sin θ cos(π/2) + cos θ sin(π/2) = cos θ.'),
+         ('cos(θ − π)', lambda x: c(x - PI), ['cos θ', '−cos θ', 'sin θ'], [c, lambda x: -c(x), s], 'cos(θ − π) = cos θ cos π + sin θ sin π = −cos θ. Half a turn flips the point to the opposite side.'),
+         ('tan θ cos θ', lambda x: t(x) * c(x), ['sin θ', 'cos θ', '1'], [s, c, lambda x: 1], 'tan θ cos θ = (sin θ / cos θ) cos θ = sin θ, wherever cos θ ≠ 0 (the graph has holes there).'),
+         ('1 + cot²θ', lambda x: 1 + cot(x) ** 2, ['sec²θ', 'tan²θ', 'csc²θ'], [lambda x: sec(x) ** 2, lambda x: t(x) ** 2, lambda x: csc(x) ** 2], 'Divide sin²θ + cos²θ = 1 by sin²θ: 1 + cot²θ = csc²θ.'),
+         ('cos(π/2 − θ)', lambda x: c(PI / 2 - x), ['sin θ', '−sin θ', 'cos θ'], [s, lambda x: -s(x), c], 'Cofunction identity: cos(π/2 − θ) = sin θ. The "co" in cosine means "sine of the complement".'),
+         ('sin 2θ / (2 cos θ)', lambda x: s(2 * x) / (2 * c(x)), ['sin θ', 'tan θ', 'cos θ'], [s, t, c], 'sin 2θ / (2 cos θ) = 2 sin θ cos θ / (2 cos θ) = sin θ (with holes where cos θ = 0).'),
+         ('sec²θ − tan²θ', lambda x: sec(x) ** 2 - t(x) ** 2, ['0', '1', 'sec θ − tan θ'], [lambda x: 0, lambda x: 1, lambda x: sec(x) - t(x)], 'From 1 + tan²θ = sec²θ: sec²θ − tan²θ = 1, a flat line with holes at the asymptotes of tan.')]
+    cases = []
+    for i, (expr, f, opts, fs, why) in enumerate(D):
+        rot = i % 3; idx = list(range(3)); idx = idx[rot:] + idx[:rot]
+        opts2 = [opts[j] for j in idx]; fs2 = [fs[j] for j in idx]
+        good = [k for k, g in enumerate(fs2) if all(abs(g(x) - f(x)) < 1e-9 for x in (.3, 1.1, 2.0, 2.7, 4.0, 5.2))]
+        assert len(good) == 1, expr
+        c_ = good[0]
+        P = Plot((0, 2 * PI), (-2.6, 2.6), (30, 30, 216, 150))
+        b = P.axes([], [], 'θ', 'y') + qticks(P) + safe_curve(P, f, 0.001, 2 * PI - .001, 'f', 3, '', 700) + txt(250, 18, f'y = {expr}', 'f', 13, 'end')
+        a = b + safe_curve(P, fs2[c_], 0.001, 2 * PI - .001, 'tan', 2, '6 5', 700) + txt(250, 34, f'= {opts2[c_]}', 'tan', 13, 'end')
+        cases.append((f'Which expression is identical to {expr}?', svg(b, 200, f'Graph of y = {expr}'), svg(a, 200, f'Graph of y = {expr} with {opts2[c_]} on top'), opts2, c_, why))
+    return drill('Same graph, different name: 10 identities', 'Two expressions are identical when their graphs match everywhere. Predict, then see the match.', cases, 'id-drill')
+
+def _id_fig():
+    cx, cy, R = 122, 118, 84
+    th = PI - math.asin(.6); px, py = cx + R * math.cos(th), cy - R * math.sin(th)
+    base = ucircle(cx, cy, R)
+    L = [(1, ln(cx, cy, px, py, 'ink', 2) + dot(px, py, '', 'tan', r=5) + ln(px, cy, px, py, 'f', 3.2) + txt(px - 6, (cy + py) / 2, '3/5', 'f', 11, 'end'), 'sin θ = 3/5, quadrant II', 'f'),
+         (2, ln(cx, cy, px, cy, 'dd', 3.2) + txt((cx + px) / 2, cy + 14, '−4/5', 'dd', 11), 'cos θ = −√(1 − 9/25) = −4/5', 'dd'),
+         (3, '', 'tan θ = −3/4', 'ink'),
+         (4, '', 'sin 2θ = 2(3/5)(−4/5) = −24/25', 'tan'),
+         (5, '', 'cos 2θ = 16/25 − 9/25 = 7/25', 'tan')]
+    return fig(base, L, 'A quadrant II angle with sin θ = 3/5 (a 3-4-5 triangle).', 226)
+
+def _pow_fig():
+    P = Plot((0, 1 / 30), (-250, 360), (40, 12, 206, 184))
+    v = lambda t: 170 * math.sin(120 * PI * t); p = lambda t: 340 * math.sin(120 * PI * t) ** 2
+    base = P.axes([], [-170, 170, 340], 't (s)', '') + P.curve(v, 0, 1 / 30, 'mut', 1.6, '4 4', 200) + txt(P.X(0) + 4, P.Y(-232), 'dashed: voltage', 'mut', 9, 'start', 500)
+    for t, s in ((1 / 120, '1/120'), (1 / 60, '1/60'), (1 / 30, '1/30')): base += txt(P.X(t), P.Y(0) + 13, s, 'mut', 9, mono=True, w=500)
+    L = [(1, P.curve(p, 0, 1 / 30, 'f', 2.6, '', 300), 'p = 340 sin²(120πt)', 'f'),
+         (2, '', 'sin²x = (1 − cos 2x)/2', 'ink'),
+         (3, P.seg(0, 170, 1 / 30, 170, 'area', 1.8, '6 4') + P.text(1 / 30, -240, 'average 170 W', 'area', 10, 'end'), 'p = 170 − 170 cos(240πt)', 'area'),
+         (4, P.seg(0, 345, 1 / 120, 345, 'tan', 2.4), 'power repeats every 1/120 s', 'tan')]
+    return fig(base, L, 'Power in a 340 W (peak) resistor on a 60 Hz outlet: it never goes negative.', 210)
+
+mod('identities', 'Identities & equivalent forms',
+ 'The same function can wear many different formulas. Identities let you swap one for another to simplify, evaluate or solve.',
+ ['An <b>identity</b> is an equation that is true for every input where both sides are defined. Graphically, the two sides have exactly the same graph. The most important one is the unit circle itself: <span class="m">sin²θ + cos²θ = 1</span>. Divide it by cos²θ or sin²θ and you get <span class="m">1 + tan²θ = sec²θ</span> and <span class="m">1 + cot²θ = csc²θ</span>.',
+  'The <b>sum and difference</b> formulas give the trig values of combined angles: <span class="m">sin(α ± β) = sin α cos β ± cos α sin β</span> and <span class="m">cos(α ± β) = cos α cos β ∓ sin α sin β</span>. Note that sin(α + β) is <i>not</i> sin α + sin β. Setting β = α gives the <b>double-angle</b> formulas: <span class="m">sin 2θ = 2 sin θ cos θ</span> and <span class="m">cos 2θ = cos²θ − sin²θ = 1 − 2 sin²θ = 2 cos²θ − 1</span>.',
+  'Identities are tools. Use them to find exact values (sin 75° = sin(45° + 30°)), to rewrite an expression into one trig function before solving an equation, and to turn a product or a square into a sum, which is easier to graph and interpret.'],
+ ('each trig expression was evaluated as it was written', 'ways to rewrite an expression into a simpler or more useful form', 'equations often mix sin, cos, squares and double angles', 'the Pythagorean, sum and difference, and double-angle identities, and how to use them'),
+ [('sin²θ + cos²θ = 1', 'Pythagorean'), ('1 + tan²θ = sec²θ', '÷ cos²θ'), ('sin(α ± β) = sin α cos β ± cos α sin β', ''), ('cos(α ± β) = cos α cos β ∓ sin α sin β', ''), ('sin 2θ = 2 sin θ cos θ', 'double angle'), ('cos 2θ = 1 − 2 sin²θ = 2 cos²θ − 1', '')],
+ [lab('id-lab', 'Graph both sides', canvas='id-canvas', aria='The left side of an identity in blue and the right side as an orange dashed curve; when the identity is true they coincide.',
+   seg=('id-fn', 'Identity', [('pyth', 'sin² + cos²'), ('dbl', 'sin 2θ'), ('cos2', 'cos 2θ'), ('sum', 'sin(θ + β)'), ('trap', 'sin(θ + β) vs sin θ + sin β')]),
+   pre='<p class="small" id="id-eq" style="margin:0;font:600 15px var(--f-math)"></p>',
+   ctl=[('id-th', 'θ (to compare values)', 0, 6.283, .01, 1), ('id-b', 'β (sum formulas)', 0, 3.14, .01, .79)],
+   out=[('id-l', 'left side', 'x'), ('id-r', 'right side', 'v'), ('id-ok', 'identity?', '')]),
+  lab('id-lab2', 'Why the identities are true', canvas='id-canvas2', aria='Left: the unit circle with a right triangle whose legs are cos θ and sin θ, with squares drawn on the legs. Or: two angles α and β added on the unit circle.',
+   seg=('id-pic', 'Picture', [('sq', 'Squares on the legs'), ('add', 'Adding two angles')]),
+   ctl=[('id-a2', 'θ or α', 0, 1.57, .01, .6), ('id-b2', 'β', 0, 1.57, .01, .5)],
+   out=[('id-v1', 'computed one way', 'x'), ('id-v2', 'computed the other way', 'v')])],
+ [('Choose <b>sin² + cos²</b> and slide θ. Does the orange line ever leave the blue curve?', show(['click', '#id-fn [data-k=pyth]'], ['#id-th', 1]), 'Never: the left side is always exactly 1, a flat line. Every point (cos θ, sin θ) is on the circle of radius 1.'),
+  ('Choose <b>sin 2θ</b>. Compare 2 sin θ cos θ with 2 sin θ at θ = 1.', show(['click', '#id-fn [data-k=dbl]'], ['#id-th', 1]), 'sin 2 ≈ 0.909 and 2 sin 1 cos 1 ≈ 0.909 agree; 2 sin 1 ≈ 1.683 does not. Doubling the angle is not doubling the sine.'),
+  ('Choose <b>sin(θ + β) vs sin θ + sin β</b>. Set β = 0.79 (about π/4). Are the curves the same?', show(['click', '#id-fn [data-k=trap]'], ['#id-b', .79]), 'No: sin θ + sin β reaches 1.71 but sin(θ + β) never exceeds 1. Sine does not distribute over addition: sin(α + β) ≠ sin α + sin β.'),
+  ('In the second lab choose <b>Squares on the legs</b>. Drag θ. What do the two square areas add up to?', show(['click', '#id-pic [data-k=sq]'], ['#id-a2', .6]), 'Always 1, the area of the square on the hypotenuse (the radius). That is the Pythagorean theorem, and it is sin²θ + cos²θ = 1.'),
+  ('Choose <b>Adding two angles</b> with α = 0.79 and β = 0.52 (about π/4 and π/6). Compare the two ways of computing sin(α + β).', show(['click', '#id-pic [data-k=add]'], ['#id-a2', .79], ['#id-b2', .52]), 'Directly, sin(1.31) ≈ 0.966. By the formula, sin α cos β + cos α sin β ≈ 0.707(0.866) + 0.707(0.5) ≈ 0.966. That is sin 75° = (√6 + √2)/4.')],
+ [('sin θ = 3/5 and θ is in quadrant II. Find cos θ, tan θ, sin 2θ and cos 2θ exactly.', [
+   '<b>Picture.</b> Height 3/5 on the unit circle, on the left side (quadrant II).',
+   '<b>Pythagorean identity.</b> cos²θ = 1 − sin²θ = 1 − 9/25 = 16/25, so cos θ = ±4/5. In quadrant II cosine is negative: <b>cos θ = −4/5</b>.',
+   '<b>Tangent.</b> tan θ = (3/5)/(−4/5) = <b>−3/4</b>.',
+   '<b>Double angle.</b> sin 2θ = 2 sin θ cos θ = 2(3/5)(−4/5) = <b>−24/25</b>.',
+   '<b>And cos 2θ</b> = cos²θ − sin²θ = 16/25 − 9/25 = <b>7/25</b>. Check: (−24/25)² + (7/25)² = (576 + 49)/625 = 1 ✓.'], _id_fig()),
+  {'h': 'Worked example 2: power from a wall outlet', 'fig': _pow_fig(),
+   'prob': 'A space heater element on a US outlet draws power p(t) = 340 sin²(120πt) watts, t in seconds. Use an identity to rewrite p(t) as a sinusoid. What is the average power, and how often does the power repeat?',
+   'steps': ['<b>The problem.</b> A squared sine is not in a sinusoid form a cos(bt) + d, so its midline and period are hard to read.',
+    '<b>Identity.</b> From cos 2x = 1 − 2 sin²x: <b>sin²x = (1 − cos 2x)/2</b>.',
+    '<b>Rewrite.</b> p(t) = 340 · (1 − cos(240πt))/2 = <b>170 − 170 cos(240πt)</b>. Now it is a sinusoid with midline 170 and amplitude 170.',
+    '<b>Read it.</b> The average (midline) is <b>170 W</b>, half the peak. The period is 2π/(240π) = <b>1/120 s</b>: the power pulses 120 times a second, twice per voltage cycle, because it is the same whether the current flows one way or the other.']}],
+ ['Writing sin(α + β) = sin α + sin β, or sin 2θ = 2 sin θ.', 'Choosing the wrong sign after a square root: use the quadrant to decide.', 'Confusing sin²θ (the square of sin θ) with sin(θ²).', 'Dividing both sides of an equation by sin θ and losing the solutions where sin θ = 0. Factor instead.', 'Using the wrong form of cos 2θ: pick the one that matches what you know (1 − 2 sin²θ when you know sin θ).'],
+ ('Solving with identities',
+  ['To solve cos 2θ = cos θ on [0, 2π), rewrite with one function: 2cos²θ − 1 = cos θ, so 2cos²θ − cos θ − 1 = 0, which factors as (2 cos θ + 1)(cos θ − 1) = 0. Then cos θ = −1/2 (θ = 2π/3, 4π/3) or cos θ = 1 (θ = 0). The identity turned a double-angle equation into a quadratic in cos θ.']),
+ [('Which is equal to sin θ cos θ?', ['sin 2θ', '(1/2) sin 2θ', '2 sin 2θ', 'sin(θ²)'], 1, 'sin 2θ = 2 sin θ cos θ, so sin θ cos θ = (1/2) sin 2θ.'),
+  ('What is the exact value of cos 15° = cos(45° − 30°)?', ['(√6 + √2)/4', '(√6 − √2)/4', '√3/2 − √2/2', '1/4'], 0, 'cos 45° cos 30° + sin 45° sin 30° = (√2/2)(√3/2) + (√2/2)(1/2) = (√6 + √2)/4 ≈ 0.966.')],
+ extra_after_labs=_id_drill(), ced=('3.12',))

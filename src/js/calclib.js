@@ -207,3 +207,13 @@ function dirText(dx,dy,eps=1e-6){const h=dx>eps?'right':dx<-eps?'left':'',v=dy>e
 /* Catmull–Rom curve through values V at t = 0, 1, ..., V.length − 1 (ends held) */
 function crSpline(V,t){const n=V.length-1,u=clamp(t,0,n),i=Math.min(n-1,Math.floor(u)),s=u-i,p0=V[Math.max(0,i-1)],p1=V[i],p2=V[i+1],p3=V[Math.min(n,i+2)];
   return .5*((2*p1)+(-p0+p2)*s+(2*p0-5*p1+4*p2-p3)*s*s+(-p0+3*p1-3*p2+p3)*s*s*s);}
+/* ---------------- Parametric pictures (Unit 4) ---------------- */
+/* three linked panels: x(t) and y(t) on the left (or below on phones), the path on the right (or on top) */
+function paLayout(w,h){const wide=w>=640;
+  if(wide){const lw=Math.min(w*.4,340),gh=(h-62)/2;return {wide,X:{x:46,y:14,w:lw-52,h:gh},Y:{x:46,y:14+gh+30,w:lw-52,h:gh},B:{x:lw+34,y:14,w:w-lw-48,h:h-40}};}
+  const ph=Math.min(w-30,h*.5),gh=(h-ph-96)/2;return {wide,B:{x:40,y:12,w:w-54,h:ph},X:{x:46,y:ph+42,w:w-60,h:gh},Y:{x:46,y:ph+42+gh+30,w:w-60,h:gh}};}
+/* a panel with equal scales on both axes that holds the box [bx] × [by] */
+function eqPanel(ctx,B,bx,by){const sx=B.w/(bx[1]-bx[0]),sy=B.h/(by[1]-by[0]),s=Math.min(sx,sy),cx=(bx[0]+bx[1])/2,cy=(by[0]+by[1])/2,hx=B.w/s/2,hy=B.h/s/2;
+  return gpanel(ctx,B,[cx-hx,cx+hx],[cy-hy,cy+hy],{xn:Math.max(4,Math.round(B.w/70)),yn:Math.max(3,Math.round(B.h/70))});}
+function arrowHead(ctx,x,y,a,col){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(7,0);ctx.lineTo(-5,-5);ctx.lineTo(-5,5);ctx.closePath();ctx.fill();ctx.restore();}
+function pathD(ctx,P,X,Y,a,b,col,w,n=600){ctx.save();clip(ctx,P);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineJoin='round';ctx.beginPath();for(let i=0;i<=n;i++){const t=a+(b-a)*i/n;i?ctx.lineTo(P.X(X(t)),P.Y(Y(t))):ctx.moveTo(P.X(X(t)),P.Y(Y(t)));}ctx.stroke();ctx.restore();}
