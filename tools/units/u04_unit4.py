@@ -231,3 +231,104 @@ mod('implicit', 'Implicit functions',
  [('How many points of x² + y² = 36 have x = 4?', ['2', '1', '0', '3'], 0, '16 + y² = 36, y² = 20, y = ±√20: two points.'),
   ('Which point is on the curve xy = 12?', ['(3, 4)', '(3, 9)', '(2, 5)', '(6, 3)'], 0, '3 · 4 = 12.')],
  ced=('4.5', '4.7'))
+
+
+# =====================================================================
+# 4.6  Conic sections
+# =====================================================================
+def _par(f, a, b, n=200):
+    return [f(a + (b - a) * i / n) for i in range(n + 1)]
+
+def _cx_fig1():
+    P = Plot((-5.7, 8.3), (-9.5, 3.5), (30, 8, 210, 196))
+    h, k, a, b = 2, -3, 2, 3; c = math.sqrt(b * b - a * a)
+    el = pline([(P.X(h + a * math.cos(t)), P.Y(k + b * math.sin(t))) for t in [2 * math.pi * i / 200 for i in range(201)]], 'f', 2.8)
+    base = P.axes([-4, 0, 4, 8], [-8, -4, 0], 'x', 'y', True)
+    L = [(1, el, 'completed squares: (x − 2)²/4 + (y + 3)²/9 = 1', 'f'),
+         (2, P.dot(h, k, '(2, −3)', 'ink', 0, 16, 4) + ''.join(P.dot(x, y, '', 'ink', r=3.6) for x, y in [(2, 0), (2, -6), (0, -3), (4, -3)]) + P.text(2.3, .6, '(2, 0)', 'ink', 10, 'start'), 'center (2, −3); vertices (2, 0), (2, −6), (0, −3), (4, −3)', 'ink'),
+         (3, P.dot(h, k + c, 'F₁', 'dd', 14, 4, 5) + P.dot(h, k - c, 'F₂', 'dd', 14, 4, 5), 'foci (2, −3 ± √5) ≈ (2, −0.76) and (2, −5.24)', 'dd'),
+         (4, '', 'the longer semi-axis (3) is vertical, so the foci lie on x = 2', 'tan')]
+    return fig(base, L, 'The ellipse 9x² + 4y² − 36x + 24y + 36 = 0.', 215)
+
+def _cx_fig2():
+    P = Plot((-9.5, 9.5), (-9.5, 9.5), (22, 8, 214, 200))
+    base = P.axes([-6, -3, 3, 6], [-6, -3, 3, 6], 'x', 'y', True)
+    t1 = math.asinh(9 / 4)
+    br = lambda s: pline([(P.X(s * 3 * math.cosh(t)), P.Y(4 * math.sinh(t))) for t in [-t1 + 2 * t1 * i / 160 for i in range(161)]], 'f', 2.8)
+    L = [(1, P.dot(3, 0, '', 'ink', r=4) + P.dot(-3, 0, '', 'ink', r=4), 'vertices (±3, 0): a = 3', 'ink'),
+         (2, P.dot(5, 0, 'F₂', 'dd', 0, -9, 5) + P.dot(-5, 0, 'F₁', 'dd', 0, -9, 5), 'foci (±5, 0): c = 5, so b² = c² − a² = 16', 'dd'),
+         (3, P.seg(-3, -4, 3, -4, 'area', 1.4, '4 3') + P.seg(-3, 4, 3, 4, 'area', 1.4, '4 3') + P.seg(-3, -4, -3, 4, 'area', 1.4, '4 3') + P.seg(3, -4, 3, 4, 'area', 1.4, '4 3') + P.seg(-8, -32 / 3, 8, 32 / 3, 'area', 1.6, '6 4') + P.seg(-8, 32 / 3, 8, -32 / 3, 'area', 1.6, '6 4'), 'b = 4: the 3-by-4 box, and its diagonals y = ±(4/3)x', 'area'),
+         (4, br(1) + br(-1), 'branches start at the vertices and approach the diagonals', 'f')]
+    return fig(base, L, 'The hyperbola x²/9 − y²/16 = 1.', 225)
+
+def _cx_curve(kind, P, c):
+    if kind == 'circ':
+        return pline([(P.X(c[2] * math.cos(t)), P.Y(c[2] * math.sin(t))) for t in [2 * math.pi * i / 200 for i in range(201)]], 'f', 2.6)
+    if kind == 'ell':
+        return pline([(P.X(c[2] * math.cos(t)), P.Y(c[3] * math.sin(t))) for t in [2 * math.pi * i / 200 for i in range(201)]], 'f', 2.6)
+    if kind == 'hyp':
+        a, b = c[2], c[3]; t1 = math.asinh(P.yr[1] / b)
+        return ''.join(pline([(P.X(s * a * math.cosh(t)), P.Y(b * math.sinh(t))) for t in [-t1 + 2 * t1 * i / 120 for i in range(121)]], 'f', 2.6) for s in (1, -1))
+    p = c[2]
+    return pline([(P.X(x), P.Y(x * x / (4 * p))) for x in [-P.xr[1] + 2 * P.xr[1] * i / 160 for i in range(161)] if x * x / (4 * p) <= P.yr[1]], 'f', 2.6)
+
+def _cx_drill():
+    cs = [('x² + y² = 16', 'circ', (0, 0, 4), 'circle', 'Both squared, same sign, same coefficient: a circle of radius 4.'),
+          ('x²/25 + y²/9 = 1', 'ell', (0, 0, 5, 3), 'ellipse', 'Both squared, same sign, different denominators: an ellipse with semi-axes 5 and 3.'),
+          ('x² − y²/4 = 1', 'hyp', (0, 0, 1, 2), 'hyperbola', 'The squared terms have opposite signs: a hyperbola, opening left and right (the x² term is positive).'),
+          ('x² = 6y', 'par', (0, 0, 1.5), 'parabola', 'Only one variable is squared: a parabola with 4p = 6, so p = 1.5. It opens upward.'),
+          ('4x² + y² = 36', 'ell', (0, 0, 3, 6), 'ellipse', 'Both squared and added: an ellipse. Dividing by 36 gives x²/9 + y²/36 = 1: semi-axes 3 and 6.'),
+          ('y²/9 − x²/4 = 1', 'hyp', (0, 0, 2, 3), 'hyperbola', 'Opposite signs: a hyperbola. The y² term is positive, so it opens up and down.')]
+    cases = []
+    names = ['circle', 'ellipse', 'hyperbola', 'parabola']
+    for eq, kind, c, ans, why in cs:
+        if kind == 'hyp' and eq.startswith('y²'):
+            P = Plot((-7, 7), (-5, 5), (14, 8, 232, 144)); a, b = 3, 2
+            t1 = math.asinh(5 / 3)
+            crv = ''.join(pline([(P.X(b * math.sinh(t)), P.Y(s * a * math.cosh(t))) for t in [-t1 + 2 * t1 * i / 120 for i in range(121)]], 'f', 2.6) for s in (1, -1))
+        elif kind == 'hyp':
+            P = Plot((-7, 7), (-5, 5), (14, 8, 232, 144)); crv = _cx_curve('hyp', P, (0, 0, 1, 2))
+        elif kind == 'par': P = Plot((-7, 7), (-1.2, 5), (14, 8, 232, 144)); crv = _cx_curve('par', P, c)
+        else: P = Plot((-7, 7), (-7, 7), (14, 8, 232, 144)) if kind == 'ell' and c[3] == 6 else Plot((-7, 7), (-5, 5), (14, 8, 232, 144)); crv = _cx_curve(kind, P, c)
+        ax = P.axes([], [], 'x', 'y')
+        cases.append((f'The equation is <b>{eq}</b>. Which conic is it?', svg(txt(130, 84, eq, 'ink', 22, w=600), 160, f'The equation {eq}'), svg(ax + crv, 160, f'The graph of {eq}'), names, names.index(ans), why))
+    return drill('Name the conic', 'Look at the squared terms: how many, which signs, which coefficients?', cases, 'cn-drill')
+
+mod('conics', 'Conic sections',
+ 'Slice a cone and you get four curves. Their equations differ in just the squared terms: one square gives a parabola, two squares added give a circle or an ellipse, two squares subtracted give a hyperbola.',
+ ['The four <b>conic sections</b> have standard forms. <b>Circle</b>: <span class="m">(x − h)² + (y − k)² = r²</span>. <b>Ellipse</b>: <span class="m">(x − h)²/a² + (y − k)²/b² = 1</span>, centered (h, k) with semi-axes a (horizontal) and b (vertical). <b>Hyperbola</b>: <span class="m">(x − h)²/a² − (y − k)²/b² = 1</span> opens left and right (swap the terms to open up and down). <b>Parabola</b>: <span class="m">(x − h)² = 4p(y − k)</span>, vertex (h, k), opening up (p &gt; 0) or down.',
+  'Each has a <b>distance rule</b> built on special points. An ellipse is all points whose distances to two <b>foci</b> add to a constant (2a). A hyperbola is all points whose distances to the foci differ by a constant (2a). A parabola is all points equally far from the <b>focus</b> and a line, the <b>directrix</b>. Where the foci are: ellipse <span class="m">c² = |a² − b²|</span> along the longer axis; hyperbola <span class="m">c² = a² + b²</span>; parabola the focus is p from the vertex.',
+  'To read a conic from a general equation, <b>complete the square</b> in x and in y to reach a standard form. The hyperbola\'s branches approach the <b>asymptotes</b> <span class="m">y − k = ±(b/a)(x − h)</span> (for the left-right form), which are the diagonals of the box a by b around the center.'],
+ ('curves were graphs of functions or implicit equations such as the circle', 'a catalog of the main second-degree curves', 'the equation type tells the shape, and the constants tell the size, center and focus', 'standard forms of circles, ellipses, hyperbolas and parabolas, foci, vertices, asymptotes and completing the square'),
+ [('(x − h)² + (y − k)² = r²', 'circle'), ('(x − h)²/a² + (y − k)²/b² = 1', 'ellipse, c² = |a² − b²|'), ('(x − h)²/a² − (y − k)²/b² = 1', 'hyperbola, c² = a² + b²'), ('(x − h)² = 4p(y − k)', 'parabola, focus p from the vertex'), ('y − k = ±(b/a)(x − h)', 'hyperbola asymptotes')],
+ [lab('cn-lab', 'Build a conic', canvas='cn-canvas', aria='A conic section drawn from its equation, with its center, vertices, foci and guide lines marked, and the constants adjustable.',
+   seg=('cn-set', 'Conic', [('circ', 'Circle'), ('ell', 'Ellipse'), ('hyp', 'Hyperbola'), ('par', 'Parabola')]),
+   pre='<div class="seg" id="cn-or" role="group" aria-label="orientation"><button type="button" data-k="h" aria-pressed="true">Horizontal</button><button type="button" data-k="v" aria-pressed="false">Vertical</button></div>',
+   ctl=[('cn-h', 'h (center x)', -4, 4, 1, 0), ('cn-k', 'k (center y)', -4, 4, 1, 0), ('cn-a', 'a (circle: r, parabola: p)', 1, 6, .5, 3), ('cn-b', 'b', 1, 6, .5, 2)],
+   out=[('cn-eq', 'equation', 'x'), ('cn-pt', 'center / vertex', 'v'), ('cn-fo', 'foci and extras', '')]),
+  lab('cn-lab2', 'The distance rule', canvas='cn-canvas2', aria='A point moves along an ellipse, a hyperbola or a parabola, with lines to the foci or to the focus and directrix, and the distances are reported.',
+   seg=('cn-set2', 'Conic', [('ell', 'Ellipse'), ('hyp', 'Hyperbola'), ('par', 'Parabola')]),
+   ctl=[('cn-t', 'Move the point', 0, 6.283, .01, 1)],
+   out=[('cn-d1', 'distance 1', 'x'), ('cn-d2', 'distance 2', 'v'), ('cn-rule', 'the rule', '')])],
+ [('Choose <b>Ellipse</b>, Horizontal, a = 3 and b = 2. Where are the foci, and why are they on the x-axis?', show(['click', '#cn-set [data-k=ell]'], ['click', '#cn-or [data-k=h]'], ['#cn-a', 3], ['#cn-b', 2]), 'c² = a² − b² = 9 − 4 = 5, so the foci are (±√5, 0) ≈ (±2.24, 0): on the longer axis, which is horizontal because a is larger.'),
+  ('Make a = b on the ellipse. What happens to the foci?', show(['click', '#cn-set [data-k=ell]'], ['#cn-a', 3], ['#cn-b', 3]), 'c = 0: the two foci merge at the center and the ellipse is a circle.'),
+  ('Choose <b>Hyperbola</b>. Where are the asymptotes, and what do they do to the shape of the branches?', show(['click', '#cn-set [data-k=hyp]'], ['click', '#cn-or [data-k=h]'], ['#cn-a', 3], ['#cn-b', 2]), 'They are the lines y = ±(2/3)x through the center, the diagonals of the 3-by-2 box. The branches bend toward them and never touch them.'),
+  ('In the second lab choose the ellipse and drag the point all the way around. What stays the same?', show(['click', '#cn-set2 [data-k=ell]'], ['#cn-t', 1]), 'The sum of the two distances to the foci is always 10 = 2a: it is the ellipse\'s defining rule.')],
+ [{'h': 'Worked example: an ellipse from a general equation', 'fig': _cx_fig1(),
+   'prob': 'Identify the conic 9x² + 4y² − 36x + 24y + 36 = 0 and find its center, vertices and foci.',
+   'steps': ['<b>Group and complete the square.</b> 9(x² − 4x) + 4(y² + 6y) = −36 → 9(x − 2)² − 36 + 4(y + 3)² − 36 = −36, so 9(x − 2)² + 4(y + 3)² = 36. Divide by 36: <b>(x − 2)²/4 + (y + 3)²/9 = 1</b>, an ellipse.',
+    '<b>Center and vertices.</b> Center (2, −3). The semi-axes are a = 2 (horizontal) and b = 3 (vertical). Vertices: (2 ± 0, −3 ± 3) = <b>(2, 0), (2, −6)</b> and (2 ± 2, −3) = <b>(0, −3), (4, −3)</b>.',
+    '<b>Foci.</b> The longer axis is vertical (3 &gt; 2), so c² = 9 − 4 = 5 and c = √5 ≈ 2.236. Foci: <b>(2, −3 ± √5)</b> ≈ (2, −0.76) and (2, −5.24).',
+    '<b>Check.</b> The point (2, 0): 9(0)² + 4(3)² = 36 ✓, on the curve. The distances from (2, 0) to the two foci are 0.76 and 5.24, which add to 6 = 2b ✓.']},
+  {'h': 'Worked example 2: a hyperbola from its vertices and foci', 'fig': _cx_fig2(),
+   'prob': 'A hyperbola centered at the origin has vertices (±3, 0) and foci (±5, 0). Find its equation and its asymptotes.',
+   'steps': ['<b>Read a and c.</b> The vertices are at distance a = 3 and the foci at distance c = 5. The foci are on the x-axis, so the hyperbola opens left and right.',
+    '<b>Find b.</b> For a hyperbola c² = a² + b², so b² = 25 − 9 = 16 and b = 4.',
+    '<b>Equation.</b> <b>x²/9 − y²/16 = 1</b>.',
+    '<b>Asymptotes.</b> y = ±(b/a)x = <b>±(4/3)x</b>, the diagonals of the 3-by-4 box. Check: at x = 5, y² = 16(25/9 − 1) = 256/9, so y = ±16/3 ≈ ±5.33, close to the asymptote value (4/3)(5) = 6.67 and under it ✓.']}],
+ ['Mixing up ellipse and hyperbola foci: ellipse c² = a² − b² (subtract), hyperbola c² = a² + b² (add).', 'Reading a and b backwards: a goes with the x² term only for the horizontal form, and for an ellipse the larger denominator is the longer axis.', 'Forgetting to divide by the constant to get 1 on the right before reading a² and b².', 'Writing the asymptote slope as a/b: for the left-right form it is b/a.', 'Thinking a parabola\'s two arms are asymptotic: they are not, they just spread apart.'],
+ ('Orbits, mirrors and radar dishes',
+  ['A planet moves on an ellipse with the sun at one focus. A satellite dish is a parabola: signals parallel to its axis bounce to the focus. A hyperbola models a sonic boom\'s shape and the paths of some comets that pass the sun once. The foci and the distance rules are what make these curves useful.']),
+ [('Which equation is an ellipse?', ['x²/9 + y²/4 = 1', 'x²/9 − y²/4 = 1', 'y = x²/9', 'x² + y² = 9'], 0, 'Both squared and added with different denominators: an ellipse. The last one is a circle.'),
+  ('The hyperbola x²/16 − y²/9 = 1 has foci at', ['(±5, 0)', '(±7, 0)', '(0, ±5)', '(±√7, 0)'], 0, 'c² = a² + b² = 16 + 9 = 25, so c = 5 on the x-axis.')],
+ extra_after_labs=_cx_drill(), ced=('4.6',))
