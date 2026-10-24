@@ -1,11 +1,11 @@
 # Precalculus Lab: handoff
 
-State (2026-10-24): 15 modules built in three batches. Batch 1: unitcircle, sinusoid, polarcoord, polargraph, polarroc. Batch 2: sinegraph, tangent, invtrig, trigeq, param. Batch 3: periodic, sinmodel, recip, identities, paramroc. The other 26 modules in `src/groups.json` show as "Coming soon" until their files exist. Work goes in batches of about five modules, each reviewed by Jia from screenshots before the next.
+State (2026-10-24): all 41 modules are built (Unit 1: 10, Unit 2: 11, Unit 3: 13, Unit 4: 7; see `src/groups.json`; Unit 4 is marked "Not on the AP exam" but never hidden). There is one module list (no All / AP exam toggle). Batches 1-4 are on GitHub; batches 5-8 (sequences through linear transformations) are committed locally and wait for Jia's "push". Work goes in batches of about five modules, each reviewed by Jia from screenshots.
 
 ## To publish on GitHub Pages
 1. Push `main` to `jiacode2030/precalculus-lab` (only after Jia says "push"; each push needs a new "push").
 2. Settings → Pages → deploy from `main`, root.
-3. Done: the course is in the Intulab landing page (`courses.js` in jiacode2030/intulab) and the `course:precalc` label exists in jiacode2030/intulab-feedback. Bump `modules` in `courses.js` when a batch lands.
+3. Done: the course is in the Intulab landing page (`courses.js` in jiacode2030/intulab) and the `course:precalc` label exists in jiacode2030/intulab-feedback. Bump `modules` in `courses.js` (now 41) when the batch lands.
 4. Done: `og.png` is the Precalculus card (rose r = cos 3θ).
 
 ## Before relying on the content
