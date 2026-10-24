@@ -332,3 +332,69 @@ mod('conics', 'Conic sections',
  [('Which equation is an ellipse?', ['x²/9 + y²/4 = 1', 'x²/9 − y²/4 = 1', 'y = x²/9', 'x² + y² = 9'], 0, 'Both squared and added with different denominators: an ellipse. The last one is a circle.'),
   ('The hyperbola x²/16 − y²/9 = 1 has foci at', ['(±5, 0)', '(±7, 0)', '(0, ±5)', '(±√7, 0)'], 0, 'c² = a² + b² = 16 + 9 = 25, so c = 5 on the x-axis.')],
  extra_after_labs=_cx_drill(), ced=('4.6',))
+
+
+# =====================================================================
+# 4.8, 4.9  Vectors and vector-valued functions
+# =====================================================================
+def _vec(P, x1, y1, x2, y2, c, lab='', off=(0, 0), w=2.6, size=11):
+    return arr(P.X(x1), P.Y(y1), P.X(x2), P.Y(y2), c, lab, w, off, size)
+
+def _vc_fig1():
+    P = Plot((-3, 9), (-2, 9), (30, 8, 210, 196))
+    base = P.axes([-2, 2, 4, 6, 8], [2, 4, 6, 8], 'x', 'y', True)
+    L = [(1, _vec(P, 0, 0, 3, 4, 'f') + P.text(3.4, 2.0, 'u = ⟨3, 4⟩', 'f', 11, 'start'), 'u = ⟨3, 4⟩, length |u| = 5', 'f'),
+         (2, _vec(P, 3, 4, 1, 5, 'd') + P.dot(3, 4, '', 'ink', r=3) + P.text(2.1, 5.7, 'v', 'd', 12), 'v = ⟨−2, 1⟩ placed at the tip of u', 'd'),
+         (3, _vec(P, 0, 0, 1, 5, 'dd', '', (0, 0), 2.8) + P.text(-2.8, 7.2, 'u + v = ⟨1, 5⟩', 'dd', 11, 'start'), 'u + v = ⟨3 − 2, 4 + 1⟩ = ⟨1, 5⟩', 'dd'),
+         (4, _vec(P, 0, 0, 8, 7, 'tan', '', (0, 0), 2.4) + P.text(8.9, 3.8, '2u − v = ⟨8, 7⟩', 'tan', 11, 'end'), '2u − v = ⟨6 + 2, 8 − 1⟩ = ⟨8, 7⟩', 'tan')]
+    return fig(base, L, 'Adding vectors tip to tail: u + v goes from the start of u to the end of v.', 215)
+
+def _vc_fig2():
+    P = Plot((-30, 240), (-40, 230), (30, 8, 210, 196))
+    ux, uy = 250 * math.cos(math.radians(30)), 125
+    base = P.axes([100, 200], [100, 200], 'x (east)', 'y (north)', True)
+    L = [(1, _vec(P, 0, 0, ux, uy, 'f') + P.text(215, 45, '250 mph at 30°', 'f', 11, 'end'), 'plane: 250 mph at 30° above east', 'f'),
+         (2, _vec(P, ux, uy, ux - 40, uy, 'd') + P.text(186, 142, 'wind 40 mph', 'd', 11, 'middle'), 'wind: 40 mph toward the west, ⟨−40, 0⟩', 'd'),
+         (3, _vec(P, 0, 0, ux - 40, uy, 'dd', '', (0, 0), 3) + P.text(100, 88, '216.3 mph', 'dd', 11, 'middle') , 'actual velocity ⟨176.5, 125⟩', 'dd'),
+         (4, P.text(60, 14, '35.3°', 'tan', 11, 'start') + ''.join(ln(P.X(50 * math.cos(math.radians(a))), P.Y(50 * math.sin(math.radians(a))), P.X(50 * math.cos(math.radians(a + 2))), P.Y(50 * math.sin(math.radians(a + 2))), 'tan', 2.4) for a in range(0, 35, 2)), 'direction: tan⁻¹(125/176.5) ≈ 35.3°', 'tan')]
+    return fig(base, L, 'A wind pushes the plane off its heading: add the velocity vectors.', 215)
+
+mod('vectors', 'Vectors',
+ 'A vector is an arrow: it has a length and a direction, but no fixed start. Adding vectors puts them tip to tail, and the components do the arithmetic.',
+ ['A <b>vector</b> is a quantity with magnitude and direction, written in components as <span class="m">⟨a, b⟩</span>: a units right and b units up. Its <b>magnitude</b> is <span class="m">|v| = √(a² + b²)</span> and its <b>direction</b> is the angle θ with tan θ = b/a (choose the quadrant from the signs of a and b). Going the other way, a vector of magnitude r at angle θ has components <span class="m">⟨r cos θ, r sin θ⟩</span>. A <b>unit vector</b> has magnitude 1: divide a vector by its length.',
+  'To <b>add</b> vectors, add components: ⟨a, b⟩ + ⟨c, d⟩ = ⟨a + c, b + d⟩. Geometrically, place the second arrow at the tip of the first (tip to tail); the sum goes from the start to the end. A <b>scalar multiple</b> kv has components ⟨ka, kb⟩: the same direction (or reversed if k &lt; 0) and length |k||v|. Subtraction u − v = u + (−v). Velocities, forces and displacements add this way, which is why a wind changes a plane\'s path.',
+  'A <b>vector-valued function</b> r(t) = ⟨x(t), y(t)⟩ gives a position vector for each t: it is a parametric function written as a vector. The <b>displacement</b> from t₁ to t₂ is r(t₂) − r(t₁), and the <b>average velocity</b> is that displacement divided by t₂ − t₁, a vector pointing along the secant of the path.'],
+ ('quantities were single numbers, or a point moved along one path', 'a way to combine direction and size, such as a wind and a heading', 'one number is not enough to describe motion in the plane: direction matters', 'vectors in component form, magnitude and direction, vector addition, scalar multiples, and vector-valued functions'),
+ [('|⟨a, b⟩| = √(a² + b²)', 'magnitude'), ('⟨r cos θ, r sin θ⟩', 'from magnitude and direction'), ('⟨a, b⟩ + ⟨c, d⟩ = ⟨a + c, b + d⟩', 'sum'), ('k⟨a, b⟩ = ⟨ka, kb⟩', 'scalar multiple'), ('r(t₂) − r(t₁)', 'displacement')],
+ [lab('vc-lab', 'Add and scale vectors', canvas='vc-canvas', aria='Two vectors u and v drawn tip to tail, their sum from the origin, and a parallelogram, with components adjustable.',
+   ctl=[('vc-u1', 'u horizontal', -6, 6, 1, 3), ('vc-u2', 'u vertical', -6, 6, 1, 4), ('vc-v1', 'v horizontal', -6, 6, 1, -2), ('vc-v2', 'v vertical', -6, 6, 1, 1), ('vc-s', 'scalar k (for k·u)', -2, 3, .5, 1)],
+   out=[('vc-sum', 'u + v', 'x'), ('vc-mag', '|u|, |v|, |u + v|', 'v'), ('vc-ku', 'k·u and u − v', '')]),
+  lab('vc-lab2', 'Magnitude and direction', canvas='vc-canvas2', aria='A vector drawn from the origin at an angle with its horizontal and vertical components shown as a right triangle.',
+   ctl=[('vc-r', 'Magnitude r', 0, 10, .5, 6), ('vc-th', 'Direction θ (degrees)', 0, 360, 5, 40)],
+   out=[('vc-comp', 'components ⟨r cos θ, r sin θ⟩', 'x'), ('vc-unit', 'unit vector', 'v'), ('vc-back', 'back again: |v| and θ', '')]),
+  lab('vc-lab3', 'A vector-valued function', canvas='vc-canvas3', aria='A path r of t with two position vectors from the origin and the displacement vector between the two points.',
+   seg=('vc-fn', 'r(t)', [('lin', '⟨2t, 1 + t⟩'), ('par', '⟨t, 4 − t²/2⟩'), ('cir', '⟨3 cos t, 3 sin t⟩')]),
+   ctl=[('vc-t1', 't₁', 0, 3, .1, 0.5), ('vc-t2', 't₂', 0, 3, .1, 2)],
+   out=[('vc-disp', 'displacement r(t₂) − r(t₁)', 'x'), ('vc-dl', 'its length', 'v'), ('vc-av', 'average velocity = displacement / (t₂ − t₁)', '')])],
+ [('Set u = ⟨3, 4⟩ and v = ⟨−2, 1⟩. What is u + v, and how long is it?', show(['#vc-u1', 3], ['#vc-u2', 4], ['#vc-v1', -2], ['#vc-v2', 1]), 'u + v = ⟨1, 5⟩, with length √(1 + 25) = √26 ≈ 5.10. Notice it is not 5 + √5: lengths do not add, components do.'),
+  ('Make v = −u. What is u + v, and what does the picture show?', show(['#vc-u1', 3], ['#vc-u2', 4], ['#vc-v1', -3], ['#vc-v2', -4]), 'The zero vector ⟨0, 0⟩: v undoes u, so the tip returns to the start.'),
+  ('In the second lab set r = 10 and θ = 90°. What are the components?', show(['#vc-r', 10], ['#vc-th', 90]), '⟨10 cos 90°, 10 sin 90°⟩ = ⟨0, 10⟩: a vector pointing straight up with no horizontal part.'),
+  ('In the third lab choose the circle and set t₁ = 0, t₂ = 3.1. Why is the displacement almost 2r?', show(['click', '#vc-fn [data-k=cir]'], ['#vc-t1', 0], ['#vc-t2', 3.1]), 'At t = 0 the point is (3, 0) and at t ≈ π it is on the opposite side (−3, 0): displacement ⟨−6, 0⟩ of length about 6 = 2r.')],
+ [{'h': 'Worked example: add and scale', 'fig': _vc_fig1(),
+   'prob': 'Let u = ⟨3, 4⟩ and v = ⟨−2, 1⟩. Find |u|, the unit vector in the direction of u, u + v and its magnitude, and 2u − v.',
+   'steps': ['<b>Magnitude.</b> |u| = √(3² + 4²) = √25 = <b>5</b>. The unit vector is u/|u| = <b>⟨3/5, 4/5⟩ = ⟨0.6, 0.8⟩</b>.',
+    '<b>Place v at the tip of u</b> (or just add components).',
+    '<b>Sum.</b> u + v = ⟨3 + (−2), 4 + 1⟩ = <b>⟨1, 5⟩</b>, with |u + v| = √(1 + 25) = √26 ≈ <b>5.10</b>.',
+    '<b>Scalar multiple and difference.</b> 2u = ⟨6, 8⟩, so 2u − v = ⟨6 − (−2), 8 − 1⟩ = <b>⟨8, 7⟩</b>.']},
+  {'h': 'Worked example 2: a plane in a crosswind', 'fig': _vc_fig2(),
+   'prob': 'A plane flies at 250 mph at 30° above east (relative to the air). A wind blows at 40 mph toward the west. Find the plane\'s actual velocity, speed and direction.',
+   'steps': ['<b>Plane in components.</b> ⟨250 cos 30°, 250 sin 30°⟩ = ⟨216.5, 125⟩.',
+    '<b>Wind.</b> Toward the west is ⟨−40, 0⟩.',
+    '<b>Add.</b> ⟨216.5 − 40, 125 + 0⟩ = <b>⟨176.5, 125⟩</b>. The speed is √(176.5² + 125²) = √46777 ≈ <b>216.3 mph</b>.',
+    '<b>Direction.</b> tan θ = 125/176.5 = 0.708, so θ = tan⁻¹ 0.708 ≈ <b>35.3°</b> above east: the wind slows the plane down and turns it away from its heading.']}],
+ ['Adding lengths instead of components: |u + v| is usually not |u| + |v|.', 'Finding the direction with tan⁻¹(b/a) without checking the quadrant: ⟨−3, 4⟩ is not in quadrant IV.', 'Treating the vector as fixed at the origin: a vector can be drawn anywhere, only its length and direction matter.', 'Using degrees and radians on the calculator in mismatch when computing r cos θ.'],
+ ('Dot products and the angle between vectors',
+  ['The <b>dot product</b> of u = ⟨a, b⟩ and v = ⟨c, d⟩ is a single number: <span class="m">u · v = ac + bd = |u||v| cos θ</span>, where θ is the angle between them. When u · v = 0 the vectors are perpendicular. For example ⟨3, 4⟩ · ⟨4, −3⟩ = 12 − 12 = 0, and they are indeed at a right angle. The dot product is the tool behind "how much of this force acts along that direction".']),
+ [('The magnitude of ⟨5, 12⟩ is', ['13', '17', '7', '60'], 0, '√(25 + 144) = √169 = 13.'),
+  ('If u = ⟨1, 2⟩ and v = ⟨3, −1⟩ then 2u + v is', ['⟨5, 3⟩', '⟨4, 1⟩', '⟨5, 1⟩', '⟨7, 3⟩'], 0, '2u = ⟨2, 4⟩; add ⟨3, −1⟩ to get ⟨5, 3⟩.')],
+ ced=('4.8', '4.9'))
