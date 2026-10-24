@@ -165,3 +165,69 @@ mod('paramroc', 'Parametric rates of change',
  [('On [2, 5], x(t) goes from 4 to −2 and y(t) from 1 to 10. What is the average rate of change of y with respect to x?', ['−3/2', '−2/3', '3', '−2'], 0, 'Δy/Δt = 9/3 = 3 and Δx/Δt = −6/3 = −2, so Δy/Δx = 3/(−2) = −3/2.'),
   ('On an interval, x(t) is increasing and y(t) is decreasing. The point is moving', ['up and right', 'down and right', 'up and left', 'down and left'], 1, 'x increasing: right. y decreasing: down.')],
  extra_after_labs=_qr_drill(), ced=('4.3',))
+
+
+# =====================================================================
+# 4.5, 4.7  Implicitly defined functions
+# =====================================================================
+def _imp_fig():
+    P = Plot((-7.5, 7.5), (-7, 7), (30, 8, 210, 196))
+    R = 5
+    circ_pts = [(P.X(R * math.cos(t)), P.Y(R * math.sin(t))) for t in [2 * math.pi * i / 240 for i in range(241)]]
+    top = P.curve(lambda x: math.sqrt(max(0, 25 - x * x)), -5, 5, 'f', 2.8, '', 160)
+    bot = P.curve(lambda x: -math.sqrt(max(0, 25 - x * x)), -5, 5, 'd', 2.8, '', 160)
+    base = P.axes([-5, 5], [-5, 5], 'x', 'y', True)
+    L = [(1, pline(circ_pts, 'f', 2.8), 'the curve x² + y² = 25: a circle of radius 5', 'f'),
+         (2, P.seg(3, -6.4, 3, 6.4, 'tan', 1.6, '5 4') + P.dot(3, 4, '(3, 4)', 'tan', -26, 14, 5) + P.dot(3, -4, '(3, −4)', 'tan', 24, 4, 5), 'at x = 3: y² = 16, so y = 4 or y = −4', 'tan'),
+         (3, top + bot + P.text(-3.2, 5.9, 'y = √(25 − x²)', 'f', 10, 'end') + P.text(-3.2, -6.3, 'y = −√(25 − x²)', 'd', 10, 'end'), 'two halves: upper blue, lower green', 'd'),
+         (4, P.dot(4, 3, '(4, 3)', 'dd', 24, 10, 5) + P.dot(4, 4, '(4, 4)', 'ink', 24, -9, 4) + hole(P.X(4), P.Y(4), 'ink', 4.4), '(4, 3) is on it; (4, 4) is outside', 'dd')]
+    return fig(base, L, 'The circle x² + y² = 25 is not a function of x, but each half is.', 215)
+
+def _imp2_fig():
+    P = Plot((-7.5, 7.5), (-7, 7), (30, 8, 210, 196))
+    circ_pts = [(P.X(5 * math.cos(t)), P.Y(5 * math.sin(t))) for t in [2 * math.pi * i / 240 for i in range(241)]]
+    base = P.axes([-5, 5], [-5, 5], 'x', 'y', True) + pline(circ_pts, 'f', 2.8)
+    L = [(1, P.seg(-6.5, -5.5, 6, 7, 'd', 2.4) + P.text(7.4, 4.2, 'y = x + 1', 'd', 10, 'end'), 'the line y = x + 1', 'd'),
+         (2, '', 'substitute: x² + (x + 1)² = 25, so 2x² + 2x + 1 = 25', 'tan'),
+         (3, '', '2x² + 2x − 24 = 0, so x² + x − 12 = 0 and (x + 4)(x − 3) = 0', 'dd'),
+         (4, P.dot(3, 4, '(3, 4)', 'tan', 20, -2, 5) + P.dot(-4, -3, '(−4, −3)', 'tan', -2, 16, 5), 'x = 3 gives y = 4; x = −4 gives y = −3', 'tan')]
+    return fig(base, L, 'A line meets the circle where both equations hold.', 215)
+
+mod('implicit', 'Implicit functions',
+ 'Some curves are given by an equation in x and y rather than as y = f(x). Substitute to test points, solve for y when you can, and watch for two y-values at one x.',
+ ['An <b>implicitly defined</b> curve is the set of points (x, y) that satisfy an equation such as <span class="m">x² + y² = 25</span> or <span class="m">xy = 4</span>. A point is <b>on the curve</b> exactly when substituting its coordinates makes the equation true: (3, 4) works for the circle because 3² + 4² = 25, but (4, 4) does not because 32 ≠ 25.',
+  'Such a curve is often <b>not a function of x</b>: a vertical line can hit it more than once. For the circle, x = 3 gives y² = 16, so y = 4 <i>or</i> y = −4. Solving for y gives <span class="m">y = ±√(25 − x²)</span>, two functions: the upper half and the lower half. Each half passes the vertical line test. When there is no solution (for example x = 6 on this circle), the vertical line misses the curve and x is outside its domain.',
+  'To find where two curves meet, substitute one equation into the other and solve, then use the original equations to find the y-values (and check them in both). A curve can also be described by a <b>parametrization</b>: the circle x² + y² = 25 is x = 5 cos t, y = 5 sin t, which handles both y-values at once and gives the curve a direction.'],
+ ('a graph was y = f(x), so each x had exactly one y', 'a curve could have two points above the same x', 'an equation in x and y defines a set of points, and a function may only describe part of it', 'implicitly defined curves, testing points, solving for y with ±, domain and the vertical line test, and intersections'),
+ [('point on curve ⇔ equation true', 'substitute and compare'), ('x² + y² = r²', 'y = ±√(r² − x²)'), ('xy = k', 'y = k/x, x ≠ 0'), ('intersection: substitute, solve, check', 'both equations'), ('x = r cos t, y = r sin t', 'parametrization')],
+ [lab('im-lab', 'Sweep a vertical line', canvas='im-canvas', aria='An implicitly defined curve drawn in two colored branches, with a movable vertical line and dots where it crosses the curve.',
+   seg=('im-set', 'Curve', [('circ', 'x² + y² = 25'), ('ell', 'x²/16 + y²/9 = 1'), ('hyp', 'x² − y² = 4'), ('rec', 'xy = 4'), ('cub', 'y² = x³ − 3x + 3')]),
+   ctl=[('im-x', 'Vertical line x =', -7, 7, .05, 3)],
+   out=[('im-pts', 'points of the curve on that line', 'x'), ('im-n', 'number of points', 'v'), ('im-fn', 'so at this x', '')]),
+  lab('im-lab2', 'Is the point on the curve?', canvas='im-canvas2', aria='An implicitly defined curve with a movable point; the equation is evaluated with the point substituted and the two sides are compared.',
+   seg=('im-set2', 'Curve', [('circ', 'x² + y² = 25'), ('ell', 'x²/16 + y²/9 = 1'), ('hyp', 'x² − y² = 4'), ('rec', 'xy = 4'), ('cub', 'y² = x³ − 3x + 3')]),
+   pre='<div class="row"><button type="button" class="btn primary" id="im-try">Try a point on the curve</button></div>',
+   ctl=[('im-px', 'Point x =', -7, 7, .1, 3), ('im-py', 'Point y =', -7, 7, .1, 3)],
+   out=[('im-sub', 'substitute', 'x'), ('im-cmp', 'left side vs right side', 'v'), ('im-ver', 'verdict', '')])],
+ [('Choose <b>x² + y² = 25</b> and sweep the line to x = 3. How many points, and what are they?', show(['click', '#im-set [data-k=circ]'], ['#im-x', 3]), 'Two: (3, 4) and (3, −4). The vertical line meets the circle twice, so the circle is not the graph of a function of x.'),
+  ('Move the line to x = 5, then x = 6 on the circle. What happens?', show(['click', '#im-set [data-k=circ]'], ['#im-x', 5]), 'At x = 5 the line just touches at (5, 0) (one point, y = 0). At x = 6 it misses the circle: x is outside the domain of the curve.'),
+  ('Choose <b>xy = 4</b> and sweep through x = 0. What is special there?', show(['click', '#im-set [data-k=rec]'], ['#im-x', 0]), 'No point at all: xy = 0 never equals 4. The curve has two branches that never reach the y-axis (the y-axis is a vertical asymptote). Every other vertical line meets it exactly once, so xy = 4 is the function y = 4/x.'),
+  ('In the second lab choose the circle and press <b>Try a point</b> a few times, then nudge the point off the curve. What do the two sides do?', show(['click', '#im-set2 [data-k=circ]'], ['click', '#im-try']), 'On the curve the two sides are equal (25 = 25). Moving the point inside makes the left side smaller than 25; moving it outside makes it larger.')],
+ [{'h': 'Worked example: two points at one x', 'fig': _imp_fig(),
+   'prob': 'For the curve x² + y² = 25: (a) find every point with x = 3; (b) is the curve a function of x? Write y in terms of x; (c) is (4, 3) on the curve? Is (4, 4)?',
+   'steps': ['<b>(a)</b> Substitute x = 3: 9 + y² = 25, so y² = 16 and y = <b>4 or −4</b>. The points are (3, 4) and (3, −4).',
+    '<b>(b)</b> One x with two y-values means it is <b>not a function of x</b>. Solving for y: y² = 25 − x², so <b>y = ±√(25 − x²)</b> with −5 ≤ x ≤ 5. The + sign is the upper half and the − sign the lower half; each half is a function.',
+    '<b>(c)</b> (4, 3): 4² + 3² = 16 + 9 = 25 ✓, <b>on the curve</b>. (4, 4): 16 + 16 = 32 ≠ 25, <b>not on it</b> (32 > 25, so it is outside the circle).',
+    '<b>Domain.</b> Because 25 − x² ≥ 0 is needed, x must be between −5 and 5. At x = ±5 the two halves meet at (±5, 0).']},
+  {'h': 'Worked example 2: where a line meets the circle', 'fig': _imp2_fig(),
+   'prob': 'Find the points where the circle x² + y² = 25 meets the line y = x + 1.',
+   'steps': ['<b>Substitute.</b> Replace y by x + 1: x² + (x + 1)² = 25, which is 2x² + 2x + 1 = 25.',
+    '<b>Solve.</b> 2x² + 2x − 24 = 0, divide by 2: x² + x − 12 = 0, so (x + 4)(x − 3) = 0 and <b>x = 3 or x = −4</b>.',
+    '<b>Find y</b> from the line: x = 3 gives y = 4; x = −4 gives y = −3. The points are <b>(3, 4) and (−4, −3)</b>.',
+    '<b>Check in the circle.</b> 3² + 4² = 25 ✓ and (−4)² + (−3)² = 16 + 9 = 25 ✓.']}],
+ ['Writing y = √(25 − x²) and calling that the whole circle: it is only the upper half.', 'Forgetting the ± when you take a square root to solve for y.', 'Finding x in an intersection but not matching it with the right y: use the line to find y, not the circle (which gives two values).', 'Testing a point in only one side of the equation without simplifying both.'],
+ ('Level curves and the idea of a curve you cannot solve for y',
+  ['Some curves, like x³ + y³ = 6xy, cannot be solved neatly for y at all, yet they are perfectly good curves: a point is on one exactly when its coordinates satisfy the equation. In calculus you will find slopes of such curves without solving for y, by differentiating both sides (implicit differentiation).']),
+ [('How many points of x² + y² = 36 have x = 4?', ['2', '1', '0', '3'], 0, '16 + y² = 36, y² = 20, y = ±√20: two points.'),
+  ('Which point is on the curve xy = 12?', ['(3, 4)', '(3, 9)', '(2, 5)', '(6, 3)'], 0, '3 · 4 = 12.')],
+ ced=('4.5', '4.7'))
