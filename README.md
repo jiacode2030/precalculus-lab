@@ -1,13 +1,13 @@
 # Precalculus Lab
 
-An interactive, intuition-first study site for **AP Precalculus**: a unit circle you can spin, polar curves that draw themselves, graphs you stretch with sliders, step-by-step worked examples with figures, randomized practice with exact answers, original free-response questions, and an exam builder. Units 1–3 are on the AP exam; Unit 4 is part of the course but not tested, and **Units: AP exam** in the menu hides it.
+An interactive, intuition-first study site for **AP Precalculus**: a unit circle you can spin, polar curves that draw themselves, graphs you stretch with sliders, step-by-step worked examples with figures, randomized practice with exact answers, original free-response questions, and an exam builder. Units 1–3 are on the AP exam; Unit 4 is part of the course but not tested, and its modules are marked "Not on the AP exam" in the menu.
 
 Unofficial study aid. Not affiliated with the College Board. AP and Advanced Placement are trademarks registered by the College Board.
 
 ## What is inside
-- 41 modules planned across the four units of the AP Precalculus course framework; modules not built yet show as "Coming soon".
+- 41 modules across the four units of the AP Precalculus course framework (Unit 1: 10, Unit 2: 11, Unit 3: 13, Unit 4: 7).
 - Each module: the idea, an assumption upgrade, live labs, "Try this" predictions with Set-it-up buttons, worked examples with step-by-step figures (real-life contexts where they fit), common mistakes, an explanation and check-yourself questions. Some modules add a predict-then-reveal drill.
-- Practice set, "Which tool?" trainer, exam builder, mistakes queue, FRQ practice with point-by-point scoring (the four AP question types).
+- Practice set (170 randomized problem generators), "Which tool?" trainer, exam builder, mistakes queue, FRQ practice with point-by-point scoring (one original question so far, a Q3 periodic-modeling question; the other three AP question types are still to be written).
 - Reference drawer: functions, exponentials and logs, trig and polar.
 
 ## Build and test

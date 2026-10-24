@@ -1,6 +1,6 @@
 # Precalculus Lab: handoff
 
-State (2026-10-24): all 41 modules are built (Unit 1: 10, Unit 2: 11, Unit 3: 13, Unit 4: 7; see `src/groups.json`; Unit 4 is marked "Not on the AP exam" but never hidden). There is one module list (no All / AP exam toggle). Batches 1-4 are on GitHub; batches 5-8 (sequences through linear transformations) are committed locally and wait for Jia's "push". Work goes in batches of about five modules, each reviewed by Jia from screenshots.
+State (2026-10-24): all 41 modules are built (Unit 1: 10, Unit 2: 11, Unit 3: 13, Unit 4: 7; see `src/groups.json`; Unit 4 is marked "Not on the AP exam" but never hidden). There is one module list (no All / AP exam toggle). All eight batches are on GitHub (main). FRQ practice has one question so far (Q3, Ferris wheel); Q1, Q2 and Q4 are still to be written. Work goes in batches of about five modules, each reviewed by Jia from screenshots.
 
 ## To publish on GitHub Pages
 1. Push `main` to `jiacode2030/precalculus-lab` (only after Jia says "push"; each push needs a new "push").
