@@ -30,10 +30,7 @@ const path = require('path');
   ok(await p.evaluate(sel => document.querySelector(sel).classList.contains('solved'), num), 'right numeric answer marks solved');
   ok((await p.textContent('#pr-score')).startsWith('2 of') || (await p.textContent('#pr-score')).startsWith('1 of'), 'score updates');
   // All units / AP exam toggle
-  await p.click('#course-seg [data-c=AB]'); await p.waitForTimeout(200);
-  ok(await p.evaluate(() => document.body.classList.contains('is-ab')), 'AP exam view hides Unit 4');
-  await p.click('#course-seg [data-c=BC]'); await p.waitForTimeout(200);
-  ok(await p.evaluate(() => !document.body.classList.contains('is-ab')), 'All units shows it again');
+  ok(await p.evaluate(() => !document.querySelector('#course-seg') && !document.body.classList.contains('is-ab') && !!document.querySelector('#nav .bcdiv')), 'one module list: no All / AP exam toggle, Unit 4 shown and marked not on the exam');
   // review queue
   await p.evaluate(() => location.hash = 'review'); await p.waitForTimeout(400);
   ok(await p.evaluate(() => document.querySelectorAll('#rv-list .prob').length >= 1), 'mistakes queue lists the missed problem');

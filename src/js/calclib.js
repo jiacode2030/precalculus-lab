@@ -97,7 +97,8 @@ function polyTxt(c,v='x'){const n=c.length-1,S='⁰¹²³⁴⁵⁶⁷⁸⁹';let
 function frac(x,maxd=64){if(Number.isInteger(x))return String(x).replace('-','−');for(let d=2;d<=maxd;d++){const n=Math.round(x*d);if(Math.abs(n/d-x)<1e-9){const g=gcd(n,d);return (n<0?'−':'')+Math.abs(n/g)+'/'+(d/g);}}return fmt(x,3);}
 
 /* ----- which units to show: 'AB' = AP exam units only (Units 1–3), 'BC' = all units. Unit 4 parts carry class "bc" (not on the exam); extras inside shared modules are .bcx boxes ----- */
-const COURSE=()=>{const c=store('prec-course');return c==='AB'?'AB':'BC';};
+/* one list of all modules: Unit 4 is marked "Not on the AP exam" but never hidden (the old All / AP exam toggle is gone) */
+const COURSE=()=>'BC';
 function setCourse(c){store('prec-course',c);applyCourse();document.dispatchEvent(new CustomEvent('coursechange'));}
 function applyCourse(){const ab=COURSE()==='AB';document.body.classList.toggle('is-ab',ab);$$('#course-seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===COURSE()));}
 /* is this problem (or its module) BC-only? */

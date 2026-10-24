@@ -97,3 +97,28 @@ def fig(base, layers, cap, h=230):
     notes = ''.join(f'<span class="{c}" data-s="{k}" hidden>{t}</span>' for k, _, t, c in layers if t)
     return (f'<figure class="fbdfig"><div class="stepfig"><svg viewBox="0 0 260 {h}" role="img" aria-label="{H.escape(cap, quote=True)}">{base}{g}</svg>'
             + (f'<div class="fbdnotes">{notes}</div>' if notes else '') + f'</div><figcaption>{cap}</figcaption></figure>')
+
+def safe_curve(P, f, a, b, c='f', w=2.4, dash='', k=600, lim=None):
+    """plot f on [a, b], lifting the pen where it leaves the y-range or jumps (asymptotes)"""
+    lo, hi = P.yr if lim is None else (-lim, lim); o = ''; seg = []
+    prev = None
+    for i in range(k + 1):
+        t = a + (b - a) * i / k
+        try: v = f(t)
+        except (ZeroDivisionError, ValueError): v = None
+        ok = v is not None and math.isfinite(v) and lo - (hi - lo) * .02 <= v <= hi + (hi - lo) * .02
+        ok2 = ok and not (prev is not None and abs(v - prev) > (hi - lo) * .6)
+        if ok2: seg.append((P.X(t), P.Y(v)))
+        else:
+            if len(seg) > 1: o += pline(seg, c, w, dash)
+            seg = [(P.X(t), P.Y(v))] if ok else []
+        prev = v if ok else None
+    if len(seg) > 1: o += pline(seg, c, w, dash)
+    return o
+
+def svg(body, h=230, label=''):
+    return f'<svg viewBox="0 0 260 {h}" role="img" aria-label="{label}">{body}</svg>'
+
+def hole(x, y, c='f', r=4.6):
+    """an open circle (a removed point)"""
+    return circ(x, y, r, 'surf', 1, c, 2)

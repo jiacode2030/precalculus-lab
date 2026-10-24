@@ -14,7 +14,7 @@
     if(card&&card.rpCtx){const c=card.rpCtx,q=$('.q',card).textContent.trim();
       ctx=clip(`Problem ${c.pid} "${c.title}": ${q}`,800)+(c.exam&&!card.querySelector('input:disabled')?' | the generated answer is attached after grading':` | Generated answer: ${typeof c.ans==='number'?fmt(c.ans,3):c.ans} ${c.unit||''}`);
       type.value='Wrong answer in a problem';ctxEl.textContent=ctx;}
-    else{ctx=`View: ${viewName(where.value)} (#${where.value}) | showing: ${COURSE()==='AB'?'AP exam units':'all units'}`;ctxEl.textContent=ctx;if(type.value==='Wrong answer in a problem')type.selectedIndex=0;}
+    else{ctx=`View: ${viewName(where.value)} (#${where.value}) | showing: all units`;ctxEl.textContent=ctx;if(type.value==='Wrong answer in a problem')type.selectedIndex=0;}
     msg.textContent='';msg.className='msg';if(dlg.showModal)dlg.showModal();else dlg.setAttribute('open','');det.focus();}
   let closing=0;
   function close(){const end=()=>{clearTimeout(closing);closing=0;dlg.classList.remove('closing');if(dlg.close)dlg.close();else dlg.removeAttribute('open');};
@@ -24,7 +24,7 @@
   form.addEventListener('submit',e=>{e.preventDefault();const details=det.value.trim();
     if(!details){msg.className='msg no';msg.textContent='Add a few words about the issue first.';det.focus();return;}
     const title=clip(`[${COURSE_NAME}] [${type.value}] ${viewName(where.value)}: ${details.replace(/\s+/g,' ')}`,100);
-    const body=`**Course:** ${COURSE_NAME} (${COURSE()==='AB'?'AP exam units':'all units'})\n**Module:** ${viewName(where.value)} (#${where.value})\n**Type:** ${type.value}\n**Site version:** ${SITE_VERSION}\n\n${details}\n\n**Context:** ${ctx}`;
+    const body=`**Course:** ${COURSE_NAME} (all units)\n**Module:** ${viewName(where.value)} (#${where.value})\n**Type:** ${type.value}\n**Site version:** ${SITE_VERSION}\n\n${details}\n\n**Context:** ${ctx}`;
     const url=REPO+'/issues/new?labels='+encodeURIComponent(COURSE_LABEL)+'&title='+encodeURIComponent(title)+'&body='+encodeURIComponent(body);
     const w=window.open(url,'_blank','noopener');msg.className='msg ok';msg.textContent=w?'Opened GitHub in a new tab. Press "Submit new issue" there.':'Your browser blocked the new tab. Use "Copy report text" and post it at '+REPO.replace('https://','')+'/issues.';});
   $('#rp-copy').addEventListener('click',async()=>{if(!det.value.trim()){msg.className='msg no';msg.textContent='Add a few words about the issue first.';det.focus();return;}

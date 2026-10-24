@@ -8,8 +8,8 @@ Interactive, intuition-first AP Precalculus study site. One self-contained `inde
 - Shared engine: `src/js/core.js` (helpers, panels), `calclib.js` (`sim2d`, `glab` graph labs, `parseExpr`/`sameFn` expression checker, numerics `D`, `D2`, `integ`, `limit`, `roots`, `argmax`, `svgG` static graphs, `mcq`, `terms`), `teach.js` (Coach, Reset, Set-it-up buttons), `practice.js` (problem cards, FRQs, "Which method?"). Data banks: `src/data/*.js` (FRQs, method clues).
 - Theme tokens: `src/css/calc.css` (rose-magenta theme from Jia's reference screenshot: page #FAF4F7, accent #B3245C, lavender assumption cards). Color roles stay fixed on every graph: **main curve / sine blue, second curve / inverse / transformed green, cosine / third curve magenta, moving point / secant / tangent orange, asymptotes / midline / guides gold**. Polar curves: blue where r ≥ 0, magenta where r < 0. Shared trig and polar helpers (`SPECIAL`, `exactTrig`, `piText`, `polarGrid`, `polarPanels`, `polarStroke`) are at the end of `calclib.js`.
 
-## Exam units / all units
-- Unit 4 parts carry class `bc` (the name is left over from the Calculus engine). The toggle `COURSE()` is stored in `prec-course`: `AB` = AP exam units only, `BC` = all units (default). `body.is-ab` hides everything marked `bc`.
+## Exam units
+- There is one module list (no All / AP exam toggle). Unit 4 parts carry class `bc` (the name is left over from the Calculus engine) and are marked "Not on the AP exam" (sidebar divider, overview badge, module tag) but never hidden. `COURSE()` always returns `'BC'`; the old `body.is-ab` rules in `calc.css` are dead.
 
 ## Rules that break the site if ignored
 - The page has no doctype (quirks mode): ids and class names match case-insensitively. Never use two names that differ only by case (for example `x-A` and `x-a`), and never reuse an id across modules (`build.py` stops on case clashes).
